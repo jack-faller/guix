@@ -30,7 +30,7 @@
 			vim
 			glibc
 			openssh
-			((wants? 'server) nginx)
+			;; ((wants? 'server) nginx)
 			(make-glibc-utf8-locales
 			 glibc
 			 #:locales (list "en_GB" "en_US")
