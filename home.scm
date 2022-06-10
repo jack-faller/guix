@@ -1,6 +1,7 @@
 (use-modules (ice-9 textual-ports)
              (guix gexp)
              (gnu services)
+             (gnu services web)
              (gnu home)
              (gnu home services)
              (gnu home services shells)
@@ -14,7 +15,7 @@
 (define wants-list
   (let ((computer (call-with-input-file "/etc/hostname" get-line)))
 	(cond
-	 ((equal? computer "mikhail") '(bash))
+	 ((equal? computer "mikhail") '(bash server))
 	 ((equal? computer "sergey") '(zsh sway))
 	 ((equal? computer "birtha") '(zsh bspwm)))))
 (define* (wants? x #:optional (else #f))
@@ -43,4 +44,9 @@
 									   ("GUIX_LOCPATH" . "$HOME/.guix-home/profile/lib/locale")))
 			  (bashrc (list (local-file "bashrc")))
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
-						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))))))))
+						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))
+			  (bash-profile (list (plane-file ".profile" "prep shepherd || shepherd"))))))
+   ((wants? 'server)
+	(service nginx-service-type
+			 (nginx-configuration
+			  (file (local-file "nginx.conf"))))))))
