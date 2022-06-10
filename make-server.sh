@@ -38,6 +38,7 @@ sudo sed -i "s#ExecStart.*guix-daemon#& --substitute-urls='https://ci.guix.gnu.o
 curl https://substitutes.nonguix.org/signing-key.pub | sudo guix archive --authorize
 sudo guix archive --authorize < "$(find / -name ci.guix.gnu.org.pub | sed 1q)"
 sudo -i guix pull
+sudo systemctl enable ncsd.service
 sudo systemctl daemon-reload
 sudo systemctl restart guix-daemon.service
 

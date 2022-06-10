@@ -3,9 +3,16 @@
              (gnu home services)
              (gnu home services shells)
              (gnu services)
+             (gnu packages base)
              (gnu packages git)
              (gnu packages vim)
 			 (guix gexp))
+
+(define my-glibc-locales
+  (make-glibc-utf8-locales
+   glibc
+   #:locales (list "en_GB" "en_US")
+   #:name "glibc-canadian-utf8-locales"))
 
 (define wants-list
   (let ((computer (call-with-input-file "/etc/hostname" get-line)))
@@ -21,6 +28,7 @@
  (packages (list-when
 			git
 			vim
+			my-glibc-locales
 			((wants? 'bash) bash)))
  (services
   (list-when
@@ -28,5 +36,7 @@
 	(service home-bash-service-type
             (home-bash-configuration
              (guix-defaults? #t)
-             (bash-profile '("export HISTFILE=$XDG_CACHE_HOME/.bash_history"))
-			 (bashrc (local-file ".bashrc"))))))))
+             (environment-variables '(("HISTFILE" . "$XDG_CACHE_HOME/.bash_history")
+									  ("GUIX_LOCPATH" . "$HOME/.guix-profile/lib/locale")))
+			 (bashrc (local-file ".bashrc"))
+			 (aliases '(("update-guix" . "sudo -i guix pull")))))))))
