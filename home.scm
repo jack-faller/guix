@@ -7,6 +7,7 @@
              (gnu home services shells)
              (gnu packages vim)
              (gnu packages web)
+             (gnu packages ssh)
              (gnu packages base)
              (gnu packages bash)
              (gnu packages admin)
@@ -27,6 +28,7 @@
 			git
 			vim
 			glibc
+			openssh
 			shepherd
 			((wants? 'server) nginx)
 			(make-glibc-utf8-locales
@@ -48,8 +50,8 @@
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
 						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))
 			  (bash-profile (list (plain-file "bash-profile" "pgrep shepherd || shepherd"))))))
-   ((wants? 'server)
-	(service nginx-service-type
-			 (nginx-configuration
-			  (file (local-file "nginx.conf")))))
+   ;; ((wants? 'server)
+   ;; 	(service nginx-service-type
+   ;; 			 (nginx-configuration
+   ;; 			  (file (local-file "nginx.conf")))))
    )))
