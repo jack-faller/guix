@@ -42,7 +42,8 @@
 						((wants? 'server)
 						 (service nginx-service-type
 								  (nginx-configuration
-								   (extra-content (local-file "nginx.conf")))))))))
+								   ;; (extra-content (local-file "nginx.conf"))
+								   )))))))
    ((wants? 'bash)
 	(service home-bash-service-type
 			 (home-bash-configuration
