@@ -36,8 +36,8 @@
 			((wants? 'bash) bash)))
  (services
   (list-when
-   (service home-shepherd-service-type
-			(home-shepherd-configuration))
+   ;; (service home-shepherd-service-type
+   ;; 			(home-shepherd-configuration))
    ((wants? 'bash)
 	(service home-bash-service-type
 			 (home-bash-configuration
