@@ -39,4 +39,5 @@
              (environment-variables '(("HISTFILE" . "$XDG_CACHE_HOME/.bash_history")
 									  ("GUIX_LOCPATH" . "$HOME/.guix-home/profile/lib/locale")))
 			 (bashrc `(,(local-file "bashrc")))
-			 (aliases '(("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))))))))
+			 (aliases '(("update-home" . (string-append "guix home reconfigure " (canonicalize-path "home.scm")))
+						("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))))))))
