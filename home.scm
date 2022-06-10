@@ -4,11 +4,11 @@
              (gnu services web)
              (gnu home)
              (gnu home services)
+             (gnu home services ssh)
              (gnu home services shells)
              (gnu home services shepherd)
              (gnu packages vim)
              (gnu packages web)
-             (gnu packages ssh)
              (gnu packages base)
              (gnu packages bash)
              (gnu packages admin)
@@ -29,7 +29,6 @@
 			git
 			vim
 			glibc
-			openssh
 			;; ((wants? 'server) nginx)
 			(make-glibc-utf8-locales
 			 glibc
@@ -51,7 +50,13 @@
 										(string-append "pull-home () { cd '" (canonicalize-path ".") "'; git pull; update-home; }"))))
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
 						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service"))))))
-   ((wants? 'server)
-	(service nginx-service-type
-			 (nginx-configuration
-			  (file (local-file "nginx.conf"))))))))
+   ;; ((wants? 'server)
+   ;; 	(service nginx-service-type
+   ;; 			 (nginx-configuration
+   ;; 			  (file (local-file "nginx.conf")))))
+   (service openssh-service-type
+			(openssh-configuration
+			 (port-number 2222)
+			 (authorized-keys
+              `(("alice" ,(local-file "alice.pub"))
+				("bob" ,(local-file "bob.pub")))))))))
