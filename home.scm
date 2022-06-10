@@ -41,7 +41,7 @@
 						((wants? 'server)
 						 (shepherd-service
 						  (provision '(nginx))
-						  (documetation "my version of nginx runner")
+						  (documentation "my version of nginx runner")
 						  (start #~(make-forkexec-constructor
 									(list "nginx" "-c" (canonicalize-path "nginx.conf")
 										  "-g" "pid /var/run/nginx; error_log /var/log/nginx error;")
