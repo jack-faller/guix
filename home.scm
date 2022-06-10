@@ -20,8 +20,8 @@
   (lambda (u) (if (memq x wants-list) u else)))
 (define (list-when . args) (filter identity args))
 
-(define server-start-command (string-append "nginx -c '" (canonicalize-path "nginx.conf") "' -e /tmp/nginx.log"))
-(define server-stop-command "pkill nginx")
+(define server-start-command (string-append "pgrep nginx || nginx -c '" (canonicalize-path "nginx.conf") "' -e /tmp/nginx.log"))
+(define server-stop-command "ngins -s quit")
 (define server-restart-command (string-append server-stop-command "; " server-start-command))
 
 (home-environment
@@ -34,7 +34,6 @@
 			 #:locales (list "en_GB" "en_US")
 			 #:name "glibc-my-utf8-locales")
 			((wants? 'bash) bash)))
-
  (services
   (list-when
    ((wants? 'bash)
