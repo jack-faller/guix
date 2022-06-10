@@ -45,7 +45,8 @@
 						  (start #~(make-forkexec-constructor
 									(list "nginx" "-c" (canonicalize-path "nginx.conf")
 										  "-g" "pid /var/run/nginx; error_log /var/log/nginx error;")
-									#:pid-file "/var/run/nginx"))))))))
+									#:pid-file "/var/run/nginx"))
+						  (stop #~(make-kill-destructor))))))))
    ((wants? 'bash)
 	(service home-bash-service-type
 			 (home-bash-configuration
