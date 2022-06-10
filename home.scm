@@ -23,6 +23,7 @@
  (packages (list-when
 			git
 			vim
+			glibc
 			(make-glibc-utf8-locales
 			 glibc
 			 #:locales (list "en_GB" "en_US")
@@ -35,6 +36,6 @@
             (home-bash-configuration
              (guix-defaults? #t)
              (environment-variables '(("HISTFILE" . "$XDG_CACHE_HOME/.bash_history")
-									  ("GUIX_LOCPATH" . "$HOME/.guix-profile/lib/locale")))
+									  ("GUIX_LOCPATH" . "$HOME/.guix-home/profile/lib/locale")))
 			 (bashrc `(,(local-file "bashrc")))
 			 (aliases '(("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))))))))
