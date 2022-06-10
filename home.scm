@@ -4,7 +4,7 @@
              (gnu home services shells)
              (gnu services)
              (gnu packages base)
-             (gnu packages git)
+             (gnu packages version-control)
              (gnu packages vim)
 			 (guix gexp))
 
