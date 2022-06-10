@@ -13,7 +13,7 @@
   (make-glibc-utf8-locales
    glibc
    #:locales (list "en_GB" "en_US")
-   #:name "glibc-canadian-utf8-locales"))
+   #:name "glibc-my-utf8-locales"))
 
 (define wants-list
   (let ((computer (call-with-input-file "/etc/hostname" get-line)))
@@ -40,4 +40,4 @@
              (environment-variables '(("HISTFILE" . "$XDG_CACHE_HOME/.bash_history")
 									  ("GUIX_LOCPATH" . "$HOME/.guix-profile/lib/locale")))
 			 (bashrc `(,(local-file "bashrc")))
-			 (aliases '(("update-guix" . "sudo -i guix pull")))))))))
+			 (aliases '(("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))))))))

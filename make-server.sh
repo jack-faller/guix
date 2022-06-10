@@ -14,6 +14,7 @@ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICJNcDBG1O8GhsxaNwI3n76ECitK5Yt+Dqwd04
 
 useradd -m jack
 passwd jack
+usermod --shell /bin/bash jack
 echo 'jack   ALL=(ALL:ALL) ALL' >> /etc/sudoers
 su jack
 cd ~
@@ -38,8 +39,10 @@ sudo sed -i "s#ExecStart.*guix-daemon#& --substitute-urls='https://ci.guix.gnu.o
 curl https://substitutes.nonguix.org/signing-key.pub | sudo guix archive --authorize
 sudo guix archive --authorize < "$(find / -name ci.guix.gnu.org.pub | sed 1q)"
 sudo -i guix pull
-sudo systemctl enable ncsd.service
 sudo systemctl daemon-reload
 sudo systemctl restart guix-daemon.service
 
+# install ncsd somehow
+sudo systemctl enable ncsd.service
+sudo systemctl start nscd.service
 guix home reconfigure ~/guix/home.scm
