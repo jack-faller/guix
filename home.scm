@@ -13,16 +13,12 @@
 (define wants-list
   (let ((computer (call-with-input-file "/etc/hostname" get-line)))
 	(cond
-	 ((equal? computer "mikhail") '(bash server))
+	 ((equal? computer "mikhail") '(bash))
 	 ((equal? computer "sergey") '(zsh sway))
 	 ((equal? computer "birtha") '(zsh bspwm)))))
 (define* (wants? x #:optional (else #f))
   (lambda (u) (if (memq x wants-list) u else)))
 (define (list-when . args) (filter identity args))
-
-(define server-start-command (string-append "pgrep nginx || nginx -c '" (canonicalize-path "nginx.conf") "' -e /tmp/nginx.log"))
-(define server-stop-command "ngins -s quit")
-(define server-restart-command (string-append server-stop-command "; " server-start-command))
 
 (home-environment
  (packages (list-when
@@ -44,9 +40,4 @@
 									   ("GUIX_LOCPATH" . "$HOME/.guix-home/profile/lib/locale")))
 			  (bashrc (list (local-file "bashrc")))
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
-						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")
-						 ,@((wants? 'server '())
-							`(("server-start" . ,server-start-command)
-							  ("server-stop" . ,server-stop-command)
-							  ("server-restart" . ,server-restart-command)))))
-			  (bash-profile ((wants? 'server '()) (list (plain-file "run-server-in-profile" server-start-command))))))))))
+						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))))))))
