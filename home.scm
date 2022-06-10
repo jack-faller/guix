@@ -39,5 +39,5 @@
              (guix-defaults? #t)
              (environment-variables '(("HISTFILE" . "$XDG_CACHE_HOME/.bash_history")
 									  ("GUIX_LOCPATH" . "$HOME/.guix-profile/lib/locale")))
-			 (bashrc (local-file ".bashrc"))
+			 (bashrc `(,(local-file ".bashrc")))
 			 (aliases '(("update-guix" . "sudo -i guix pull")))))))))
