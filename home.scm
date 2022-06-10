@@ -9,12 +9,6 @@
              (gnu packages bash)
 			 (guix gexp))
 
-(define my-glibc-locales
-  (make-glibc-utf8-locales
-   glibc
-   #:locales (list "en_GB" "en_US")
-   #:name "glibc-my-utf8-locales"))
-
 (define wants-list
   (let ((computer (call-with-input-file "/etc/hostname" get-line)))
 	(cond
@@ -29,7 +23,10 @@
  (packages (list-when
 			git
 			vim
-			my-glibc-locales
+			(make-glibc-utf8-locales
+			 glibc
+			 #:locales (list "en_GB" "en_US")
+			 #:name "glibc-my-utf8-locales")
 			((wants? 'bash) bash)))
  (services
   (list-when
