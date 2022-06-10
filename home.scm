@@ -42,7 +42,7 @@
 						((wants? 'server)
 						 (service nginx-service-type
 								  (nginx-configuration
-								   (file (local-file "nginx.conf")))))))))
+								   (file "nginx.conf"))))))))
    ((wants? 'bash)
 	(service home-bash-service-type
 			 (home-bash-configuration
