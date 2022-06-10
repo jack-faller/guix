@@ -30,7 +30,6 @@
 			vim
 			glibc
 			openssh
-			shepherd
 			((wants? 'server) nginx)
 			(make-glibc-utf8-locales
 			 glibc
