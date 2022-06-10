@@ -8,6 +8,7 @@
              (gnu packages web)
              (gnu packages base)
              (gnu packages bash)
+             (gnu packages admin)
 			 (gnu packages version-control))
 
 (define wants-list
@@ -25,6 +26,7 @@
 			git
 			vim
 			glibc
+			shepherd
 			((wants? 'server) nginx)
 			(make-glibc-utf8-locales
 			 glibc
