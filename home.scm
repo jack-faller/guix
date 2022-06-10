@@ -36,8 +36,8 @@
 			((wants? 'bash) bash)))
  (services
   (list-when
-   ;; (service home-shepherd-service-type
-   ;; 			(home-shepherd-configuration))
+   (service home-shepherd-service-type
+			(home-shepherd-configuration))
    ((wants? 'bash)
 	(service home-bash-service-type
 			 (home-bash-configuration
@@ -49,7 +49,8 @@
 										(string-append "pull-home () { cd '" (canonicalize-path ".") "'; git pull; update-home; }"))))
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
 						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service"))))))
-   ((wants? 'server)
-	(service nginx-service-type
-			 (nginx-configuration
-			  (file (local-file "nginx.conf"))))))))
+   ;; ((wants? 'server)
+   ;; 	(service nginx-service-type
+   ;; 			 (nginx-configuration
+   ;; 			  (file (local-file "nginx.conf")))))
+   )))
