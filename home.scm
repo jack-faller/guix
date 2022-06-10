@@ -24,6 +24,7 @@
  (packages (list-when
 			git
 			vim
+			glibc
 			((wants? 'server) nginx)
 			(make-glibc-utf8-locales
 			 glibc
