@@ -1,7 +1,6 @@
 (use-modules (ice-9 textual-ports)
              (guix gexp)
              (gnu services)
-             (gnu services web)
              (gnu home)
              (gnu home services)
              (gnu home services shells)
@@ -28,7 +27,7 @@
 			git
 			vim
 			glibc
-			;; ((wants? 'server) nginx)
+			((wants? 'server) nginx)
 			(make-glibc-utf8-locales
 			 glibc
 			 #:locales (list "en_GB" "en_US")
@@ -40,10 +39,13 @@
 			(home-shepherd-configuration
 			 (services (list-when
 						((wants? 'server)
-						 (service nginx-service-type
-								  (nginx-configuration
-								   ;; (extra-content (local-file "nginx.conf"))
-								   )))))))
+						 (shepherd-service
+						  (provision '(nginx))
+						  (documetation "my version of nginx runner")
+						  (start #~(make-forkexec-constructor
+									(list "nginx" "-c" (canonicalize-path "nginx.conf")
+										  "-g" "pid /var/run/nginx; error_log /var/log/nginx error;")
+									#:pid-file "/var/run/nginx"))))))))
    ((wants? 'bash)
 	(service home-bash-service-type
 			 (home-bash-configuration

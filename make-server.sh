@@ -42,11 +42,7 @@ sudo -i guix pull
 sudo systemctl daemon-reload
 sudo systemctl restart guix-daemon.service
 
-# install ncsd and nginx somehow
-sudo systemctl enable ncsd
+# install ncsd
+sudo systemctl enable nscd
 sudo systemctl start nscd
-sudo rm /etc/nginx/nginx.conf
-sudo ln -s ~/guix/nginx.conf /etc/nginx/nginx.conf
-sudo systemctl enable nginx
-sudo systemctl start nginx
 guix home reconfigure ~/guix/home.scm
