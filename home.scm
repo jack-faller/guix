@@ -45,7 +45,7 @@
 			  (bashrc (list (local-file "bashrc")))
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
 						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))
-			  (bash-profile (list (plane-file ".profile" "prep shepherd || shepherd"))))))
+			  (bash-profile (list (plaie-file ".profile" "prep shepherd || shepherd"))))))
    ((wants? 'server)
 	(service nginx-service-type
 			 (nginx-configuration
