@@ -6,6 +6,7 @@
              (gnu packages base)
              (gnu packages version-control)
              (gnu packages vim)
+             (gnu packages bash)
 			 (guix gexp))
 
 (define my-glibc-locales
