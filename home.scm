@@ -48,8 +48,8 @@
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
 						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))
 			  (bash-profile (list (plain-file "bash-profile" "pgrep shepherd || shepherd"))))))
-   ;; ((wants? 'server)
-   ;; 	(service nginx-service-type
-   ;; 			 (nginx-configuration
-   ;; 			  (file (local-file "nginx.conf")))))
+   ((wants? 'server)
+	(service nginx-service-type
+			 (nginx-configuration
+			  (file (local-file "nginx.conf")))))
    )))
