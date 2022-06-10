@@ -1,18 +1,19 @@
 (use-modules (ice-9 textual-ports)
+             (guix gexp)
+             (gnu services)
              (gnu home)
              (gnu home services)
              (gnu home services shells)
-             (gnu services)
-             (gnu packages base)
-             (gnu packages version-control)
              (gnu packages vim)
+             (gnu packages web)
+             (gnu packages base)
              (gnu packages bash)
-			 (guix gexp))
+			 (gnu packages version-control))
 
 (define wants-list
   (let ((computer (call-with-input-file "/etc/hostname" get-line)))
 	(cond
-	 ((equal? computer "mikhail") '(bash))
+	 ((equal? computer "mikhail") '(bash server))
 	 ((equal? computer "sergey") '(zsh sway))
 	 ((equal? computer "birtha") '(zsh bspwm)))))
 (define (wants? x)
@@ -23,7 +24,7 @@
  (packages (list-when
 			git
 			vim
-			glibc
+			((wants? 'server) nginx)
 			(make-glibc-utf8-locales
 			 glibc
 			 #:locales (list "en_GB" "en_US")
