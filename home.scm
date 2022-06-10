@@ -1,7 +1,6 @@
 (use-modules (ice-9 textual-ports)
              (guix gexp)
              (gnu services)
-             (gnu services web)
              (gnu home)
              (gnu home services)
              (gnu home services shells)
@@ -17,9 +16,13 @@
 	 ((equal? computer "mikhail") '(bash server))
 	 ((equal? computer "sergey") '(zsh sway))
 	 ((equal? computer "birtha") '(zsh bspwm)))))
-(define (wants? x)
-  (lambda (u) (if (memq x wants-list) u #f)))
+(define* (wants? x #:optional (else #f))
+  (lambda (u) (if (memq x wants-list) u else)))
 (define (list-when . args) (filter identity args))
+
+(define server-start-command (string-append "nginx -c '" (canonicalize-path "nginx.conf") "' -e /tmp/nginx.log"))
+(define server-stop-command "pkill nginx")
+(define server-restart-command (string-append server-stop-command "; " server-start-command))
 
 (home-environment
  (packages (list-when
@@ -40,13 +43,11 @@
 			  (guix-defaults? #t)
 			  (environment-variables '(("HISTFILE" . "$XDG_CACHE_HOME/.bash_history")
 									   ("GUIX_LOCPATH" . "$HOME/.guix-home/profile/lib/locale")))
-			  (bashrc `(,(local-file "bashrc")))
+			  (bashrc (list (local-file "bashrc")))
 			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
-						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service"))))))
-   ((wants? 'server)
-	(service nginx-service-type
-			 (nginx-configuration
-			  (server-blocks
-			   (list (nginx-server-configuration
-					  (server-name '("www.example.com"))
-					  (root "/srv/http/www.example.com"))))))))))
+						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")
+						 ,@((wants? 'server '())
+							`(("server-start" . ,server-start-command)
+							  ("server-stop" . ,server-stop-command)
+							  ("server-restart" . ,server-restart-command)))))
+			  (bash-profile ((wants? 'server '()) (list (plain-file "run-server-in-profile" server-start-command))))))))))
