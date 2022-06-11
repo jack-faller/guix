@@ -35,18 +35,6 @@
 			((wants? 'bash) bash)))
  (services
   (list-when
-   (service home-shepherd-service-type
-			(home-shepherd-configuration
-			 (services (list-when
-						((wants? 'server)
-						 (shepherd-service
-						  (provision '(nginx))
-						  (documentation "my version of nginx runner")
-						  (start #~(make-forkexec-constructor
-									(list "nginx" "-c" #$(canonicalize-path "nginx.conf")
-										  "-g" "pid /var/run/nginx; error_log /var/log/nginx error;")
-									#:pid-file "/var/run/nginx"))
-						  (stop #~(make-kill-destructor))))))))
    ((wants? 'bash)
 	(service home-bash-service-type
 			 (home-bash-configuration
@@ -56,5 +44,5 @@
 			  (bashrc (list (local-file "bashrc")
 							(plain-file "pull-home.sh"
 										(string-append "pull-home () { cd '" (canonicalize-path ".") "'; git pull; update-home; }"))))
-			  (aliases `(("update-home" . ,(string-append "sudo guix home reconfigure " (canonicalize-path "home.scm")))
+			  (aliases `(("update-home" . ,(string-append "guix home reconfigure " (canonicalize-path "home.scm")))
 						 ("update-guix" . "sudo -i guix pull; guix gc -d 6m -C; systemctl restart guix-daemon.service")))))))))
