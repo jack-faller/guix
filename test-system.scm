@@ -22,21 +22,13 @@
  (locale "en_GB.utf8")
 
  (keyboard-layout (keyboard-layout "uk"))
- (bootloader-configuration
-  (bootloader grub-efi-bootloader)
-  (target "/boot/efi")
-  (keyboard-layout keyboard-layout))
 
  (bootloader (cond
-			  ((equal? hostname "test")
+			  ((equal? hostname "sergey")
 			   (bootloader-configuration
-				(bootloader grub-bootloader)
-				(targets '("/dev/sda")))
-			   ;; (bootloader-configuration
-			   ;; 	(bootloader grub-efi-bootloader)
-			   ;; 	(target "/boot/efi")
-			   ;; 	(keyboard-layout keyboard-layout))
-			   )
+				(bootloader grub-efi-bootloader)
+				(target "/boot/efi")
+				(keyboard-layout keyboard-layout)))
 			  ((equal? hostname "mikhail")
 			   (bootloader-configuration
 				(bootloader grub-bootloader)
@@ -44,12 +36,12 @@
 			  (else (error "no file system for host name"))))
  (file-systems (append
 				(cond
-				 ((equal? hostname "test")
+				 ((equal? hostname "sergey")
 				  (list
-				   ;; (file-system
-				   ;; 	(device "/dev/sda1")
-				   ;; 	(mount-point "/boot/efi")
-				   ;; 	(type "vfat"))
+				   (file-system
+					(device "/dev/sda1")
+					(mount-point "/boot/efi")
+					(type "vfat"))
 				   (file-system
 					(device "/dev/sda2")
 					(mount-point "/")

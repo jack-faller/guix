@@ -9,7 +9,8 @@
              (gnu packages web)
              (gnu packages bash)
              (gnu packages admin)
-			 (gnu packages version-control))
+			 (gnu packages version-control)
+			 (gnu packages wm))
 
 (load (canonicalize-path "wants.scm"))
 
@@ -19,6 +20,7 @@
 			vim
 			glibc
 			((wants? 'server) nginx)
+			((wants? 'sway) sway)
 			(make-glibc-utf8-locales
 			 glibc
 			 #:locales (list "en_GB" "en_US")
