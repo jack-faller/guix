@@ -12,7 +12,7 @@
 			 (gnu packages version-control)
 			 (gnu packages wm))
 
-(load (canonicalize-path "wants.scm"))
+(load (canonicalize-path "./wants.scm"))
 
 (home-environment
  (packages (list-when
