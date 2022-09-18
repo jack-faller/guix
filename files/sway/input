@@ -1,0 +1,11 @@
+input type:touchpad {
+    tap enable
+    middle_emulation enable
+    natural_scroll enable
+}
+
+input type:keyboard {
+    xkb_layout "gb"
+    xkb_options "caps:escape"
+}
+

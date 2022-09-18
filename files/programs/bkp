@@ -1,0 +1,7 @@
+#! /bin/sh
+mkdir -p "$HOME/bkp"
+file=$(readlink -f "$1")
+name="$HOME/bkp/$(echo "$file" | tr '/' '%' | tr " " "_").bkp"
+echo "$name"
+mkdir -p "$name"
+cp -r "$file" "$name"

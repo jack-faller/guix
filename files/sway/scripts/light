@@ -1,0 +1,15 @@
+#!/bin/sh
+
+brightness_file="$XDG_CACHE_HOME/brightness_value"
+brightness_percent=$(cat "$brightness_file" || echo "50")
+brightness_percent=$((brightness_percent / $1 * $1)) #round to multiple
+new_brightness=$((brightness_percent + $1))
+
+if [ "$new_brightness" -ge "100" ]; then
+	new_brightness=100
+elif [ "$new_brightness" -le "0" ]; then
+	new_brightness=0
+fi
+
+brightnessctl s "$new_brightness"%
+echo "$new_brightness" > "$brightness_file"

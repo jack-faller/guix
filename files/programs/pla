@@ -1,0 +1,3 @@
+#! /bin/sh
+#only intended for use by browser
+echo "$1" >> ~/Videos/playlist.txt

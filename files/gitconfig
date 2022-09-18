@@ -1,0 +1,17 @@
+[user]
+	name = Jack Faller
+	email = jack.t.faller@gmail.com
+[http]
+	postBuffer = 15728640
+[credential]
+	helper = store
+[credentials]
+	helper = store
+[pull]
+	ff = only
+[mergetool]
+	keepBackup = true
+[core]
+	editor = em
+[gc]
+	auto = 1

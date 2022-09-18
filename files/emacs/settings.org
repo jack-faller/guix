@@ -1,0 +1,1567 @@
+#+title: "Emacs Settings"
+* Lexical Binding
+#+begin_src  emacs-lisp
+  ;; -*- lexical-binding: t -*-
+#+end_src
+* Hide Bars Quickly
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+#+end_src
+* Fix Slow Frame Manipulation in Pgtk-Emacs
+#+begin_src emacs-lisp
+  (setf pgtk-wait-for-event-timeout nil)
+#+end_src
+* Utilities
+** Concat Symbols
+#+begin_src emacs-lisp
+  (defun symcat (&rest symbols)
+    (intern (apply #'concat (mapcar #'symbol-name symbols))))
+#+end_src
+** Automatically Create Files
+#+begin_src emacs-lisp
+  (defun ensure-file (path)
+    "Create file at path if it does not exist, return path."
+    (unless (file-exists-p path)
+      (write-region "" nil path))
+    path)
+  (defun ensure-directory (path)
+    "Create directory at path if it does not exist, return path."
+    (unless (file-exists-p path)
+      (make-directory path))
+    path)
+#+end_src
+** File Functions
+#+begin_src emacs-lisp
+  (defun map-files (fun file-list)
+    "Do fun with the buffer as each file in file-list."
+    (dolist (file file-list)
+      (let ((buf (find-file file)))
+        (goto-char (point-min))						; in case file is open
+        (funcall fun)
+        (save-buffer)
+        (kill-buffer buf))))
+  (defmacro dofiles (fspec &rest body)
+    "Call map-files with body across fspec where fspec is (directory regexp) or a list of such forms."
+    (declare (indent 1))
+    (require 'find-lisp)
+    (when (stringp (car fspec)) (setf fspec (list fspec)))
+    `(map-files (lambda () ,@body)
+                (mapcan (lambda (e) (apply 'find-lisp-find-files e)) ',fspec)))
+
+  (defmacro measure-time (&rest body)
+    (declare (indent 0))
+    "Measure the time it takes to evaluate BODY."
+    (let ((time (gensym)) (result (gensym)))
+      `(let* ((,time (current-time))
+              (,result (progn ,@body)))
+         (message "%.06f" (float-time (time-since ,time)))
+         ,result)))
+
+  (defun insert-file-name (name)
+    (interactive "F")
+    (insert name))
+#+end_src
+** Undo-Group
+#+begin_src emacs-lisp
+  (defmacro undo-group (&rest body)
+    "Do the arguments as one undo section."
+    (declare (indent 0))
+    (let ((marker (gensym)))
+      `(let ((,marker (prepare-change-group)))
+         (unwind-protect (atomic-change-group ,@body)
+           (undo-amalgamate-change-group ,marker)))))
+
+#+end_src
+** Interactive-Chain
+#+begin_src emacs-lisp
+  (defmacro interactive-chain (&rest args)
+    "Make an interactive lambda that calls the quoted functions in args."
+    (declare (indent 0))
+    `(lambda () (interactive) ,@(mapcar #'cdr args)))
+#+end_src
+** Toggle
+#+begin_src emacs-lisp
+  (defmacro interactive-toggle (var-name)
+    "Define a toggle function for var-name and return it."
+    `(evil-define-command ,(symcat 'toggle- var-name) ()
+       (setf ,var-name (not ,var-name))))
+#+end_src
+** Hook
+#+begin_src emacs-lisp
+  (defmacro hook (hook &rest body)
+    "Run body after hook."
+    (declare (indent 1))
+    `(let ((fn (lambda () ,@body)))
+       ,(if (listp (cadr hook))
+            `(dolist (i ,hook) (add-hook i fn))
+          `(add-hook ,hook fn))))
+#+end_src
+** Mode Local
+#+begin_src emacs-lisp
+  (pkg mode-local :require t)
+#+end_src
+** Act On Line
+#+begin_src emacs-lisp
+  (defun act-on-line (a &optional b)
+    "Either (f) or ('replace f), to simply return the result of calling
+  f on the current line ignoring leading space, or to replace the text
+  with the result."
+    (let ((f (if b b a))
+          (replace (eq a 'replace)))
+      (let* ((beg (line-beginning-position))
+             (end (line-end-position))
+             (line (buffer-substring-no-properties beg end))
+             (valid (string-match (rx (* space) (group (not space)))
+                                  line))
+             (text-start (+ beg (or (string-match (rx (not space) (* any)) line)
+                                    0)))
+             (text (buffer-substring-no-properties text-start end)))
+        (cond
+         ((not valid) (error "No text on line."))
+         (replace (kill-region text-start end)
+                  (setf (point) text-start)
+                  (insert (funcall f text)))
+         (t (funcall f text))))))
+#+end_src
+** Frame Kill Buffers
+#+begin_src emacs-lisp
+  (defvar frame-kill-buffers nil
+    "Buffer that should kill their frame when killed. Used for emacs server.")
+
+  (add-hook 'kill-buffer-hook
+            (defun delete-frame-if-frame-kill-buffer ()
+              (when (memq (current-buffer) frame-kill-buffers)
+                (setf frame-kill-buffers
+                      (delete (current-buffer) frame-kill-buffers))
+                (delete-frame))))
+#+end_src
+** Point Functions
+#+begin_src emacs-lisp
+  (defmacro with-point-at (pos &rest body)
+    "Move the point to the specified position, then move it back to where it was before."
+    (declare (indent 1))
+    `(save-excursion (setf (point) ,pos) ,@body))
+#+end_src
+* Put Custom Defs in a Non-git-tracked File
+#+begin_src emacs-lisp
+  (setf custom-file (ensure-file (concat user-emacs-directory "custom.el")))
+  (load (concat user-emacs-directory "custom.el"))
+#+end_src
+* Deal With Backups
+#+begin_src emacs-lisp
+  (push '("\\.\\(vcf\\|gpg\\)$" . sensitive-minor-mode) auto-mode-alist) ; don't backup keys
+  (defvar backup-dir (ensure-directory (concat user-emacs-directory "backups/")))
+  (setf
+   backup-by-copying t ; don't clobber symlinks
+   backup-directory-alist `((".*" . ,backup-dir)) ; don't litter my fs tree
+   auto-save-file-name-transforms `((".*" ,backup-dir t))
+   delete-old-versions t
+   kept-new-versions 10
+   kept-old-versions 0 ; don't keep the oldest backups
+   version-control t ; use versioned backups
+   vc-make-backup-files t)
+#+end_src
+* Tab Width
+#+begin_src emacs-lisp
+  (setq-default tab-width 4)
+  (setq-default evil-shift-width tab-width)
+  (setf backward-delete-char-untabify-method 'all)
+  (setq-default electric-indent-inhibit t)
+  (setf backward-delete-char-untabify-method 'hungry)
+  (defmacro set-tab-width-in (mode tab-width)
+    `(setq-mode-local ,mode evil-shift-width ,tab-width))
+#+end_src
+* Prettify Emacs
+** Hide Minor Modes
+#+begin_src emacs-lisp
+  (pkg diminish :require t)
+#+end_src
+** Font
+#+begin_src emacs-lisp
+  (custom-set-faces
+   '(variable-pitch ((t (:family "Crimson" :height 110))))
+   '(fixed-pitch ((t (:family "Iosevka" :height 87))))
+   '(default ((t (:family "Iosevka" :height 87)))))
+#+end_src
+** Ligatures
+#+begin_src emacs-lisp
+  (pkg ligature :require t :github "mickeynp/ligature.el")
+  (ligature-set-ligatures 'prog-mode
+                          '("<---" "<--" "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--" "<!---"
+                            "<==" "<===" "=>" "=>>" "==>" "===>" "<=>" "<==>" "<===>" "<====>"
+                            ;; "<~~" "<~" "~>" (concat "~" "~>") ;; these look funny
+                            ">>=" "=<<"
+                            "::" ":::"
+                            "==" "!=" "===" "!==" "<=" ">="
+                            ":=" ":-" ":+"
+                            "<|" "<|>" "|>"
+                            "+:" "-:" "=:"
+                            "<******>" "<*****>" "<****>" "<***>" "<**>" "<*" "<*>" "*>"
+                            "++" "+++"))
+  (global-ligature-mode 1)
+#+end_src
+** Icons
+#+begin_src emacs-lisp
+  ;; loaded by guix
+  ;; (pkg all-the-icons)
+  ;; (after-load all-the-icons
+  ;;  (unless all-the-icons-fonts-installed?
+  ;;    (all-the-icons-install-fonts t)))
+#+end_src
+** Line Numbers
+#+begin_src emacs-lisp
+  (global-display-line-numbers-mode 1)
+  (setq-default display-line-numbers t
+                display-line-numbers-widen t
+                display-line-numbers-type 'relative
+                display-line-numbers-width-start t
+                display-line-numbers-grow-only t)
+#+end_src
+** Paren Highlighting
+#+begin_src emacs-lisp
+  (setf show-paren-delay 0)
+  (show-paren-mode)
+  (electric-pair-mode)
+#+end_src
+** Gruvbox Theme
+#+begin_src emacs-lisp
+  (pkg gruvbox-theme :require t)
+  (load-theme 'gruvbox-dark-hard t)
+#+end_src
+** Start Screen (Dashboard)
+#+begin_src emacs-lisp
+  (pkg dashboard)
+  (after-load config
+    (require 'projectile)
+    (require 'dashboard))
+  (after-load dashboard
+    (setf initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
+          dashboard-projects-backend 'projectile
+          dashboard-items '((recents . 5) (bookmarks . 5) (agenda . 5) (projects . 5)))
+    (dashboard-setup-startup-hook))
+#+end_src
+** Turn ^L (Line Feed) Into a Horizontal Line
+#+begin_src emacs-lisp
+  (pkg page-break-lines :require t)
+  (diminish 'page-break-lines-mode)
+  (global-page-break-lines-mode)
+#+end_src
+** Line Wrap
+#+begin_src emacs-lisp
+  (pkg visual-fill-column)
+  (defun toggle-word-wrap (&optional arg)
+    (interactive)
+    (let ((status (or arg (if visual-line-mode 0 1))))
+      (visual-line-mode status)
+      (visual-fill-column-mode 0)))
+  (setf visual-fill-column-mode nil)
+  (defun toggle-word-wrap-at-col (&optional arg)
+    (interactive)
+    (let ((status (or arg (if visual-fill-column-mode 0 1))))
+      (visual-line-mode status)
+      (visual-fill-column-mode status)))
+  (setq-default fill-column 80)
+  (global-visual-line-mode)
+#+end_src
+** Make Cursor Shapes Work in Terminal
+#+begin_src emacs-lisp
+  (pkg term-cursor :github "h0d/term-cursor.el" :require t)
+  (global-term-cursor-mode)
+#+end_src
+* Count Keys
+#+begin_src emacs-lisp
+  (pkg keyfreq :require t)
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+  (setf keyfreq-excluded-commands '(self-insert-command))
+#+end_src
+* Editing
+** Evil Requirements
+Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
+#+begin_src emacs-lisp
+  (pkg undo-tree :require t)
+  (diminish 'undo-tree-mode)
+  (setf undo-tree-visualizer-timestamps t
+        undo-tree-visualizer-lazy-drawing nil
+        undo-tree-auto-save-history t)
+  (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
+    (setf undo-tree-history-directory-alist (list (cons "." undo-dir))))
+  ;; this is broken, the after save hook below fixes it, but it still needs to be here
+  (hook 'after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
+  (global-undo-tree-mode)
+
+  (pkg goto-chg :require t)
+#+end_src
+** Make <backspace> Work Like C-g
+#+begin_src emacs-lisp
+  (define-key key-translation-map
+    (kbd "DEL") (lambda (c) (kbd (if (eq evil-state 'insert) "DEL" "C-g"))))
+#+end_src
+** Evil
+#+begin_src emacs-lisp
+  (setf
+   evil-want-keybinding nil
+   evil-search-module 'evil-search
+   evil-undo-system 'undo-tree
+   evil-cross-lines t
+   evil-ex-substitute-global t
+   evil-want-C-u-scroll t
+   evil-want-C-i-jump t
+   evil-want-visual-char-semi-exclusive t
+   evil-want-Y-yank-to-eol t
+   evil-ex-search-vim-style-regexp t
+   evil-ex-substitute-global t
+   evil-ex-visual-char-range t ; column range for ex commands this doesn't work
+   evil-symbol-word-search t	 ; more vim-like behavior
+   evil-want-change-word-to-end nil ; ce and cw are now different
+   shift-select-mode nil						; don't activate mark on shift-click
+   )
+
+  (pkg evil :require t)
+  
+  (evil-mode 1)
+  (setf evil-emacs-state-cursor 'box
+        evil-normal-state-cursor 'box
+        evil-visual-state-cursor 'box
+        evil-insert-state-cursor 'bar
+        evil-replace-state-cursor 'hbar
+        evil-operator-state-cursor 'hollow)
+  (setf evil-extra-operator-eval-modes-alist
+        '((lisp-mode sly-eval-region)
+          (scheme-mode geiser-eval-region)
+          (clojure-mode cider-eval-region)
+          (ruby-mode ruby-send-region)
+          (enh-ruby-mode ruby-send-region)
+          (python-mode python-shell-send-region)
+          (julia-mode julia-shell-run-region)))
+#+end_src
+** Evil Collection
+#+begin_src emacs-lisp
+  (setf evil-collection-setup-minibuffer t)
+  (pkg evil-collection :require t)
+  (with-eval-after-load 'evil-collection-unimpaired (diminish 'evil-collection-unimpaired-mode))
+  (setf evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
+  (evil-collection-init)
+#+end_src
+** Evil Extensions
+*** Surround
+Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
+#+begin_src emacs-lisp
+  (pkg evil-surround :require t)
+  (setq-default evil-surround-pairs-alist
+                `((?“ . ("“" . "”"))
+                  (?” . ("“ " . " ”"))
+                  ,@evil-surround-pairs-alist))
+  (global-evil-surround-mode 1)
+#+end_src
+*** Text Objects
+#+begin_src emacs-lisp
+  (pkg targets :require t :github "noctuid/targets.el")
+  (targets-setup t)
+#+end_src
+*** Swap Text Using =gx=
+#+begin_src emacs-lisp
+  (pkg evil-exchange :require t)
+  (evil-exchange-install)
+#+end_src
+*** History in Minibuffer
+#+begin_src emacs-lisp
+  (dolist (i evil-collection-minibuffer-maps)
+    (evil-define-key* 'normal (symbol-value i)
+      "j" #'previous-complete-history-element
+      "k" #'next-complete-history-element))
+#+end_src
+*** Register Previews
+#+begin_src emacs-lisp
+  (pkg evil-owl :require t)
+  (setq evil-owl-max-string-length 500)
+  (diminish 'evil-owl-mode)
+  (evil-owl-mode)
+#+end_src
+** Align
+Align multiple lines based on a regex.
+A version of M-x align with live previews.
+align with previews
+#+begin_src emacs-lisp
+  (pkg ialign)
+  (setf ialign-initial-repeat t)
+  (evil-define-key '(normal visual) 'global
+    (kbd "<global-leader>a") (evil-define-operator evil-ialign (beg end)
+                               "Call ialign on region."
+                               :type line
+                               (ialign beg end)))
+  (evil-define-key '(normal insert) ialign-minibuffer-keymap
+    (kbd "<leader>r") #'ialign-toggle-repeat
+    (kbd "<leader>t") #'ialign-toggle-tabs
+    (kbd "<leader>c") #'ialign-toggle-case-fold
+    (kbd "<leader>p") #'ialign-toggle-pcre-mode
+    (kbd "<leader>-") #'ialign-decrement-spacing
+    (kbd "<leader>+") #'ialign-increment-spacing
+    (kbd "<leader>=") #'ialign-increment-spacing
+    (kbd "<leader>[") #'ialign-decrement-group
+    (kbd "<leader>]") #'ialign-increment-group
+    (kbd "<leader>f") #'ialign-set-group
+    (kbd "<leader>s") #'ialign-set-spacing
+    (kbd "<leader>u") (interactive-toggle ialign-auto-update)
+    (kbd "<leader>U") #'ialign-update
+    (kbd "<leader>?") #'ialign-show-help)
+#+end_src
+** Title Case
+#+begin_src emacs-lisp
+  (pkg titlecase)
+  (evil-define-operator evil-titlecase (beg end) "Make range title case." (titlecase-region beg end))
+  (evil-define-key '(normal visual) 'global
+    (kbd "g M-u") #'evil-titlecase)
+#+end_src
+* Misc Settings
+** Save Location in Closed Buffers
+#+begin_src emacs-lisp
+  (save-place-mode 1)
+#+end_src
+** Variables
+#+begin_src emacs-lisp
+  (setf
+   ;; Sentence regexes only allow double spaced sentences, stop that.
+   sentence-end-double-space nil
+   ;; This also highlights a lot of non-error things.
+   next-error-message-highlight t
+   ;; Ensure documentation is loaded from autoloaded functions
+   help-enable-symbol-autoload t)
+#+end_src
+** Right Click Menu
+#+begin_src emacs-lisp
+  (context-menu-mode)
+#+end_src
+* Global Binds
+** Misc
+#+begin_src emacs-lisp
+  (evil-define-key 'normal evil-ex-search-keymap
+    "j" #'next-line-or-history-element
+    "k" #'previous-line-or-history-element)
+
+  (evil-define-key '(normal visual) 'global
+    (kbd "<leader>;") #'execute-extended-command
+    "ge" (evil-define-operator evil-eval (beg end)
+           "Evaluate code."
+           :move-point nil
+           (let* ((ele (assoc major-mode evil-extra-operator-eval-modes-alist))
+                  (f-a (cdr-safe ele))
+                  (func (car-safe f-a))
+                  (args (cdr-safe f-a)))
+             (if (fboundp func)
+                 (apply func beg end args)
+               (eval-region beg end t))))
+    "gE" (evil-define-operator evil-eval-elisp-replace (beg end)
+           "Evaluate code then replace with result."
+           :move-point nil
+           (let ((result (eval (car (read-from-string (buffer-substring-no-properties beg end))))))
+             (evil-delete beg end nil ?_)
+             (message "%S" result)
+             (insert (prin1-to-string result))))
+    "gc" (evil-define-operator evil-comment (beg end)
+           "Commenting code."
+           (comment-or-uncomment-region beg end))
+    "gC" (evil-define-operator evil-comment+yank (beg end type register)
+           "Commenting code and yanking original."
+           (interactive "<R><x>")
+           (evil-yank beg end type register)
+           (comment-or-uncomment-region beg end))
+    "gs" (evil-define-operator evil-replace-with-reg (beg end type register)
+           "Replace region with active register."
+           (interactive "<R><x>")
+           (evil-delete beg end type ?_)
+           (insert (evil-get-register (or register ?\")))))
+
+  (evil-define-key 'motion 'global
+    "]]" (evil-define-motion evil-next-close-bracket (count)
+           "Go to [count] next unmatched ')'."
+           :type exclusive
+           (forward-char)
+           (evil-up-paren ?\[ ?\] (or count 1))
+           (backward-char))
+    "[[" (evil-define-motion evil-previous-open-bracket (count)
+           "Go to [count] previous unmatched '{'."
+           :type exclusive
+           (evil-up-paren ?\[ ?\] (- (or count 1))))
+    (kbd "M-e") #'evil-backward-word-end
+    (kbd "M-E") #'evil-backward-WORD-end)
+
+  (evil-define-key 'normal 'global
+    (kbd "U") #'evil-redo
+    (kbd "<escape>") #'evil-ex-nohighlight
+    (kbd "<global-leader>s") (evil-define-command goto-scratch-buffer ()
+                               (switch-to-buffer "*scratch*")
+                               (unless (eq major-mode 'emacs-lisp-mode) (emacs-lisp-mode)))
+    (kbd "<global-leader>b") #'bookmark-jump
+    (kbd "<global-leader>B") #'bookmark-set
+    (kbd "<global-leader>td") #'toggle-debug-on-error
+    (kbd "<global-leader>tw") #'toggle-word-wrap
+    (kbd "<global-leader>tW") #'toggle-word-wrap-at-col
+    (kbd "<global-leader>tp") (evil-define-command toggle-profiler ()
+                                (require 'profiler)
+                                (if (not (profiler-running-p))
+                                    (profiler-start 'cpu+mem)
+                                  (profiler-stop)
+                                  (profiler-report)))
+    (kbd "S") (evil-define-command evil-file-substitute () (evil-ex "%s/"))
+    (kbd "gB") #'ibuffer
+    (kbd "<global-leader>d") #'dired)
+#+end_src
+** Printing
+#+begin_src emacs-lisp
+  (defvar mode-print-formatter nil
+    "A function that takes a string of text on a line and turns them into a print statement in the current mode.")
+
+  (defun print-text-on-line ()
+    "Apply mode-print-formatter to the text on the current line."
+    (interactive)
+    (act-on-line #'replace mode-print-formatter))
+
+  (evil-define-key 'normal 'global
+    (kbd "gp") #'print-text-on-line)
+  (evil-define-key 'insert 'global
+    (kbd "M-p") #'print-text-on-line)
+#+end_src
+** Window / Buffer
+#+begin_src emacs-lisp
+  (evil-define-key nil 'global
+    (kbd "C-h") #'evil-window-left
+    (kbd "C-j") #'evil-window-down
+    (kbd "C-k") #'evil-window-up
+    (kbd "C-l") #'evil-window-right
+    (kbd "C-q") #'image-kill-buffer
+    (kbd "C-S-q") (evil-define-command save-&-kill-buffer () (save-buffer) (kill-buffer))
+    (kbd "M-RET") (evil-define-command split-right ()
+                    (split-window-horizontally)
+                    (evil-window-right 1))
+    (kbd "M-S-RET") (evil-define-command split-left () (split-window-horizontally))
+    (kbd "M-DEL") (evil-define-command split-down ()
+                    (split-window-vertically)
+                    (evil-window-down 1))
+    (kbd "M-S-DEL") (evil-define-command split-up () (split-window-vertically)))
+
+  (evil-define-key 'normal 'global
+    (kbd "C-w RET") #'split-right
+    (kbd "C-w S-RET") #'split-left
+    (kbd "C-w DEL") #'split-down
+    (kbd "C-w S-DEL") #'split-up)
+#+end_src
+** Text Objects
+#+begin_src emacs-lisp
+  (targets-define-to regex-group "\\\\(" "\\\\)" pair
+                     :bind t :keys "g")
+  (setq-default evil-surround-pairs-alist
+                `((?g "\\(" . "\\)") ,@evil-surround-pairs-alist))
+
+  (evil-define-text-object evil-whole-buffer (count &optional beg end type)
+    "Whole buffer." (list (point-min) (point-max)))
+  (define-key evil-outer-text-objects-map (kbd "o") #'evil-whole-buffer)
+#+end_src
+** Leader Keys
+#+begin_src emacs-lisp
+  (defun send-keys (keys)
+    "Type the key sequence (kbd keys)."
+    (setf prefix-arg current-prefix-arg)
+    (setf unread-command-events
+          (nconc (listify-key-sequence (kbd keys))
+                 unread-command-events)))
+  (with-eval-after-load 'evil
+    (evil-define-key '(normal visual) 'global
+      (kbd "SPC") (lambda () (interactive) (send-keys "<leader>"))
+      (kbd "\\") (lambda () (interactive) (send-keys "<global-leader>")))
+    (evil-define-key 'insert 'global
+      (kbd "M-;") (lambda () (interactive) (send-keys "<leader>"))
+      (kbd "M-:") (lambda () (interactive) (send-keys "<global-leader>"))))
+#+end_src
+** Universal Argument
+#+begin_src emacs-lisp
+  (define-key global-map (kbd "M-u") #'universal-argument)
+  (define-key universal-argument-map (kbd "C-u") nil)
+  (define-key universal-argument-map (kbd "M-u") #'universal-argument-more)
+  (with-eval-after-load 'evil-maps
+    (define-key evil-motion-state-map (kbd "M-u") nil))
+#+end_src
+* Center The Cursor
+#+begin_src emacs-lisp
+  (pkg centered-cursor-mode :require t)
+  (diminish 'centered-cursor-mode)
+  (global-centered-cursor-mode 1)
+  (push #'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
+  (push #'abort-recursive-edit ccm-ignored-commands)
+#+end_src
+* Major Modes
+** Prog
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+#+end_src
+** Lisp
+#+begin_src emacs-lisp
+  (pkg lispy)
+  (with-eval-after-load 'lispy (diminish 'lispy-mode))
+  (set-tab-width-in lisp-mode 2)
+  (set-tab-width-in emacs-lisp-mode 2)
+  (set-tab-width-in common-lisp-mode 2)
+  (set-tab-width-in clojure-mode 2)
+  (set-tab-width-in scheme-mode 2)
+
+  (pkg lispyville)
+  (with-eval-after-load 'lispyville (diminish 'lispyville-mode))
+  (add-hook 'emacs-lisp-mode-hook #'lispyville-mode)
+  (add-hook 'common-lisp-mode-hook #'lispyville-mode)
+  (add-hook 'lisp-mode-hook #'lispyville-mode)
+  (add-hook 'lisp-data-mode-hook #'lispyville-mode)
+  (cl-macrolet ((defto (name key)
+                  `(targets-define-to ,name ',name nil object :bind t
+                                      :keys ,key :hooks lispyville-mode-hook)))
+    (defto lispyville-comment "c")
+    (defto lispyville-atom "a")
+    (defto lispyville-list "f")
+    (defto lispyville-sexp "x")
+    (defto lispyville-function "d")
+    (defto lispyville-string "s"))
+  (after-load lispyville
+    (lispyville-set-key-theme '(operators
+                                c-w
+                                prettify
+                                (atom-movement t)
+                                additional-movement
+                                commentary
+                                slurp/barf-cp
+                                (escape insert)))
+    (defmacro surround-paren-insert (object at-end)
+      "Surround object and instert at the given end (either start or end)."
+      `(lambda () (interactive)
+         (evil-start-undo-step)
+         (apply 'evil-surround-region
+                (append (let* ((obj (,object))
+                               (start (car obj)))
+                          (if (eq (char-after start) ?')
+                              (cons (+ 1 start) (cdr obj))
+                            obj))
+                        '(?\))))
+         ,@(if (eq at-end 'end)
+               '((lispyville-up-list)
+                 (insert " ")
+                 (evil-insert 1))
+             '((forward-char)
+               (insert " ")
+               (backward-char 1)
+               (evil-insert 1)))))
+    ;; TODO make these work for visual
+    (evil-define-key '(visual normal) lispyville-mode-map
+      (kbd "<leader>(") #'lispy-wrap-round
+      (kbd "<leader>{") #'lispy-wrap-braces
+      (kbd "<leader>[") #'lispy-wrap-brackets
+      (kbd "<leader>)") #'lispyville-wrap-with-round
+      (kbd "<leader>}") #'lispyville-wrap-with-braces
+      (kbd "<leader>]") #'lispyville-wrap-with-brackets
+      (kbd "M-j") #'lispyville-drag-forward
+      (kbd "M-k") #'lispyville-drag-backward
+      (kbd "<leader>@") #'lispy-splice
+      (kbd "<leader>w") (surround-paren-insert targets-inner-lispyville-sexp start)
+      (kbd "<leader>W") (surround-paren-insert targets-inner-lispyville-sexp end)
+      (kbd "<leader>i") (surround-paren-insert targets-a-lispyville-list start)
+      (kbd "<leader>I") (surround-paren-insert targets-a-lispyville-list end)
+      (kbd "<leader>s") #'lispy-split
+      (kbd "<leader>j") #'lispy-join
+      (kbd "<leader>r") #'lispy-raise-sexp
+      (kbd "<leader>R") #'lispyville-raise-list
+      (kbd "<leader>h") (evil-define-command lispyville-insert-at-beginnging-of-list (count)
+                          (interactive "<c>")
+                          (lispyville-insert-at-beginning-of-list count)
+                          (insert " ")
+                          (backward-char))
+      (kbd "<leader>l") #'lispyville-insert-at-end-of-list
+      (kbd "<leader>o") #'lispyville-open-below-list
+      (kbd "<leader>O") #'lispyville-open-above-list))
+  (evil-define-key '(insert) lispyville-mode-map
+    (kbd "£") (lambda () (interactive) (insert "λ")))
+#+end_src
+*** Rainbow Delimiters
+#+begin_src emacs-lisp
+  (pkg rainbow-delimiters)
+  (add-hook 'lispyville-mode-hook #'rainbow-delimiters-mode)
+#+end_src
+** Common Lisp
+#+begin_src emacs-lisp
+  (pkg sly)
+  (setf inferior-lisp-program "/usr/bin/sbcl")
+  (cl-macrolet ((defmacroexpand (name fn)
+                  `(evil-define-operator ,name (beg end)
+                     :move-point nil
+                     (save-excursion
+                       (setf (point) beg)
+                       (,fn)))))
+    (defmacroexpand sly-evil-macroexpand-all sly-macroexpand-all)
+    (defmacroexpand sly-evil-macroexpand-1 sly-macroexpand-1)
+    (defmacroexpand sly-evil-macroexpand-all-inplace sly-macroexpand-all-inplace)
+    (defmacroexpand sly-evil-macroexpand-1-inplace sly-macroexpand-1-inplace))
+  (evil-define-key '(normal visual) sly-mode-map
+    "=" (evil-define-operator evil-lisp-indent-region (beg end)
+          :type line
+          :move-point nil
+          (lisp-indent-region beg end))
+    (kbd "<leader>me") #'sly-evil-macroexpand-all
+    (kbd "<leader>m1") #'sly-evil-macroexpand-1
+    (kbd "<leader>Me") #'sly-evil-macroexpand-all-inplace
+    (kbd "<leader>M1") #'sly-evil-macroexpand-1-inplace
+    (kbd "<leader>fu") #'sly-undefine-function)
+#+end_src
+** Rust
+#+begin_src emacs-lisp
+  (pkg rustic)
+  (setf lsp-rust-server 'rust-analyzer)
+  (setq-mode-local rustic-mode
+                   lsp-ui-sideline-show-hover nil
+                   lsp-rust-analyzer-cargo-watch-command "clippy"
+                   tab-width 2)
+  (set-tab-width-in rust-mode 2)
+  (setf rust-indent-offset 2)
+  (custom-set-default 'rustic-indent-offset 2)
+  (setq-mode-local rustic-mode mode-print-formatter
+                   (lambda (text)
+                     (concat "println!(\"{:#?}\", (" text "));")))
+
+  (add-hook 'rust-mode #'lsp)
+#+end_src
+** C#
+#+begin_src emacs-lisp
+  (pkg csharp-mode)
+  (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
+  (setq-mode-local csharp-mode lsp-ui-sideline-show-hover nil)
+  (setq-mode-local csharp-mode mode-print-formatter
+                   (lambda (str)
+                     (setf str (replace-regexp-in-string ";" " +" str))
+                     (concat "Console.WriteLine(" str ");")))
+  ;; (setf lsp-csharp-server-path "/usr/bin/omnisharp")
+  (add-hook 'csharp-mode-hook 'lsp)
+  (set-tab-width-in csharp-mode 4)
+#+end_src
+** Scheme
+#+begin_src emacs-lisp
+  (pkg geiser)
+  (add-hook 'scheme-mode-hook #'geiser-mode)
+  (add-hook 'scheme-mode-hook #'lispyville-mode)
+  (setf geiser-mode-start-repl-p t)
+
+  (pkg geiser-guile)
+  (after-load geiser
+    (require 'geiser-guile)
+    (evil-define-key 'normal geiser-mode-map
+      (kbd "<insert>") #'geiser-mode-switch-to-repl))
+#+end_src
+** Anki External Editor
+#+begin_src emacs-lisp
+  (defvar anki-mode-hook nil)
+  (defvar anki-mode-map (make-sparse-keymap))
+  (evil-define-key 'normal anki-mode-map
+    (kbd "<leader>m") #'org-latex-preview)
+  (targets-define-to latex-math-block "\\$(" ")\\$"
+                     pair :bind t :keys "m" :hooks anki-mode-hook)
+  (targets-define-to latex-MATH-block "\\$( " " )\\$"
+                     pair :bind t :keys "M" :hooks anki-mode-hook)
+
+  (defun replace-all (regex replacement)
+    (replace-regexp (regexp-quote regex) replacement nil (point-min) (point-max)))
+
+  (defun anki-mode ()
+    "Major mode for editing Anki flashcards."
+    (interactive)
+    (kill-all-local-variables)
+    (use-local-map anki-mode-map)
+
+    (replace-all "[$]" "$(")
+    (replace-all "[/$]" ")$")
+    (add-hook 'before-save-hook
+              (lambda () (replace-all "$(" "[$]"))
+              nil t)
+    (add-hook 'before-save-hook
+              (lambda () (replace-all ")$" "[/$]"))
+              nil t)
+    (flyspell-mode)
+
+    (setf require-final-newline nil)
+    (setf evil-surround-pairs-alist
+          `((?m . ("$(" . ")$"))
+            (?M . ("$( " . " )$"))
+            ,@evil-surround-pairs-alist))
+    (setf major-mode 'anki-mode)
+    (setf mode-name "Anki")
+    (run-hooks 'anki-mode-hook))
+#+end_src
+** Haskell
+#+begin_src emacs-lisp
+  (pkg haskell-mode)
+  (pkg lsp-haskell)
+  (after-load haskell-mode (require 'lsp-haskell))
+  (add-hook 'haskell-mode-hook #'lsp)
+  (setq-mode-local haskell-mode
+                   lsp-ui-sideline-show-hover nil
+                   electric-pair-pairs (cons '(?` . ?`) electric-pair-pairs))
+  (setf lsp-haskell-formatting-provider "fourmolu")
+#+end_src
+** Context
+#+begin_src emacs-lisp
+  (defvar context-tags)
+  (defvar context-start/end-tags)
+  (defvar context-insert-tag--tag-hist)
+  (defvar context-insert-tag--start/end-hist)
+  (defun context-get-tag-pair ()
+    (-if-let* ((str (completing-read "Start/End: " context-start/end-tags
+                                     nil nil nil 'context-insert-tag--start/end-hist))
+               ((start end) (split-string str "/"))
+               (type (completing-read "Type: " context-tags
+                                      nil nil nil 'context-insert-tag--tag-hist)))
+        (list (concat "\\" start type) (concat "\\" end type))
+      (error "Expected only one slash in pattern.")))
+  (defun context-insert-tag-pair (start end)
+    (interactive (context-get-tag-pair))
+    "Insert start| \\n end, leave the point on the |."
+    (insert start)
+    (save-excursion (newline) (insert end)))
+  (evil-define-operator context-wrap-tag-pair (beg end)
+    "Wrap region in tag."
+    :type line
+    (let ((pair (context-get-tag-pair)))
+      (goto-char end)
+      (insert (cadr pair))
+      (newline)
+      (goto-char beg)
+      (insert (car pair))
+      (save-excursion (newline))))
+
+  (setf context-start/end-tags '("start/stop" "b/e"))
+  (setf context-tags '("paragraph" "itemize" "component" "TABLE" "TABLEhead" "TABLEbody" "TC" "TR" "TH"))
+
+  (evil-define-key 'insert tex-mode-map
+    (kbd "<leader>t") #'context-insert-tag-pair)
+  (evil-define-key 'normal tex-mode-map
+    (kbd "<leader>ti") #'context-insert-tag-pair)
+  (evil-define-key '(normal visual) tex-mode-map
+    (kbd "<leader>tw") #'context-wrap-tag-pair)
+
+#+end_src
+** Org
+*** Org-mode
+#+begin_src emacs-lisp
+  (with-eval-after-load 'org-indent (diminish 'org-indent-mode))
+  (hook 'org-mode-hook
+    (org-indent-mode)
+    (variable-pitch-mode)
+    (setq-local electric-pair-inhibit-predicate
+                `(lambda (p) (or (char-equal p ?<)
+                                 (,electric-pair-inhibit-predicate p)))))
+  (setf org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "DONE"))
+        org-hide-emphasis-markers t
+        org-pretty-entities t
+        org-pretty-entities-include-sub-superscripts t
+        org-startup-with-latex-preview t
+        org-imenu-depth 4)
+
+  (after-load org
+    ;; Increase size of latex previews.
+    (plist-put org-format-latex-options :scale 1.3))
+  (custom-set-faces
+   '(org-block ((t (:inherit fixed-pitch))))
+   '(org-code ((t (:inherit (shadow fixed-pitch)))))
+   '(org-document-info ((t (:foreground "dark orange"))))
+   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+   '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+   '(org-link ((t (:foreground "royal blue" :underline t))))
+   '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-block-begin-line ((t (:inherit org-meta-line))))
+   '(org-block-end-line ((t (:inherit org-meta-line))))
+   '(org-property-value ((t (:inherit fixed-pitch))) t)
+   '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+   '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+   '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+   '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
+   '(org-level-2 ((t (:inherit outline-2 :height 1.4))))
+   '(org-level-3 ((t (:inherit outline-3 :height 1.3))))
+   '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
+   '(org-level-5 ((t (:inherit outline-5 :height 1.1))))
+   '(org-document-title ((t (:height 2.0)))))
+  ;; Don't make text bigger after 8 levels.
+  (setf org-cycle-level-faces nil)
+  (setf org-fontify-done-headline nil)
+  (setf org-html-validation-link nil)
+#+end_src
+*** Hide Org Markup
+#+begin_src emacs-lisp
+  (pkg org-appear)
+  (add-hook 'org-mode-hook 'org-appear-mode)
+  (mapc (lambda (sym) (set sym t))
+        '(org-appear-autoemphasis
+          org-appear-autolinks
+          org-appear-autoentities
+          org-appear-autokeywords
+          org-appear-autosubmarkers))
+#+end_src
+*** Toggle Latex Fragments
+#+begin_src emacs-lisp
+  (pkg org-fragtog)
+  (add-hook #'org-mode-hook #'org-fragtog-mode)
+#+end_src
+*** Roam
+#+begin_src emacs-lisp
+  (pkg org-roam)
+  (setf org-roam-v2-ack t
+        org-roam-completion-everywhere t
+        org-roam-directory (file-truename "~/org"))
+  (defun org-roam-get-unlinked-node-ids ()
+    "Get the IDs of nodes with no backlinks."
+    (cl-set-difference (mapcar #'car (org-roam-db-query [:select id :from nodes]))
+                       (mapcar #'car (org-roam-db-query [:select dest :from links]))
+                       :test 'string=))
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>nf") #'org-roam-node-find
+    (kbd "<global-leader>nu")
+    (evil-define-command org-roam-unlinked-node-find (&optional other-window initial-input filter-fn)
+      "Find nodes with no backlinks."
+      (let ((titles (mapcar (lambda (id) (-> id org-roam-node-from-id org-roam-node-title))
+                            (org-roam-get-unlinked-node-ids))))
+        (org-roam-node-visit (org-roam-node-from-title-or-alias
+                              (completing-read "Node: " titles filter-fn t initial-input))
+                             other-window))))
+
+  (after-load org-roam
+    (cl-flet ((template-with-tags
+               (key name tags)
+               `(,key ,name plain "\n%?"
+                      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                                         ,(concat "#+title: ${title}\n#+filetags: " tags "\n"))
+                      :unnarrowed t)))
+      (setf org-roam-capture-templates
+            (list '("d" "default" plain "\n%?"
+                    :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+                    :unnarrowed t)
+                  (template-with-tags "c" "computer science A-level" ":CSAL:")
+                  (template-with-tags "p" "physics A-level" ":PAL:")
+                  (template-with-tags "m" "maths A-level" ":MAL:")
+                  (template-with-tags "f" "further maths A-level" ":FMAL:")
+                  (template-with-tags "w" "word" ":Word:"))))
+    (nconc org-roam-capture-templates
+           '(("t" "like the regular template but todo"))
+           (mapcar (lambda (templ)
+                     (setf (car templ) (concat "t" (car templ)))
+                     (let (out finnish-used? i)
+                       (while (setf i (pop templ))
+                         (cond
+                          ((eq i :if-new)
+                           (push i out)
+                           (setf i (pop templ))
+                           (cl-symbol-macrolet ((target (caddr i)))
+                             (let ((reg (rx line-start "#+filetags:"
+                                            (+ space)
+                                            (group (*? anychar))
+                                            ":\n")))
+                               (setf target
+                                     (if (string-match reg target)
+                                         (replace-regexp-in-string reg "#+filetags: \\1:TODO:\n" target)
+                                       (concat target "#+filetags: :TODO:\n")))))
+                           (push i out))
+                          ((eq i :immediate-finish) (pop templ))
+                          (t (push i out))))
+                       (nreverse (cons t (cons :immediate-finish out)))))
+                   (copy-tree org-roam-capture-templates)))
+
+    (evil-define-key 'insert org-mode-map
+      (kbd "<leader>n") #'org-roam-node-insert)
+    (evil-define-key 'normal org-mode-map
+      (kbd "<leader>nb") #'org-roam-buffer-toggle
+      (kbd "<leader>ng") #'org-roam-graph
+      (kbd "<leader>ni") #'org-roam-node-insert
+      (kbd "<leader>nc") #'org-roam-capture
+      (kbd "<leader>nn") #'org-id-get-create
+      (kbd "<leader>nt") #'org-roam-tag-add
+      (kbd "<leader>nT") #'org-roam-tag-remove
+      (kbd "<leader>nd") #'org-roam-dailies-capture-today
+      (kbd "<leader>na") #'org-roam-alias-add)
+    (org-roam-db-autosync-mode)
+    ;; If using org-roam-protocol
+    ;; (require 'org-roam-protocol)
+    )
+#+end_src
+*** Evil Integration
+#+begin_src emacs-lisp
+  (pkg evil-org)
+  (with-eval-after-load 'evil-org (diminish 'evil-org-mode))
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  (after-load evil-org
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys)
+    (evil-define-key 'insert org-mode-map
+      (kbd "<leader>b") #'org-insert-structure-template
+      (kbd "M-h") #'org-metaleft
+      (kbd "M-l") #'org-metaright)
+    (evil-define-key 'normal org-capture-mode-map
+      (leader "k") #'org-capture-kill
+      (leader "c") #'org-capture-finalize)
+    (evil-define-key '(normal insert) org-mode-map
+      (kbd "<leader>.") #'org-time-stamp
+      (kbd "<leader>l") #'org-insert-link)
+    (evil-define-key 'normal org-mode-map
+      (kbd "<leader>x") #'org-export-dispatch
+      (kbd "<leader>i") #'org-display-inline-images
+      (kbd "<leader>I") #'org-remove-inline-images
+      (kbd "<leader>m") #'org-latex-preview
+      (kbd "<leader>a") #'org-agenda-file-to-front
+      (kbd "<leader>r") #'org-remove-file
+      (kbd "<leader>c") #'org-ctrl-c-ctrl-c
+      (kbd "<leader>l") #'org-insert-link
+      (kbd "<leader>d") #'org-deadline
+      (kbd "<leader>s") #'org-schedule
+      (kbd "<leader>p") #'org-priority
+      (kbd "<leader>RET") #'org-open-at-point
+      (kbd "<leader>t") #'org-shiftright
+      (kbd "<leader>T") #'org-shiftleft
+      (kbd "<leader>bi") #'org-insert-structure-template
+      (kbd "<leader>be") #'org-edit-src-code
+      (kbd "<leader>bs") (evil-define-command evil-split-org-strucutre-template ()
+                           (let ((point (point)) start-line end-line)
+                             (cl-destructuring-bind ((_ end _) (start _ _)) `(,(evil-org-inner-element)
+                                                                              ,(evil-org-an-element))
+                               (cl-loop for (line var) in `((,start start-line) (,end end-line))
+                                        do (goto-char line)
+                                        do (set var (buffer-substring-no-properties
+                                                     (line-beginning-position)
+                                                     (line-end-position))))
+                               (goto-char point)
+                               (evil-insert-newline-below)
+                               (insert (format "%s\n%s" end-line start-line)))))
+      (kbd "<leader>bw") (evil-define-operator evil-wrap-org-structure-template (beg end)
+                           "Wrap region in structure template"
+                           :type line
+                           (goto-char beg)
+                           (set-mark end)
+                           (call-interactively #'org-insert-structure-template))))
+#+end_src
+** Eshell
+#+begin_src emacs-lisp
+  (pkg pcmpl-args)
+  (hook 'eshell-mode-hook
+    (require 'pcmpl-args)
+    (setq-local corfu-map (copy-keymap corfu-map))
+    (evil-define-key 'insert corfu-map
+      (kbd ".") nil
+      (kbd "RET") (evil-define-command corfu-eshell-ret () (corfu-insert) (eshell-send-input))
+      (kbd "<return>") #'corfu-eshell-ret
+      (kbd "SPC") nil
+      (kbd "<space>") nil))
+#+end_src
+** Magit
+#+begin_src emacs-lisp
+  (pkg magit)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>m") #'magit)
+  (evil-define-key '(visual normal) magit-mode-map
+    (kbd "M-h") #'magit-section-up
+    (kbd "M-j") #'magit-section-forward-sibling
+    (kbd "M-k") #'magit-section-backward-sibling
+    (kbd "C-j") nil
+    (kbd "C-k") nil
+    (kbd "\\") nil
+    (kbd "SPC") nil)
+  (evil-define-key nil magit-mode-map
+    (kbd "SPC") nil)
+#+end_src
+** Help Mode
+#+begin_src emacs-lisp
+  (evil-define-key 'normal help-mode-map
+    (kbd "s") #'help-view-source
+    (kbd "i") #'help-goto-info
+    (kbd "c") #'help-customize
+    (kbd "<space>") nil
+    (kbd "SPC") nil)
+#+end_src
+** ERC
+#+begin_src emacs-lisp
+  (pkg password-store)
+  (setf erc-nick "JackFaller"
+        erc-user-full-name "Jack Faller"
+        erc-track-shorten-start 10
+        erc-prompt (lambda () (concat "[" (buffer-name) "]"))
+        erc-auto-query 'bury
+        erc-fill-function #'erc-fill-static
+        erc-fill-static-center 20)
+
+  (defun freenode ()
+    (interactive)
+    (erc-tls
+     :server "irc.freenode.net"
+     :port 6697
+     :password (password-store-get "irc/freenode")))
+
+  (pkg erc-nick-notify)
+
+  (hook 'erc-mode-hook
+    (require 'erc-nick-notify)
+    (require 'erc-pcomplete)
+    (pcomplete-erc-setup)
+    (erc-completion-mode 1)
+    (erc-spelling-mode 1)
+    (setq-local corfu-map (copy-keymap corfu-map))
+    (evil-define-key 'insert corfu-map
+      (kbd "RET") (evil-define-command corfu-erc-ret () (corfu-insert) (erc-send-current-line))
+      (kbd "<return>") #'corfu-erc-ret))
+
+  (evil-define-key 'insert erc-mode-map
+    (kbd "<leader>RET") #'newline
+    (kbd "<leader><return>") #'newline)
+  (evil-define-key 'normal erc-mode-map
+    (kbd "<leader>b") #'erc-switch-to-buffer
+    (kbd "<leader>n") #'erc-channel-names
+    (kbd "<leader>q") #'erc-quit-server)
+#+end_src
+** C
+#+begin_src emacs-lisp
+  (hook 'c-mode-hook
+    (indent-tabs-mode -1)
+    (lsp))
+  (setq-mode-local c-mode lsp-ui-sideline-enable nil)
+  (evil-define-key '(normal insert) c-mode-map
+    (kbd "<leader>s") #'ff-find-other-file)
+#+end_src
+** HTML
+#+begin_src emacs-lisp
+  (setq-mode-local mhtml-mode
+                   electric-pair-inhibit-predicate
+                   `(lambda (c) (or (char-equal c ?')
+                                    (char-equal c ?<)
+                                    (,electric-pair-inhibit-predicate c))))
+  (evil-define-key '(insert) mhtml-mode-map
+    (kbd "<leader>t") (defun insert-tag ()
+                        (interactive)
+                        (let ((tag (evil-surround-read-tag)))
+                          (insert (car tag))
+                          (save-excursion
+                            (insert (cdr tag)))))
+    (kbd "M-l") (defun jump-out-of-tag ()
+                  (interactive)
+                  (save-match-data
+                    (re-search-forward (rx "</" (*? any) ">"))
+                    (setf (point) (match-end 0)))))
+#+end_src
+* Show Keyboard Shortcuts
+#+begin_src emacs-lisp
+  (pkg which-key :require t)
+  (diminish 'which-key-mode)
+  (which-key-mode)
+#+end_src
+* Completion
+** Minibuffer
+*** Misc
+#+begin_src emacs-lisp
+  (savehist-mode)
+  (setf enable-recursive-minibuffers t)
+#+end_src
+*** Stop the Cursor from Going into the Prompt
+#+begin_src emacs-lisp
+  (setf minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+#+end_src
+*** Indicator for Multiple Completions
+#+begin_src emacs-lisp
+  (defun crm-indicator (args)
+      (cons (concat "[CRM] " (car args)) (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+#+end_src
+*** Completion UI
+#+begin_src emacs-lisp
+  (pkg vertico :require t)
+  (vertico-mode)
+  (evil-define-key '(insert normal) vertico-map
+    (kbd "M-RET") #'vertico-exit-input
+    (kbd "M-TAB") #'vertico-insert
+    (kbd "TAB") #'vertico-next
+    (kbd "<tab>") #'vertico-next
+    (kbd "S-TAB") #'vertico-previous
+    (kbd "<backtab>") #'vertico-previous)
+#+end_src
+*** Descriptions in Margins
+#+begin_src emacs-lisp
+  (pkg marginalia :require t)
+  (marginalia-mode)
+#+end_src
+*** Icons
+#+begin_src emacs-lisp
+  (pkg all-the-icons-completion)
+  (all-the-icons-completion-mode)
+#+end_src
+** Buffer
+*** Completions
+#+begin_src emacs-lisp
+  (pkg corfu :require t)
+  (setf
+   corfu-cycle t
+   corfu-preselect-first nil
+   corfu-auto t
+   corfu-auto-delay 0
+   corfu-auto-prefix 0
+   corfu-separator ?\s
+   corfu-on-exact-match nil
+   corfu-quit-no-match nil
+   corfu-echo-documentation nil
+   corfu-preselect-first nil)
+  (evil-define-key 'insert 'global
+    (kbd "TAB") #'completion-at-point
+    (kbd "<tab>") #'completion-at-point)
+  (evil-define-key 'insert corfu-map
+    (kbd "TAB") #'corfu-next
+    (kbd "<tab>") #'corfu-next
+    (kbd "S-TAB") #'corfu-previous
+    (kbd "<backtab>") #'corfu-previous
+    (kbd "M-TAB") #'corfu-complete
+    (kbd "M-<tab>") #'corfu-complete
+    (kbd "M-RET") #'corfu-insert
+    (kbd "M-<return>") #'corfu-insert
+    (kbd "M-q") #'corfu-reset)
+  (load "extensions/corfu-history.el")
+  (corfu-history-mode)
+  (global-corfu-mode)
+#+end_src
+*** Tab and Go Completion
+Binding these keys to insert the completion then exit allows for more fluid completion.
+Instead of accepting, you can just keep typing to get the same effect.
+#+begin_src emacs-lisp
+  (evil-define-key 'insert corfu-map
+    (kbd ".") (evil-define-command corfu-insert-dot () (corfu-insert) (insert "."))
+    (kbd "RET") (evil-define-command corfu-insert-ret () (corfu-insert) (newline nil t))
+    (kbd "<return>") #'corfu-insert-ret
+    (kbd "<escape>") (evil-define-command corfu-insert-escape () (corfu-insert) (evil-normal-state))
+    (kbd "SPC") (evil-define-command corfu-insert-space () (corfu-insert) (insert " "))
+    (kbd "<space>") #'corfu-insert-space)
+#+end_src
+*** Prettify
+#+begin_src emacs-lisp
+  (pkg kind-icon :require t)
+  (setf kind-icon-default-face 'corfu-default)
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+#+end_src
+*** Fix Pcomplete
+Cape suggests this snippet.
+#+begin_src emacs-lisp
+  ;; Silence the pcomplete capf, no errors or messages!
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+  ;; Ensure that pcomplete does not write to the buffer
+  ;; and behaves as a pure `completion-at-point-function'.
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+#+end_src
+*** More Backends
+#+begin_src emacs-lisp
+  (pkg cape)
+  (defun my/cape-file (&optional interactive)
+    (let ((output (cape-file interactive)))
+      (when output
+        `(,(car output) ,(cadr output)
+          ,(let ((f (caddr output)))
+             (lambda (str pred action)
+               (let ((result (funcall f str pred action)))
+                 (cond
+                  ((eq action t)
+                   (mapcar
+                    (lambda (i)
+                      (if (directory-name-p i)
+                          (propertize (substring i 0 (- (length i) 1))
+                                      :is-file t)
+                        i))
+                    result))
+                  ((eq action 'metadata)
+                   '(metadata (category . file)))
+                  (t result)))))
+          :affixation-function
+          ,(lambda (list)
+             (mapcar (lambda (s)
+                       (if (get-text-property 0 :is-file s)
+                           (list (concat s "/") "" "")
+                         (list s "" "")))
+                     list))
+          ,@(cdddr output)))))
+  (mapc (lambda (x) (add-to-list 'completion-at-point-functions x))
+        (list #'cape-dabbrev #'cape-abbrev #'cape-tex #'cape-rfc1345 #'my/cape-file))
+#+end_src
+*** Documentation
+#+begin_src emacs-lisp
+  (pkg corfu-doc)
+  (add-hook 'corfu-mode-hook #'corfu-doc-mode)
+  (setf corfu-doc-max-width 80)
+  (evil-define-key nil corfu-map
+    (kbd "M-d") #'corfu-doc-scroll-up
+    (kbd "M-u") #'corfu-doc-scroll-down)
+#+end_src
+** Eldoc
+#+begin_src emacs-lisp
+  (with-eval-after-load 'eldoc (diminish 'eldoc-mode))
+  (setf eldoc-idle-delay 0)
+#+end_src
+** Language Server Support (LSP)
+*** Performance
+These variables are recommended by =lsp-mode= to increase performance.
+#+begin_src emacs-lisp
+  (setf read-process-output-max (* 1024 1024))
+#+end_src
+*** LSP-Mode
+#+begin_src emacs-lisp
+  (pkg lsp-mode)
+  (setf lsp-eldoc-enable-hover nil
+        lsp-signature-render-documentation nil)
+  (add-hook 'lsp-mode-hook 'evil-normal-state)
+  (evil-define-key 'normal lsp-mode-map
+    (kbd "<leader>=") #'lsp-format-buffer
+    (kbd "<leader>gd") #'lsp-find-definition
+    (kbd "<leader>gD") #'lsp-find-declaration
+    (kbd "<leader>gr") #'lsp-find-references
+    (kbd "<leader>gi") #'lsp-find-implementation
+    (kbd "<leader>gt") #'lsp-find-type-definition
+    ;; (kbd "<leader>gh") #'hierarchy
+    (kbd "<leader>ga") #'xref-find-apropos
+    (kbd "<leader>o") #'lsp-organize-imports
+    (kbd "<leader>r") #'lsp-rename
+    (kbd "<leader>te") (interactive-toggle lsp-eldoc-enable-hover)
+    (kbd "<leader>a") #'lsp-execute-code-action
+    (kbd "K") #'lsp-ui-doc-show
+    (kbd "gK") #'lsp-describe-thing-at-point)
+#+end_src
+*** Corfu + Cape
+#+begin_src emacs-lisp
+  (setf lsp-completion-provider :none)
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless+initialism partial-completion basic)))
+  (add-hook 'lsp-completion-mode #'my/lsp-mode-setup-completion)
+  (with-eval-after-load 'lsp-mode
+    (fset 'lsp-completion-at-point (cape-capf-buster (symbol-function 'lsp-completion-at-point))))
+#+end_src
+*** Prettify
+#+begin_src emacs-lisp
+  (pkg lsp-ui)
+  (setf lsp-ui-sideline-enable nil
+        lsp-ui-doc-enable t
+        lsp-ui-doc-delay most-positive-fixnum
+        lsp-ui-doc-position 'top
+        lsp-ui-sideline-show-hover t
+        lsp-ui-sideline-show-symbol t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-code-actions t)
+#+end_src
+** Completion Filtering
+#+begin_src emacs-lisp
+  (pkg orderless :require t)
+  (orderless-define-completion-style orderless+initialism
+    (orderless-matching-styles '(orderless-initialism
+                                 orderless-literal
+                                 orderless-regexp)))
+  (setf completion-category-overrides
+        '((command (styles orderless+initialism))
+          (symbol (styles orderless+initialism))
+          (variable (styles orderless+initialism))))
+  (setf
+   completion-styles '(orderless+initialism partial-completion basic)
+   completion-category-defaults nil
+   completion-category-overrides nil)
+#+end_src
+** Consult
+#+begin_src emacs-lisp
+  (pkg consult)
+  (pkg consult-flycheck)
+  (pkg consult-projectile)
+  (with-eval-after-load 'consult
+    (evil-collection-consult-setup))
+
+  (evil-define-key 'normal flycheck-mode-map
+    (kbd "<leader>e") #'consult-flycheck)
+  (evil-define-key 'normal 'global
+    (kbd "gb") #'consult-buffer
+    (kbd "g'") #'evil-collection-consult-mark
+    (kbd "<global-leader>l") #'consult-line
+    (kbd "<global-leader>L") #'consult-line-multi
+    (kbd "<global-leader>i") #'consult-imenu
+    (kbd "<global-leader>I") #'consult-imenu-multi
+    (kbd "<global-leader>P") #'consult-projectile)
+#+end_src
+** Embark
+#+begin_src emacs-lisp
+  (pkg embark)
+  (pkg embark-consult)
+  (evil-define-key '(normal insert) 'global
+    (kbd "<global-leader>e") #'embark-act
+    (kbd "<global-leader>E") #'embark-dwim)
+  (after-load consult (require 'embark-consult))
+#+end_src
+* File Management
+** File Tree
+#+begin_src emacs-lisp
+  (pkg treemacs)
+  (pkg treemacs-evil)
+  (pkg treemacs-all-the-icons)
+  (pkg treemacs-projectile)
+  (pkg treemacs-icons-dired)
+  (pkg treemacs-magit)
+  (evil-define-key 'normal 'global
+    (kbd "gt") #'treemacs)
+  (after-load treemacs
+    (require 'treemacs-evil)
+    (require 'treemacs-all-the-icons)
+    (require 'treemacs-projectile)
+    (require 'treemacs-icons-dired)
+    (require 'treemacs-magit)
+    (treemacs-load-theme 'all-the-icons))
+#+end_src
+** Projects
+#+begin_src emacs-lisp
+  (pkg projectile :require t)
+  (diminish 'projectile-mode)
+  (projectile-mode)
+  (setf compilation-scroll-output t)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>pd") #'projectile-edit-dir-locals
+    (kbd "<global-leader>pDp") (evil-define-command add-dir-locals-project-commands ()
+                                 (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
+
+    (kbd "<global-leader>pf") #'projectile-find-file
+    (kbd "<global-leader>pF") #'projectile-find-file-in-known-projects
+    (kbd "<global-leader>ps") #'projectile-switch-project)
+  (evil-define-key '(insert normal) projectile-mode-map
+    (kbd "<f5>") #'projectile-run-project
+    (kbd "<f6>") #'projectile-compile-project
+    (kbd "<f7>") #'projectile-configure-project)
+  (cl-mapc
+   (lambda (cmd map)
+     (eval `(evil-define-command ,(symcat 'my/ cmd '-default) (arg)
+              (interactive "P")
+              (remhash (projectile-compilation-dir) ,map)
+              (,cmd arg))))
+   '(projectile-run-project projectile-compile-project projectile-configure-project)
+   '(projectile-run-cmd-map projectile-compilation-cmd-map projectile-configure-cmd-map))
+  (evil-define-key '(insert normal) projectile-mode-map
+    (kbd "S-<f5>") #'my/projectile-run-project-default
+    (kbd "S-<f6>") #'my/projectile-compile-project-default
+    (kbd "S-<f7>") #'my/projectile-configure-project-default)
+  (dolist (map evil-collection-compile-maps)
+    (evil-define-key 'normal map
+      (kbd "q") (interactive-chain #'kill-compilation #'quit-window)))
+  (setf projectile-project-search-path '("~/code/"))
+#+end_src
+* Flycheck
+#+begin_src emacs-lisp
+  (pkg flycheck :require t)
+  (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
+  (evil-declare-not-repeat #'flycheck-next-error)
+  (evil-declare-not-repeat #'flycheck-previous-error)
+  (evil-define-key 'normal flycheck-mode-map
+    (kbd "<leader>E") #'list-flycheck-errors)
+  (global-flycheck-mode)
+#+end_src
+* Pastebin Services
+#+begin_src emacs-lisp
+  (pkg webpaste)
+  (setq webpaste-provider-priority '("dpaste.org"))
+  (defun read-seconds-duration ()
+    "Read a duration in seconds."
+    (require 'org)
+    (-->
+     (parse-time-string (org-read-date))
+     (cl-mapcar (lambda (a b) (if (and a (/= a -1)) a b)) it (decode-time))
+     encode-time
+     (- (time-to-seconds it) (time-to-seconds))
+     round))
+  (defun get-webpaste-duration ()
+    (--> webpaste-providers-alist
+         (alist-get "dpaste.org" it nil nil 'equal)
+         (plist-get it :post-data)
+         (alist-get "expires" it nil nil 'equal)))
+  (defun set-webpaste-duration (seconds)
+    (setf (--> webpaste-providers-alist
+               (alist-get "dpaste.org" it nil nil 'equal)
+               (plist-get it :post-data)
+               (alist-get "expires" it nil nil 'equal))
+          seconds))
+
+  (after-load webpaste
+    (set-webpaste-duration "never"))
+
+  (defconst webpaste-durations
+    '(("one time" . "onetime")
+      ("never" . "never")
+      ("hour" . 3600)
+      ("week" . 604800)
+      ("month" . 2592000)))
+
+  (defun webpaste (arg)
+    "Paste the buffer or region if active. When ARG, prompt for a duration until expiration."
+    (interactive "P")
+    (require 'webpaste)
+    (let ((old-duration (get-webpaste-duration)))
+      (when arg
+        (-> (completing-read "Duration: " webpaste-durations)
+            (alist-get webpaste-durations nil nil #'string=)
+            set-webpaste-duration))
+      (call-interactively #'webpaste-paste-buffer-or-region)
+      (set-webpaste-duration old-duration)))
+#+end_src
+* Tree-Sitter
+#+begin_src emacs-lisp
+  (pkg tree-sitter-langs :require t)
+  (pkg tree-sitter :require t)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
+  (pkg tree-edit)
+  (pkg evil-tree-edit)
+#+end_src  
+
+* Spellcheck
+** Flyspell
+#+begin_src emacs-lisp
+  (pkg flyspell)
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  (add-hook 'text-mode-hook #'flyspell-mode)
+  (defvar dict "en_GB"
+    "Dictionary to use.")
+  (setf flyspell-issue-message-flag nil
+        ispell-local-dictionary "dict"
+        ispell-local-dictionary-alist
+        `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
+  (cond
+   ((executable-find "hunspell")
+    (setf ispell-program-name "hunspell")
+    (when (boundp 'ispell-hunspell-dictionary-alist)
+      (setf ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
+   ((executable-find "aspell")
+    (setf ispell-program-name "aspell"
+          ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
+                              "--run-together" "--run-together-limit=16"))))
+  (evil-define-key 'normal flyspell-mode-map
+    (kbd "[s") #'evil-prev-flyspell-error
+    (kbd "]s") #'evil-next-flyspell-error)
+#+end_src
+** Grammarly
+#+begin_src emacs-lisp
+  ;; todo, maybe re-write this myself
+  ;; (pkg flycheck-grammarly)
+#+end_src
+* Ebangs
+#+begin_src emacs-lisp
+  (pkg ebangs :github "jack-faller/ebangs" :require t)
+  (ebangs-global-minor-mode)
+  (evil-define-key 'insert 'global
+    (kbd "<global-leader>j") #'ebangs-complete)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>jc") #'ebangs-complete
+    (kbd "<global-leader>jt") #'ebangs-show-file-todos
+    (kbd "<global-leader>jT") #'ebangs-show-todos)
+#+end_src
+* Indent Guides
+#+begin_src emacs-lisp
+  (pkg show-indent-guides :github "jack-faller/show-indent-guides")
+  (add-hook 'prog-mode-hook #'show-indent-guides-mode)
+#+end_src
+* Allow things to be deferred to the end of the file through config feature.
+#+begin_src emacs-lisp
+  (provide 'config)
+#+end_src

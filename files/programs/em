@@ -1,0 +1,8 @@
+#!/bin/sh
+x="emacsclient -nw"
+quote=\'
+for i in "$@"; do
+	j=$(echo "$i" | sed "s/$quote/$quote\\$quote$quote")
+	x="$x '$j'"
+done
+eval $x

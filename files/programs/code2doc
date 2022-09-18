@@ -1,0 +1,6 @@
+#! /bin/sh
+for file in "$@"
+do
+    name=$(echo _"$file")
+    highlight --font iosevka -l --style edit-godot -I -O html "$file" | sed 's/﻿//g' | wkhtmltopdf - "$name".pdf
+done

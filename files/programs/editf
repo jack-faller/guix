@@ -1,0 +1,18 @@
+#! /bin/sh
+old_name_list=$(command ls -A)
+
+echo "$old_name_list" | cat -n - > /tmp/efiles_list
+
+$EDITOR /tmp/efiles_list
+
+cat /tmp/efiles_list | while read -r i
+do
+    num=$(echo "$i" | grep -o '^\W*[0-9]*' | grep -o '[0-9]*')
+    new_name=$(echo "$i" | sed 's/^\W*[0-9]*\W//')
+
+    old_name=$(echo "$old_name_list" | sed "$num""q;d")
+
+    #suppress error on try to move file to self
+    mv "$old_name" "$new_name" 2> /dev/null \
+        && echo 'changed "'"$old_name"'" to "'"$new_name"'"'
+done

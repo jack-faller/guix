@@ -1,0 +1,6 @@
+#! /bin/sh
+x=""
+for i in "$@"; do
+	x="$x '$i'"
+done
+eval $x </dev/null &>/dev/null &

@@ -1,0 +1,50 @@
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+
+set {
+    $mod Mod4
+# Home row direction keys, like vim
+    $left h
+    $down j
+    $up k
+    $right l
+# Your preferred terminal emulator
+    $term kitty
+# Your preferred application launcher
+# Note: pass the final command to swaymsg so that the resulting window can be opened
+# on the original workspace that the command was run on.
+    # $menu dmenu -fn "Iosevka:pixelsize=12.5" -nb "$color0" -nf "$color15" -sb "$color1" -sf "$color15"
+}
+
+xwayland enable
+font Iosevka 9
+include $HOME/.cache/wal/colors-sway
+for_window [title="mpv"] fullscreen enable
+for_window [app_id="zenity"] floating enable
+for_window [app_id="floating"] floating enable
+for_window [title="floating"] floating enable
+assign [title="Discord"] workspace 3
+assign [app_id="transmission"] workspace 4
+focus_wrapping no
+
+default_border pixel 3
+gaps inner 2
+
+include {
+    ~/.config/sway/output
+    ~/.config/sway/input
+    ~/.config/sway/binds
+    ~/.config/sway/bar
+}
+
+smart_gaps on
+smart_borders on
+
+# start notification daemon
+# configure it at ~/.config/wal/templates/mako.conf
+# ln -s .cache/wal/mako.conf .config/mako/config
+# then run pywal for changes to take effect
+exec_always "$HOME/.config/mako/launch.sh"
+
+include /etc/sway/config.d/*

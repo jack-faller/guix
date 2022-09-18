@@ -1,0 +1,12 @@
+#! /bin/sh
+mkdir -p "$HOME/bkp"
+file=$(readlink -f "$1")
+name="$HOME/bkp/$(pwd | tr '/' '%' | tr " " "_").bkp"
+echo "$name"
+i=0
+while true
+do
+    mkdir "$name($i)" && break
+    i=$((i + 1))
+done
+cp -r "$file" "$name($i)"
