@@ -197,7 +197,6 @@ Its value is a string containing the number of the generation to switch to."))))
 			 --grace 2
 			 --fade-in 0.2)
 		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
-		(exec ,(fexec "files/launch-mako-sh"))
 		(seat seat0 xcursor_theme Quintom_Ink 12)
 		(include "~/.config/sway/base-config")
 		(exec ,(fexec "files/sway/startup-programs.sh"))))))
