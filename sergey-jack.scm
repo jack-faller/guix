@@ -19,7 +19,7 @@
  password-utils wm tmux ssh terminals fonts glib python-xyz imagemagick xdisorg
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
- haskell-apps pdf)
+ haskell-apps pdf video)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -265,6 +265,6 @@ Its value is a string containing the number of the generation to switch to."))))
    dmenu
    zbar ; reads bar/qr codes for qute script
    ;; applications
-   qutebrowser fontforge (list transmission "gui") icedove xournalpp evince
+   qutebrowser fontforge (list transmission "gui") icedove xournalpp evince mpv
    ;; NOTE: this should be steam nvidia on nvidia systems
    steam)))
