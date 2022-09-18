@@ -57,7 +57,8 @@
 				(supplementary-groups '("wheel" "netdev" "audio" "video")))
 			   %base-user-accounts))
 
- (packages (cons* nix sway vim git zsh (specification->package "nss-certs") %base-packages))
+ (packages (cons* nix sway vim git zsh
+				  (specification->package "nss-certs") %base-packages))
 
  (name-service-switch %mdns-host-lookup-nss)
 
@@ -102,7 +103,7 @@
    (dbus-service)
 
    (service sane-service-type)
-   (screen-locker-service swaylock "swaylock")
+   (screen-locker-service swaylock-effects "swaylock")
 
    (service pulseaudio-service-type)
    (service alsa-service-type)

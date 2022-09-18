@@ -188,6 +188,14 @@ Its value is a string containing the number of the generation to switch to."))))
 		(set $volume ,(fexec "files/sway/scripts/vol"))
 		(set $brightness ,(fexec "files/sway/scripts/light"))
 		(set $mute ,(fexec "files/sway/scripts/mute"))
+		(set $lock exec swaylock
+			 --screenshots --clock --indicator
+			 --indicator-radius 100
+			 --indicator-thickness 12
+			 --effect-blur 7x5
+			 --effect-vignette 0.5:0.5
+			 --grace 2
+			 --fade-in 0.2)
 		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		(exec ,(fexec "files/launch-mako-sh"))
 		(seat seat0 xcursor_theme Quintom_Ink 12)
