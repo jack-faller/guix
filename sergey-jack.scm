@@ -19,7 +19,7 @@
  password-utils wm tmux ssh terminals fonts glib python-xyz imagemagick xdisorg
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
- haskell-apps)
+ haskell-apps pdf)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -157,8 +157,11 @@ Its value is a string containing the number of the generation to switch to."))))
 		,@(map2 (pre ".local/programs/")
 				(λ (file) (fexec "files/programs/" file))
 				(dir-files (fname "files/programs/")))
-		;; duplicate to make pass work correctly
+		;; duplicate to make passmenu work correctly
 		(".local/programs/dmenu-wl" ,(fexec "files/programs/dmenu"))
+		(".local/programs/em"
+		 ,(program-file "em-script" #~(apply system* "emacsclient" "-nw"
+											 (cdr (program-arguments)))))
 		(".config/git/config" ,(f "files/gitconfig"))
 		,@(whole-dir "qutebrowser" ".config/qutebrowser")
 		,@(whole-dir "wal/templates" ".config/wal/templates")
@@ -249,11 +252,10 @@ Its value is a string containing the number of the generation to switch to."))))
    gs-fonts font-dejavu font-gnu-freefont
    ;; cli utilities
    exa ;; ls alternative
-   git tmux rsync tree p7zip shellcheck
+   git tmux rsync tree p7zip shellcheck glances
    dmenu
    zbar ; reads bar/qr codes for qute script
    ;; applications
-   qutebrowser fontforge (list transmission "gui")
-   icedove
+   qutebrowser fontforge (list transmission "gui") icedove xournalpp evince
    ;; NOTE: this should be steam nvidia on nvidia systems
    steam)))
