@@ -163,6 +163,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		 ,(program-file "em-script" #~(apply system* "emacsclient" "-nw"
 											 (cdr (program-arguments)))))
 		(".config/git/config" ,(f "files/gitconfig"))
+		(".config/mako/launch.sh" ,(fexec "files/launch-mako-sh"))
 		,@(whole-dir "qutebrowser" ".config/qutebrowser")
 		,@(whole-dir "wal/templates" ".config/wal/templates")
 		(".gnupg/gpg-agent.conf"
@@ -180,13 +181,13 @@ Its value is a string containing the number of the generation to switch to."))))
 	home-sway-service-type
 	(home-sway-configuration
 	 (config
-	  `((exec ,(file-append dbus "/bind/dbus-update-activation-environment")
+	  `((exec ,(file-append dbus "/bin/dbus-update-activation-environment")
 			  WAYLAND_DISPLAY XDG_CURRENT_DESKTOP)
 		;; resolves files/programs/dmenu
 		(set $menu dmenu)
-		(set $volume ,(f "files/sway/scripts/vol"))
-		(set $brightness ,(f "files/sway/scripts/light"))
-		(set $mute ,(f "files/sway/scripts/mute"))
+		(set $volume ,(fexec "files/sway/scripts/vol"))
+		(set $brightness ,(fexec "files/sway/scripts/light"))
+		(set $mute ,(fexec "files/sway/scripts/mute"))
 		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		(exec ,(fexec "files/launch-mako-sh"))
 		(seat seat0 xcursor_theme Quintom_Ink 12)
@@ -200,6 +201,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	   (mixed-text-file
 		"zsh-profile"
 		python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
+		"brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%" "\n"
 		"export SYSTEM_DMENU='" dmenu "/bin/dmenu'" "\n"
 		"export PATH=\"$HOME/.local/programs:$PATH\"" "\n")))
 	 (zshrc
