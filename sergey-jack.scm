@@ -19,7 +19,7 @@
  password-utils wm tmux ssh terminals fonts glib python-xyz imagemagick xdisorg
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
- haskell-apps pdf video)
+ haskell-apps pdf video xdisorg)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -163,7 +163,6 @@ Its value is a string containing the number of the generation to switch to."))))
 		 ,(program-file "em-script" #~(apply system* "emacsclient" "-nw"
 											 (cdr (program-arguments)))))
 		(".config/git/config" ,(f "files/gitconfig"))
-		(".config/mako/launch.sh" ,(fexec "files/launch-mako-sh"))
 		,@(whole-dir "qutebrowser" ".config/qutebrowser")
 		,@(whole-dir "wal/templates" ".config/wal/templates")
 		(".gnupg/gpg-agent.conf"
@@ -198,6 +197,7 @@ Its value is a string containing the number of the generation to switch to."))))
 			 --fade-in 0.2)
 		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		(seat seat0 xcursor_theme Quintom_Ink 12)
+		(exec fnott --config=.cache/wal/fnott.ini &)
 		(include "~/.config/sway/base-config")
 		(exec ,(fexec "files/sway/startup-programs.sh"))))))
    (service
@@ -235,7 +235,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		  (org-babel-tangle-file ,(f "files/emacs/settings.org") settings)
 		  (load-file settings))))))
    (generate-nix-packages-service
-	"discord" "teams")))
+	"discord" "teams" "tor-browser-bundle-bin")))
  (packages
   (list
    ;; basic
@@ -245,7 +245,7 @@ Its value is a string containing the number of the generation to switch to."))))
    pulseaudio
    gnupg pinentry ;; allows gnupg to prompt for password
    ;; wm
-   sway waybar mako gammastep
+   sway waybar gammastep wl-clipboard fnott
    python-pywal imagemagick
    brightnessctl
    kitty

@@ -143,9 +143,10 @@
     bindsym $mod+SemiColon exec passmenu
 
 # Mako:
-    bindsym Ctrl+Space exec makoctl dismiss
-    bindsym Ctrl+Shift+Space exec makoctl dismiss --all
-    bindsym Ctrl+Alt+Space exec "makoctl invoke; makoctl dismiss"
+    set $recentNotification "$(fnottctl list | tac | grep --only-matching '[0-9]*' | sed 1q)"
+    bindsym Ctrl+Space exec fnottctl dismiss $recentNotification
+    bindsym Ctrl+Shift+Space exec fnottctl actions $recentNotification
+    bindsym Ctrl+Alt+Space exec fnottctl actions $recentNotification && fnottctl dismiss $recentNotification
 
 # Lock:
     bindsym $mod+F2 $lock
