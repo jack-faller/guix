@@ -106,6 +106,15 @@ Its value is a string containing the number of the generation to switch to."))))
 				" 2> " (getenv "XDG_LOG_HOME") "/ssh-agent.log"))
 	  (stop #~(make-kill-destructor)))
 	 (shepherd-service
+	  (provision '(emacs-server))
+	  (requirement '(ssh-agent))
+	  (documentation "run emacs-server")
+	  (start #~(make-system-constructor
+				"source " (getenv "XDG_RUNTIME_DIR") "/ssh-agent.env; "
+				#$(file-append emacs "/bin/emacs") " --daemon"
+				" > " (getenv "XDG_RUNTIME_DIR") "/emacs.log" " 2>&1"))
+	  (stop #~(make-kill-destructor)))
+	 (shepherd-service
 	  (provision '(udiskie))
 	  (documentation "run udiskie")
 	  (start #~(make-forkexec-constructor
@@ -231,7 +240,6 @@ Its value is a string containing the number of the generation to switch to."))))
    (service
 	home-emacs-service-type
 	(home-emacs-configuration
-	 (server-mode? #t)
 	 (early-init-el
 	  `((load-file ,(f "files/emacs/early-init.el"))))
 	 (init-el
