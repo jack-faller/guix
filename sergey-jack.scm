@@ -19,7 +19,7 @@
  password-utils wm tmux ssh terminals fonts glib python-xyz imagemagick xdisorg
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
- haskell-apps pdf video xdisorg)
+ haskell-apps pdf video xdisorg gcc)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -111,8 +111,8 @@ Its value is a string containing the number of the generation to switch to."))))
 	  (documentation "run emacs-server")
 	  (start #~(make-system-constructor
 				"source " (getenv "XDG_RUNTIME_DIR") "/ssh-agent.env; "
-				#$(file-append emacs "/bin/emacs") " --daemon"
-				" > " (getenv "XDG_RUNTIME_DIR") "/emacs.log" " 2>&1"))
+				#$(file-append emacs "/bin/emacs") " --fg-daemon"
+				" > " (getenv "XDG_RUNTIME_DIR") "/emacs.log" " 2>&1 &"))
 	  (stop #~(make-kill-destructor)))
 	 (shepherd-service
 	  (provision '(udiskie))
@@ -123,10 +123,11 @@ Its value is a string containing the number of the generation to switch to."))))
 	  (stop #~(make-kill-destructor)))
 	 (shepherd-service
 	  (provision '(fetch-icons))
-	  (documentation "download the icons I want if they aren't already present")
+	  (documentation "download the icons / fonts I want if they aren't already present")
 	  (start
 	   #~(make-system-constructor
 		  #$(lines
+			 "cd /tmp"
 			 "mkdir -p ~/.local/share/fonts"
 			 "mkdir -p ~/.icons"
 			 "if [ ! -e ~/.local/share/fonts/materialdesignicons-webfont.ttf ]; then"
@@ -136,6 +137,10 @@ Its value is a string containing the number of the generation to switch to."))))
 			 "if [ ! -e ~/.icons/Quintom_Ink ]; then"
 			 "  git clone https://gitlab.com/Burning_Cube/quintom-cursor-theme"
 			 "  mv 'quintom-cursor-theme/Quintom_Ink Cursors/Quintom_Ink' ~/.icons"
+			 "fi"
+			 "if ! ls ~/.local/share/fonts/Crimson*; then "
+			 "  git clone https://github.com/skosch/Crimson.git"
+			 "  mv 'Crimson/Desktop Fonts/OTF/'* ~/.local/share/fonts/"
 			 "fi")))
 	  (one-shot? #t))
 	 (shepherd-service
@@ -243,7 +248,8 @@ Its value is a string containing the number of the generation to switch to."))))
 	 (early-init-el
 	  `((load-file ,(f "files/emacs/early-init.el"))))
 	 (init-el
-	  `((load-file ,(f "files/emacs/init.el"))
+	  `((require 'emacsql-sqlite)
+		(load-file ,(f "files/emacs/init.el"))
 		(let ((settings (concat user-emacs-directory "settings.org")))
 		  (org-babel-tangle-file ,(f "files/emacs/settings.org") settings)
 		  (load-file settings))))))
@@ -257,13 +263,14 @@ Its value is a string containing the number of the generation to switch to."))))
    udiskie
    pulseaudio
    gnupg pinentry ;; allows gnupg to prompt for password
+   gcc
    ;; wm
    sway waybar gammastep wl-clipboard fnott
    python-pywal imagemagick
    brightnessctl
    kitty
    ;; editing
-   emacs emacs-all-the-icons
+   emacs emacs-all-the-icons emacs-emacsql-sqlite3
    vim
    ;; zsh
    zsh-syntax-highlighting zsh-autosuggestions

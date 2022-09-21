@@ -997,6 +997,8 @@ align with previews
   (after-load evil-org
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
+    (evil-define-key 'normal 'global
+      (kbd "<global-leader>o") #'org-agenda)
     (evil-define-key 'insert org-mode-map
       (kbd "<leader>b") #'org-insert-structure-template
       (kbd "M-h") #'org-metaleft
