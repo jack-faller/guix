@@ -25,8 +25,7 @@
 (define (fname . x) (apply string-append config-directory "/" x))
 (define (f . x) (local-file (apply fname x)))
 (define (not-dot file) (not (or (string= file ".") (string= file ".."))))
-(define (lines . lines)
-  (string-join lines "\n" 'suffix))
+(define (lines . lines) (string-join lines "\n" 'suffix))
 
 (define (executable-file file)
   (chmod file #o777)
@@ -57,6 +56,8 @@ Its value is a string containing the number of the generation to switch to."))))
   (define (assert-nix-success return-code)
 	(unless (= 0 return-code)
 	   (error "failed to run nix command")))
+  (define package-file
+	(string-append (getenv "HOME") "/.cache/installed-nix-packages"))
   (assert-nix-success
    (system
 	(lines
@@ -64,13 +65,16 @@ Its value is a string containing the number of the generation to switch to."))))
 	 "  nix-channel --add https://nixos.org/channels/nixpkgs-unstable"
 	 "  nix-channel --update"
 	 "  nix-env -iA nixpkgs.nix nixpkgs.cacert"
+	 (string-append "echo '()' > " package-file)
 	 "fi")))
-  (let* ((cmd (cons*
-			   "NIXPKGS_ALLOW_UNFREE=1" "nix-env" "--remove-all" "--install"
-			   packages))
-		 (cmd (if (null? packages) '("nix-env" "--uninstall" "'.*'") cmd))
-		 (cmd (string-join cmd " ")))
-	(assert-nix-success (system cmd)))
+  (unless (equal? packages (with-input-from-file package-file read))
+	(with-output-to-file package-file (lambda () (write packages) (newline)))
+	(let* ((cmd (cons*
+				 "NIXPKGS_ALLOW_UNFREE=1" "nix-env" "--remove-all" "--install"
+				 packages))
+		   (cmd (if (null? packages) '("nix-env" "--uninstall" "'.*'") cmd))
+		   (cmd (string-join cmd " ")))
+	  (assert-nix-success (system cmd))))
   (service
    nix-profile-service-type
    (let* ((pipe
