@@ -179,7 +179,8 @@ Its value is a string containing the number of the generation to switch to."))))
 		 ,(plain-file "cursor-theme-index" (lines "[Icon Theme]"
 												  "Name=Default"
 												  "Comment=Default Cursor Theme"
-												  "Inherits=Quintom_Ink"))))))
+												  "Inherits=Quintom_Ink")))
+		(".config/gtk-3.0/settings.ini" ,(f "files/gtk3-settings.ini")))))
    (service
 	home-sway-service-type
 	(home-sway-configuration
