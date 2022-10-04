@@ -3,7 +3,6 @@
 			 (ice-9 popen)
 			 (ice-9 rdelim)
 			 (guix gexp)
-			 (nongnu packages steam-client)
 			 (gnu)
 			 (gnu services)
 			 (gnu services shepherd)
@@ -12,14 +11,15 @@
 			 (gnu home services xdg)
 			 (gnu home services shells)
 			 (gnu home services shepherd)
+			 (nongnu packages steam-client)
 			 (rde home services wm)
 			 (gnu home-services emacs))
 (use-package-modules
  shellutils vim emacs emacs-xyz rust-apps rsync web bash admin version-control
- password-utils wm tmux ssh terminals fonts glib python-xyz imagemagick xdisorg
+ password-utils wm tmux ssh terminals fonts glib imagemagick xdisorg
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
- haskell-apps pdf video xdisorg gcc)
+ haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -263,14 +263,14 @@ Its value is a string containing the number of the generation to switch to."))))
    udiskie
    pulseaudio
    gnupg pinentry ;; allows gnupg to prompt for password
-   gcc
    ;; wm
    sway waybar gammastep wl-clipboard fnott
    python-pywal imagemagick
    brightnessctl
    kitty
    ;; editing
-   emacs emacs-all-the-icons emacs-emacsql-sqlite3
+   emacs emacs-all-the-icons emacs-emacsql-sqlite3 hunspell hunspell-dict-en-gb
+   texlive-bin ;; for emacs previews requires fmtutil-sys --all
    vim
    ;; zsh
    zsh-syntax-highlighting zsh-autosuggestions
@@ -283,7 +283,7 @@ Its value is a string containing the number of the generation to switch to."))))
    exa ;; ls alternative
    git tmux rsync tree p7zip shellcheck glances
    dmenu
-   zbar ; reads bar/qr codes for qute script
+   zbar ;; reads bar/qr codes for qute script
    ;; applications
    qutebrowser fontforge (list transmission "gui") icedove xournalpp evince mpv
    ;; NOTE: this should be steam nvidia on nvidia systems
