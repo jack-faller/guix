@@ -47,7 +47,11 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
-export PS1="%K{red}%F{black}%n@%m%f%k %F{blue}%~%f %#"
+if [ -n "$GUIX_ENVIRONMENT" ]; then
+	export PS1="%K{red}%F{black}%n@%m%f%k %F{blue}[guix shell] %~%f %#"
+else
+	export PS1="%K{red}%F{black}%n@%m%f%k %F{blue}%~%f %#"
+fi
 
 alias ls="exa"
 alias la="exa -a"
