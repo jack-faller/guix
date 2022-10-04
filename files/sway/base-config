@@ -35,7 +35,7 @@ include {
     ~/.config/sway/output
     ~/.config/sway/input
     ~/.config/sway/binds
-    ~/.config/sway/bar
+    # ~/.config/sway/bar
 }
 
 smart_gaps on
@@ -45,6 +45,6 @@ smart_borders on
 # configure it at ~/.config/wal/templates/mako.conf
 # ln -s .cache/wal/mako.conf .config/mako/config
 # then run pywal for changes to take effect
-exec_always "$HOME/.config/mako/launch.sh"
+# exec_always "$HOME/.config/mako/launch.sh"
 
 include /etc/sway/config.d/*

@@ -201,6 +201,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	 (config
 	  `((exec ,(file-append dbus "/bin/dbus-update-activation-environment")
 			  WAYLAND_DISPLAY XDG_CURRENT_DESKTOP)
+		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		;; resolves files/programs/dmenu
 		(set $menu dmenu)
 		(set $volume ,(fexec "files/sway/scripts/vol"))
@@ -214,7 +215,6 @@ Its value is a string containing the number of the generation to switch to."))))
 			 --effect-vignette 0.5:0.5
 			 --grace 2
 			 --fade-in 0.2)
-		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		(seat seat0 xcursor_theme Quintom_Ink 12)
 		(exec fnott --config=.cache/wal/fnott.ini &)
 		(include "~/.config/sway/base-config")
