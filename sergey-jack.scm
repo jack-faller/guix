@@ -32,6 +32,13 @@
   (chmod file #o777)
   (local-file file #:recursive? #t))
 (define (fexec . x) (executable-file (apply fname x)))
+(define (executable-shell-script name . lines-list)
+  (define script (apply lines (cons "#!/bin/sh" lines-list)))
+  (computed-file name #~(begin
+						  (use-modules (ice-9 ports))
+						  (call-with-output-file #$output
+							(lambda (file) (display #$script file)))
+						  (chmod #$output #o555))))
 
 (define nix-profile-service-type
   (let* ((switch-to-generstion
@@ -181,6 +188,14 @@ Its value is a string containing the number of the generation to switch to."))))
 		(".local/programs/em"
 		 ,(program-file "em-script" #~(apply system* "emacsclient" "-nw"
 											 (cdr (program-arguments)))))
+		(".local/programs/dev"
+		 ,(executable-shell-script
+		   "dev-script"
+		   "if [ -f guix.scm ]; then"
+		   "  LOC='-D -f guix.scm'"
+		   "fi"
+		   (string-append "guix shell $LOC -f "
+						  (dirname (current-filename)) "/$1-dev.scm")))
 		(".config/git/config" ,(f "files/gitconfig"))
 		,@(whole-dir "qutebrowser" ".config/qutebrowser")
 		,@(whole-dir "wal/templates" ".config/wal/templates")
