@@ -19,7 +19,8 @@
  password-utils wm tmux ssh terminals fonts glib imagemagick xdisorg
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
- haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz)
+ haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz xorg code
+ lisp)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -264,13 +265,15 @@ Its value is a string containing the number of the generation to switch to."))))
    pulseaudio
    gnupg pinentry ;; allows gnupg to prompt for password
    ;; wm
-   sway waybar gammastep wl-clipboard fnott
+   sway waybar gammastep wl-clipboard fnott xorg-server-xwayland
    python-pywal imagemagick
    brightnessctl
    kitty
    ;; editing
    emacs emacs-all-the-icons emacs-emacsql-sqlite3 hunspell hunspell-dict-en-gb
-   texlive-bin ;; for emacs previews requires fmtutil-sys --all
+   ;; for latex previews
+   texlive-base texlive-ulem texlive-amsfonts 
+   cloc
    vim
    ;; zsh
    zsh-syntax-highlighting zsh-autosuggestions
@@ -284,6 +287,7 @@ Its value is a string containing the number of the generation to switch to."))))
    git tmux rsync tree p7zip shellcheck glances
    dmenu
    zbar ;; reads bar/qr codes for qute script
+   sbcl
    ;; applications
    qutebrowser fontforge (list transmission "gui") icedove xournalpp evince mpv
    ;; NOTE: this should be steam nvidia on nvidia systems
