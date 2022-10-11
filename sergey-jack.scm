@@ -250,6 +250,9 @@ Its value is a string containing the number of the generation to switch to."))))
 	  `((load-file ,(f "files/emacs/early-init.el"))))
 	 (init-el
 	  `((require 'emacsql-sqlite)
+		;; handle special hunspell dictionary name
+		;; later defvar will be overridden by this
+		(defvar dict "en_GB-ise")
 		(load-file ,(f "files/emacs/init.el"))
 		(let ((settings (concat user-emacs-directory "settings.org")))
 		  (org-babel-tangle-file ,(f "files/emacs/settings.org") settings)

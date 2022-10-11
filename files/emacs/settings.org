@@ -1530,14 +1530,15 @@ These variables are recommended by =lsp-mode= to increase performance.
   (defvar dict "en_GB"
     "Dictionary to use.")
   (setf flyspell-issue-message-flag nil
-        ispell-local-dictionary "dict"
-        ispell-local-dictionary-alist
-        `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
+        ispell-dictionary "dict")
+  (push
+   `("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)
+   ispell-dictionary-alist)
   (cond
    ((executable-find "hunspell")
     (setf ispell-program-name "hunspell")
     (when (boundp 'ispell-hunspell-dictionary-alist)
-      (setf ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
+      (setf ispell-hunspell-dictionary-alist ispell-dictionary-alist)))
    ((executable-find "aspell")
     (setf ispell-program-name "aspell"
           ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
