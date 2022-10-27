@@ -102,6 +102,10 @@ Its value is a string containing the number of the generation to switch to."))))
 			 (videos "$HOME/vids")
 			 (pictures "$HOME/pics")
 			 (music "$HOME/music")))
+   (service
+	home-xdg-mime-applications-service-type
+	(home-xdg-mime-applications-configuration
+	 (default '((application/pdf . org.gnome.Evince.desktop)))))
    (simple-service
 	'my-daemons home-shepherd-service-type
 	(list
