@@ -429,6 +429,9 @@ align with previews
    next-error-message-highlight t
    ;; Ensure documentation is loaded from autoloaded functions
    help-enable-symbol-autoload t)
+  (setq-default
+   ;; files must end in newline
+   require-final-newline t)
 #+end_src
 ** Right Click Menu
 #+begin_src emacs-lisp
