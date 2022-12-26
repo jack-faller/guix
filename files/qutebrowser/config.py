@@ -41,3 +41,4 @@ c.tabs.new_position.unrelated = "next"
 
 c.spellcheck.languages = ["en-GB"]
 c.content.headers.user_agent = 'Linux / Firefox 82'
+c.content.autoplay = False
