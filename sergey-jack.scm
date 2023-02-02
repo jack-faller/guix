@@ -291,6 +291,7 @@ Its value is a string containing the number of the generation to switch to."))))
    python-pywal imagemagick
    brightnessctl
    kitty
+   slurp grim xdg-user-dirs zenity ;; screenshots
    ;; editing
    emacs emacs-all-the-icons emacs-emacsql-sqlite3 hunspell hunspell-dict-en-gb
    ;; for latex previews
