@@ -199,7 +199,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		   "  LOC='-D -f guix.scm'"
 		   "fi"
 		   (string-append "guix shell $LOC -f "
-						  (dirname (current-filename)) "/$1-dev.scm")))
+						  (dirname (current-filename)) "/dev/$1.scm")))
 		(".config/git/config" ,(f "files/gitconfig"))
 		,@(whole-dir "qutebrowser" ".config/qutebrowser")
 		,@(whole-dir "wal/templates" ".config/wal/templates")
