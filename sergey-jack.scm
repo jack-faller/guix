@@ -43,7 +43,7 @@
   (computed-file name #~(begin
 						  (use-modules (ice-9 ports))
 						  (call-with-output-file #$output
-							(lambda (file) (display #$script file)))
+							(λ (file) (display #$script file)))
 						  (chmod #$output #o555))))
 
 (define nix-profile-service-type
@@ -82,7 +82,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	 (string-append "echo '()' > " package-file)
 	 "fi")))
   (unless (equal? packages (with-input-from-file package-file read))
-	(with-output-to-file package-file (lambda () (write packages) (newline)))
+	(with-output-to-file package-file (λ () (write packages) (newline)))
 	(let* ((cmd (cons*
 				 "NIXPKGS_ALLOW_UNFREE=1" "nix-env" "--remove-all" "--install"
 				 packages))
@@ -208,7 +208,7 @@ Its value is a string containing the number of the generation to switch to."))))
 			   (apply system*
 					  "guix" "shell"
 					  (fold
-					   (lambda (arg acc)
+					   (λ (arg acc)
 						 (let ((file (string-append "/config/dev/" arg ".scm")))
 						   (cond
 							((equal? arg "-r") (cons "--rebuild-cache" acc))
