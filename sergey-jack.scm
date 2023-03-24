@@ -201,13 +201,26 @@ Its value is a string containing the number of the generation to switch to."))))
 		 ,(program-file "em-script" #~(apply system* "emacsclient" "-nw"
 											 (cdr (program-arguments)))))
 		(".local/programs/dev"
-		 ,(executable-shell-script
+		 ,(program-file
 		   "dev-script"
-		   "if [ -f guix.scm ]; then"
-		   "  LOC='-D -f guix.scm'"
-		   "fi"
-		   (string-append "guix shell $LOC -f "
-						  (dirname (current-filename)) "/dev/$1.scm")))
+		   #~(begin
+			   (use-modules (srfi srfi-1))
+			   (apply system*
+					  "guix" "shell"
+					  (fold
+					   (lambda (arg acc)
+						 (let ((file (string-append "/config/dev/" arg ".scm")))
+						   (cond
+							((equal? arg "-r") (cons "--rebuild-cache" acc))
+							((file-exists? file) (cons* "-f" file acc))
+							(else (cons arg acc)))))
+					   (let loop ((dir (getcwd)))
+						 (let ((guixscm (string-append dir "/guix.scm")))
+						   (cond
+							((file-exists? guixscm) `("-D" "-f" ,guixscm))
+							((equal? dir "/") '())
+							(else (loop (dirname dir))))))
+					   (cdr (program-arguments)))))))
 		(".config/git/config" ,(f "files/gitconfig"))
 		,@(whole-dir "qutebrowser" ".config/qutebrowser")
 		,@(whole-dir "wal/templates" ".config/wal/templates")
