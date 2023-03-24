@@ -20,7 +20,13 @@
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
  haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz xorg code
- lisp)
+ lisp image man chromium gimp base)
+
+(define my-glibc-locales
+  (make-glibc-utf8-locales
+   glibc
+   #:locales (list "en_GB")
+   #:name "glibc-english-utf8-locales"))
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -281,7 +287,7 @@ Its value is a string containing the number of the generation to switch to."))))
  (packages
   (list
    ;; basic
-   glibc glibc-locales ntfs-3g
+   glibc my-glibc-locales ntfs-3g
    adwaita-icon-theme
    udiskie
    pulseaudio
@@ -295,7 +301,7 @@ Its value is a string containing the number of the generation to switch to."))))
    ;; editing
    emacs emacs-all-the-icons emacs-emacsql-sqlite3 hunspell hunspell-dict-en-gb
    ;; for latex previews
-   texlive-base texlive-ulem texlive-amsfonts 
+   texlive-base texlive-ulem texlive-amsfonts
    cloc
    vim
    ;; zsh
@@ -311,7 +317,9 @@ Its value is a string containing the number of the generation to switch to."))))
    dmenu
    zbar ;; reads bar/qr codes for qute script
    sbcl
+   man-pages
    ;; applications
    qutebrowser fontforge (list transmission "gui") icedove xournalpp evince mpv
+   ungoogled-chromium gimp
    ;; NOTE: this should be steam nvidia on nvidia systems
    steam)))
