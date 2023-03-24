@@ -37,6 +37,7 @@ include {
     ~/.config/sway/binds
     # ~/.config/sway/bar
 }
+bindswitch lid:on $lock
 
 smart_gaps on
 smart_borders on
