@@ -20,7 +20,7 @@
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
  haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz xorg code
- lisp image man chromium gimp base)
+ lisp image man chromium gimp base hunspell)
 
 (define my-glibc-locales
   (make-glibc-utf8-locales
