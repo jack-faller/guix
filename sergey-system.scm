@@ -91,19 +91,21 @@
 
    ;; The D-Bus clique.
    (service avahi-service-type)
-   (udisks-service)
+   (service udisks-service-type)
    (service upower-service-type)
-   (accountsservice-service)
+   (service accountsservice-service-type)
    (service cups-pk-helper-service-type)
    (service colord-service-type)
-   (geoclue-service)
+   (service geoclue-service-type)
    (service polkit-service-type)
    polkit-wheel-service
-   (elogind-service)
-   (dbus-service)
+   (service elogind-service-type)
+   (service dbus-root-service-type)
 
    (service sane-service-type)
-   (screen-locker-service swaylock-effects "swaylock")
+   (service screen-locker-service-type
+			(screen-locker-configuration
+			 "swaylock" (file-append swaylock-effects "/bin/swaylock") #f))
 
    (service pulseaudio-service-type)
    (service alsa-service-type)
