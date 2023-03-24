@@ -119,10 +119,9 @@ Its value is a string containing the number of the generation to switch to."))))
 	  (provision '(ssh-agent))
 	  (documentation "run ssh-agent")
 	  (start #~(make-system-constructor
-				#$(file-append openssh "/bin/ssh-agent")
-				" > " (getenv "XDG_RUNTIME_DIR") "/ssh-agent.env"
-				" 2> " (getenv "XDG_LOG_HOME") "/ssh-agent.log"))
-	  (stop #~(make-kill-destructor)))
+				"ssh-agent > $XDG_RUNTIME_DIR/ssh-agent.env"
+				" 2> $XDG_LOG_HOME/ssh-agent.log"))
+	  (stop #~(make-system-destructor "pkill ssh-agent")))
 	 (shepherd-service
 	  (provision '(emacs-server))
 	  (requirement '(ssh-agent))
