@@ -199,6 +199,7 @@
                             ("*" (rx (| "/" "=" "+" ">")))
                             ("/" (rx "*"))
                             (">" (rx (? ">") "="))
+                            ("!" (rx (** 1 3 "=")))
                             ;; "<~~" "<~" "~>" (concat "~" "~>") "</" "</>" "/>" ;; these look funny
                             ;; "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--" "<!---"
                             ;; "<==" "<===" "=>" "=>>" "==>" "===>" "<=>" "<==>" "<===>" "<====>"
@@ -1141,6 +1142,14 @@ align with previews
     (lsp))
   (setq-mode-local c-mode lsp-ui-sideline-enable nil)
   (evil-define-key '(normal insert) c-mode-map
+    (kbd "<leader>s") #'ff-find-other-file)
+#+end_src
+** C++
+#+begin_src emacs-lisp
+  (hook 'c++-mode-hook
+    (indent-tabs-mode -1)
+    (lsp))
+  (evil-define-key '(normal insert) c++-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
 #+end_src
 ** HTML
