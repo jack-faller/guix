@@ -208,7 +208,7 @@ Its value is a string containing the number of the generation to switch to."))))
 			   (apply system*
 					  "guix" "shell"
 					  (fold
-					   (λ (arg acc)
+					   (lambda (arg acc)
 						 (let ((file (string-append "/config/dev/" arg ".scm")))
 						   (cond
 							((equal? arg "-r") (cons "--rebuild-cache" acc))
