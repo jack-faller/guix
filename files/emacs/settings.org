@@ -1065,11 +1065,7 @@ align with previews
     (require 'pcmpl-args)
     (setq-local corfu-map (copy-keymap corfu-map))
     (evil-define-key 'insert corfu-map
-      (kbd ".") nil
-      (kbd "RET") (evil-define-command corfu-eshell-ret () (corfu-insert) (eshell-send-input))
-      (kbd "<return>") #'corfu-eshell-ret
-      (kbd "SPC") nil
-      (kbd "<space>") nil))
+      (kbd "RET") (evil-define-command corfu-eshell-ret () (corfu-insert) (eshell-send-input))))
 #+end_src
 ** Magit
 #+begin_src emacs-lisp
@@ -1224,16 +1220,13 @@ align with previews
 #+begin_src emacs-lisp
   (pkg corfu :require t)
   (setf
-   corfu-cycle t
-   corfu-preselect-first nil
    corfu-auto t
    corfu-auto-delay 0
    corfu-auto-prefix 0
    corfu-separator ?\s
    corfu-on-exact-match nil
    corfu-quit-no-match nil
-   corfu-echo-documentation nil
-   corfu-preselect-first nil)
+   corfu-echo-documentation nil)
   (evil-define-key 'insert 'global
     (kbd "TAB") #'completion-at-point
     (kbd "<tab>") #'completion-at-point)
@@ -1255,13 +1248,12 @@ align with previews
 Binding these keys to insert the completion then exit allows for more fluid completion.
 Instead of accepting, you can just keep typing to get the same effect.
 #+begin_src emacs-lisp
-  (evil-define-key 'insert corfu-map
-    (kbd ".") (evil-define-command corfu-insert-dot () (corfu-insert) (insert "."))
-    (kbd "RET") (evil-define-command corfu-insert-ret () (corfu-insert) (newline nil t))
-    (kbd "<return>") #'corfu-insert-ret
-    (kbd "<escape>") (evil-define-command corfu-insert-escape () (corfu-insert) (evil-normal-state))
-    (kbd "SPC") (evil-define-command corfu-insert-space () (corfu-insert) (insert " "))
-    (kbd "<space>") #'corfu-insert-space)
+  (setf
+   corfu-cycle t
+   corfu-preselect-first nil)
+  (evil-define-key nil corfu-map
+    (kbd "RET") nil
+    (kbd "<return>") nil)
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
