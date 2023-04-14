@@ -1,2 +1,2 @@
 (use-modules (gnu packages java))
-(list (list openjdk "jdk") java-junit)
+(list (list openjdk "jdk"))
