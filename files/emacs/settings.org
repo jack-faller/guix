@@ -1168,6 +1168,23 @@ align with previews
                     (re-search-forward (rx "</" (*? any) ">"))
                     (setf (point) (match-end 0)))))
 #+end_src
+** Java
+#+begin_src emacs-lisp
+  (pkg lsp-java)
+  (add-hook 'java-mode-hook #'lsp)
+#+end_src
+** Clojure
+#+begin_src emacs-lisp
+  (pkg cider)
+  (setq cider-repl-pop-to-buffer-on-connect 'display-only)
+  (evil-collection-define-key '(normal visual) 'cider-mode-map
+    "gF" #'cider-find-resource
+    "gf" #'find-file)
+  (hook 'clojure-mode-hook
+    (lispyville-mode 1)
+    (unless (cider-connected-p)
+      (cider-jack-in nil)))
+#+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
   (pkg which-key :require t)
