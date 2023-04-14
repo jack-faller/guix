@@ -88,15 +88,17 @@
     `(evil-define-command ,(symcat 'toggle- var-name) ()
        (setf ,var-name (not ,var-name))))
 #+end_src
-** Hook
+** Defhook
 #+begin_src emacs-lisp
-  (defmacro hook (hook &rest body)
-    "Run body after hook."
+  (defmacro defhook (name &rest body)
+    "Define my--NAME-hook as a function that runs BODY and attach it to NAME-hook.
+  This form can be re-evaluated to redefine the hook."
     (declare (indent 1))
-    `(let ((fn (lambda () ,@body)))
-       ,(if (listp (cadr hook))
-            `(dolist (i ,hook) (add-hook i fn))
-          `(add-hook ,hook fn))))
+    (let* ((hook (symcat name '-hook))
+           (func (symcat 'my-- hook)))
+     `(progn
+       (defun ,func () ,@body)
+       (add-hook ',hook ',func))))
 #+end_src
 ** Mode Local
 #+begin_src emacs-lisp
@@ -128,14 +130,13 @@
 ** Frame Kill Buffers
 #+begin_src emacs-lisp
   (defvar frame-kill-buffers nil
-    "Buffer that should kill their frame when killed. Used for emacs server.")
+    "Buffers that should kill their frame when killed. Used for emacs server.")
 
-  (add-hook 'kill-buffer-hook
-            (defun delete-frame-if-frame-kill-buffer ()
-              (when (memq (current-buffer) frame-kill-buffers)
-                (setf frame-kill-buffers
-                      (delete (current-buffer) frame-kill-buffers))
-                (delete-frame))))
+  (defhook kill-buffer
+    (when (memq (current-buffer) frame-kill-buffers)
+      (setf frame-kill-buffers
+            (delete (current-buffer) frame-kill-buffers))
+      (delete-frame)))
 #+end_src
 ** Point Functions
 #+begin_src emacs-lisp
@@ -302,7 +303,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
     (setf undo-tree-history-directory-alist (list (cons "." undo-dir))))
   ;; this is broken, the after save hook below fixes it, but it still needs to be here
-  (hook 'after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
+  (defhook after-save (when undo-tree-mode (undo-tree-save-history nil t)))
   (global-undo-tree-mode)
 
   (pkg goto-chg :require t)
@@ -757,8 +758,7 @@ align with previews
 ** Scheme
 #+begin_src emacs-lisp
   (pkg geiser)
-  (add-hook 'scheme-mode-hook #'geiser-mode)
-  (add-hook 'scheme-mode-hook #'lispyville-mode)
+  (defhook scheme-mode (geiser-mode) (lispyville-mode))
   (setf geiser-mode-start-repl-p t)
 
   (pkg geiser-guile)
@@ -862,7 +862,7 @@ align with previews
 *** Org-mode
 #+begin_src emacs-lisp
   (with-eval-after-load 'org-indent (diminish 'org-indent-mode))
-  (hook 'org-mode-hook
+  (defhook org-mode
     (org-indent-mode)
     (variable-pitch-mode)
     (setq-local electric-pair-inhibit-predicate
@@ -1061,7 +1061,7 @@ align with previews
 ** Eshell
 #+begin_src emacs-lisp
   (pkg pcmpl-args)
-  (hook 'eshell-mode-hook
+  (defhook eshell-mode
     (require 'pcmpl-args)
     (setq-local corfu-map (copy-keymap corfu-map))
     (evil-define-key 'insert corfu-map
@@ -1112,7 +1112,7 @@ align with previews
 
   (pkg erc-nick-notify)
 
-  (hook 'erc-mode-hook
+  (defhook erc-mode
     (require 'erc-nick-notify)
     (require 'erc-pcomplete)
     (pcomplete-erc-setup)
@@ -1133,7 +1133,7 @@ align with previews
 #+end_src
 ** C
 #+begin_src emacs-lisp
-  (hook 'c-mode-hook
+  (defhook c-mode
     (indent-tabs-mode -1)
     (lsp))
   (setq-mode-local c-mode lsp-ui-sideline-enable nil)
@@ -1142,7 +1142,7 @@ align with previews
 #+end_src
 ** C++
 #+begin_src emacs-lisp
-  (hook 'c++-mode-hook
+  (defhook c++-mode
     (indent-tabs-mode -1)
     (lsp))
   (evil-define-key '(normal insert) c++-mode-map
@@ -1180,7 +1180,7 @@ align with previews
   (evil-collection-define-key '(normal visual) 'cider-mode-map
     "gF" #'cider-find-resource
     "gf" #'find-file)
-  (hook 'clojure-mode-hook
+  (defhook clojure-mode
     (lispyville-mode 1)
     (unless (cider-connected-p)
       (cider-jack-in nil)))
@@ -1486,7 +1486,7 @@ These variables are recommended by =lsp-mode= to increase performance.
 * Flycheck
 #+begin_src emacs-lisp
   (pkg flycheck :require t)
-  (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
+  (defhook emacs-lisp-mode (flycheck-mode -1))
   (evil-declare-not-repeat #'flycheck-next-error)
   (evil-declare-not-repeat #'flycheck-previous-error)
   (evil-define-key 'normal flycheck-mode-map
