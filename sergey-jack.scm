@@ -20,7 +20,7 @@
  fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
  gnuzilla freedesktop package-management pulseaudio gnupg admin compression
  haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz xorg code
- lisp image man chromium gimp base hunspell)
+ lisp image man chromium gimp base hunspell freedesktop)
 
 (define my-glibc-locales
   (make-glibc-utf8-locales
@@ -111,7 +111,10 @@ Its value is a string containing the number of the generation to switch to."))))
    (service
 	home-xdg-mime-applications-service-type
 	(home-xdg-mime-applications-configuration
-	 (default '((application/pdf . org.gnome.Evince.desktop)))))
+	 (default '((application/pdf . org.gnome.Evince.desktop)
+				(application/x-torrent . transmission-gtk.desktop)
+				(x-scheme-handler/magnet . transmission-gtk.desktop)
+				(application/x-bittorrent . transmission-gtk.desktop)))))
    (simple-service
 	'my-daemons home-shepherd-service-type
 	(list
@@ -335,5 +338,6 @@ Its value is a string containing the number of the generation to switch to."))))
    ;; applications
    qutebrowser fontforge (list transmission "gui") icedove xournalpp evince mpv
    ungoogled-chromium gimp
+   xdg-utils
    ;; NOTE: this should be steam nvidia on nvidia systems
    steam)))
