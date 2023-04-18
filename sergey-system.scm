@@ -56,6 +56,17 @@
 				(home-directory "/home/jack")
 				(supplementary-groups '("wheel" "netdev" "audio" "video")))
 			   %base-user-accounts))
+ (sudoers-file
+  (computed-file
+   "sudoers"
+   #~(with-output-to-file #$output
+	   (lambda ()
+		 (use-modules (ice-9 textual-ports))
+		 (display (call-with-input-file #$%sudoers-specification
+										get-string-all))
+		 (newline)
+		 (display "%wheel ALL=(ALL) NOPASSWD: /home/jack/.guix-home/profile/sbin/halt")
+		 (newline)))))
 
  (packages (cons* nix sway vim git zsh
 				  (specification->package "nss-certs") %base-packages))
