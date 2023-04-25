@@ -6,6 +6,6 @@ input type:touchpad {
 
 input type:keyboard {
     xkb_layout "gb"
-    xkb_options "caps:escape"
+    xkb_options "caps:escape,compose:menu"
 }
 
