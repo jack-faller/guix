@@ -811,6 +811,7 @@ align with previews
   (diminish 'centered-cursor-mode)
   (global-centered-cursor-mode 1)
   (push #'abort-recursive-edit ccm-ignored-commands)
+  (setf scroll-conservatively most-positive-fixnum)
 #+end_src
 * Major Modes
 ** Prog
