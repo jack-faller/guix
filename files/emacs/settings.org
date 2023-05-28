@@ -1268,7 +1268,7 @@ Instead of accepting, you can just keep typing to get the same effect.
 #+begin_src emacs-lisp
   (setf
    corfu-cycle t
-   corfu-preselect-first nil)
+   corfu-preselect 'prompt)
   (evil-define-key nil corfu-map
     (kbd "RET") nil
     (kbd "<return>") nil)
