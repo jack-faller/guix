@@ -1144,7 +1144,27 @@ align with previews
 #+begin_src emacs-lisp
   (defhook c++-mode
     (indent-tabs-mode -1)
-    (lsp))
+    (eglot-ensure))
+  (after-load eglot
+    (push
+     '((c++-mode)
+       "clangd"
+       "--malloc-trim"
+       "--background-index"
+       "--clang-tidy"
+       ;; This can be either memory or storage.
+       ;; For projects with large headers, memory will quickly run out.
+       ;; The storage option persists files to /tmp which is also in usually RAM.
+       ;; The only effect of setting this variable is weather the caches remain in
+       ;; /tmp filling up RAM after the server exists.
+       ;; This behaviour can be altered by setting the TMPDIR environment
+       ;; variable, but I can't figure out how to do that with Eglot.
+       "--pch-storage=memory"
+       ;; This can be annoying if it gets the insertion wrong, happens silently,
+       ;; and often screws up the formatting of #includes and #defines.
+       "--header-insertion=never"
+       "--header-insertion-decorators=0")
+     eglot-server-programs))
   (evil-define-key '(normal insert) c++-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
 #+end_src
@@ -1337,6 +1357,31 @@ Cape suggests this snippet.
   (setf eldoc-idle-delay 0)
 #+end_src
 ** Language Server Support (LSP)
+*** Eglot
+#+begin_src emacs-lisp
+  (pkg eglot)
+  ;; this breaks the binds for some reason
+  ;; (setf eglot-autoshutdown t)
+  (defhook eglot-mode
+    (flycheck-mode -1))
+  (evil-define-key 'normal eglot-mode-map
+    (kbd "<leader>=") #'eglot-format
+    (kbd "<leader>gd") #'eglot-find-implementation
+    (kbd "<leader>gD") #'eglot-find-declaration
+    (kbd "<leader>gr") #'xref-find-references
+    (kbd "<leader>gt") #'eglot-find-typeDefinition
+    (kbd "<leader>ga") #'xref-find-apropos
+    (kbd "<leader>r") #'eglot-rename
+    (kbd "<leader>a") #'eglot-code-actions
+    (kbd "<leader>o") #'eglot-code-action-organize-imports
+    (kbd "<leader>f") #'eglot-code-action-quickfix
+    (kbd "<leader>i") #'eglot-code-action-inline
+    (kbd "<leader>x") #'eglot-code-action-extract
+    (kbd "<leader>w") #'eglot-code-action-rewrite
+    (kbd "<leader>h") #'eglot-inlay-hints-mode
+    (kbd "<leader>E") #'flymake-show-buffer-diagnostics
+    (kbd "<leader>M-E") #'flymake-show-project-diagnostics)
+#+end_src
 *** Performance
 These variables are recommended by =lsp-mode= to increase performance.
 #+begin_src emacs-lisp
@@ -1412,6 +1457,8 @@ These variables are recommended by =lsp-mode= to increase performance.
 
   (evil-define-key 'normal flycheck-mode-map
     (kbd "<leader>e") #'consult-flycheck)
+  (evil-define-key 'normal flymake-mode-map
+    (kbd "<leader>e") #'consult-flymake)
   (evil-define-key 'normal 'global
     (kbd "gb") #'consult-buffer
     (kbd "g'") #'evil-collection-consult-mark
