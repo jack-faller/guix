@@ -12,6 +12,7 @@
 			 (gnu home services shells)
 			 (gnu home services shepherd)
 			 (nongnu packages steam-client)
+			 (nongnu packages fonts)
 			 (rde home services wm)
 			 (gnu home-services emacs))
 (use-package-modules
@@ -328,7 +329,7 @@ Its value is a string containing the number of the generation to switch to."))))
    ;; font
    font-iosevka
    font-google-material-design-icons
-   gs-fonts font-dejavu font-gnu-freefont
+   font-microsoft-impact gs-fonts font-dejavu font-gnu-freefont
    ;; cli utilities
    exa ;; ls alternative
    git tmux rsync tree p7zip shellcheck glances
@@ -336,6 +337,7 @@ Its value is a string containing the number of the generation to switch to."))))
    zbar ;; reads bar/qr codes for qute script
    sbcl
    man-pages
+   yt-dlp
    ;; applications
    qutebrowser fontforge (list transmission "gui") icedove xournalpp evince mpv
    ungoogled-chromium gimp
