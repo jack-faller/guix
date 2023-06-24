@@ -65,8 +65,10 @@
 		 (display (call-with-input-file #$%sudoers-specification
 										get-string-all))
 		 (newline)
-		 (display "%wheel ALL=(ALL) NOPASSWD: /home/jack/.guix-home/profile/sbin/halt")
-		 (newline)))))
+		 (define str "%wheel ALL=(ALL) NOPASSWD: /home/jack/.guix-home/profile/sbin/")
+		 (define (nopass prog) (display str) (display prog) (newline))
+		 (nopass "halt")
+		 (nopass "reboot")))))
 
  (packages (cons* nix sway vim git zsh
 				  (specification->package "nss-certs") %base-packages))
