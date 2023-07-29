@@ -729,30 +729,39 @@ align with previews
 ** Rust
 #+begin_src emacs-lisp
   (pkg rustic)
-  (setf lsp-rust-server 'rust-analyzer)
-  (setq-mode-local rustic-mode
-                   lsp-ui-sideline-show-hover nil
-                   lsp-rust-analyzer-cargo-watch-command "clippy")
+  (setq rustic-lsp-client 'eglot)
+
+  ;; Rustic sets eglot server programs so relace that value.
+  (after-load rustic
+    (after-load eglot
+      (push
+       '((rustic-mode)
+         "rust-analyzer"
+         :initializationOptions
+         (:rust-analyzer
+          (:checkOnSave
+           (
+            :enable t
+            :command "clippy"))))
+       eglot-server-programs)))
   (set-tab-width-in rust-mode 2)
   (setf rust-indent-offset 2)
   (custom-set-default 'rustic-indent-offset 2)
   (setq-mode-local rustic-mode mode-print-formatter
                    (lambda (text)
                      (concat "println!(\"{:#?}\", (" text "));")))
-
-  (add-hook 'rust-mode #'lsp)
 #+end_src
 ** C#
 #+begin_src emacs-lisp
   (pkg csharp-mode)
   (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
-  (setq-mode-local csharp-mode lsp-ui-sideline-show-hover nil)
   (setq-mode-local csharp-mode mode-print-formatter
                    (lambda (str)
                      (setf str (replace-regexp-in-string ";" " +" str))
                      (concat "Console.WriteLine(" str ");")))
-  ;; (setf lsp-csharp-server-path "/usr/bin/omnisharp")
-  (add-hook 'csharp-mode-hook 'lsp)
+  (defhook csharp-mode (eglot-ensure))
+  (after-load eglot
+    (push '((csharp-mode) "omnisharp" "-lsp") eglot-server-programs))
   (set-tab-width-in csharp-mode 4)
 #+end_src
 ** Scheme
@@ -809,13 +818,17 @@ align with previews
 ** Haskell
 #+begin_src emacs-lisp
   (pkg haskell-mode)
-  (pkg lsp-haskell)
-  (after-load haskell-mode (require 'lsp-haskell))
-  (add-hook 'haskell-mode-hook #'lsp)
+  (defhook haskell-mode (eglot-ensure))
   (setq-mode-local haskell-mode
-                   lsp-ui-sideline-show-hover nil
                    electric-pair-pairs (cons '(?` . ?`) electric-pair-pairs))
   (setf lsp-haskell-formatting-provider "fourmolu")
+  (after-load eglot
+    (push
+     '((haskell-mode)
+       "haskell-language-server" "--lsp"
+       :initializationOptions
+       (:haskell\.formattingProvider "fourmolu"))
+     eglot-server-programs))
 #+end_src
 ** Context
 #+begin_src emacs-lisp
@@ -1135,8 +1148,7 @@ align with previews
 #+begin_src emacs-lisp
   (defhook c-mode
     (indent-tabs-mode -1)
-    (lsp))
-  (setq-mode-local c-mode lsp-ui-sideline-enable nil)
+    (eglot-ensure))
   (evil-define-key '(normal insert) c-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
 #+end_src
@@ -1190,8 +1202,7 @@ align with previews
 #+end_src
 ** Java
 #+begin_src emacs-lisp
-  (pkg lsp-java)
-  (add-hook 'java-mode-hook #'lsp)
+  (defhook java-mode (eglot-ensure))
 #+end_src
 ** Clojure
 #+begin_src emacs-lisp
@@ -1360,10 +1371,7 @@ Cape suggests this snippet.
 *** Eglot
 #+begin_src emacs-lisp
   (pkg eglot)
-  ;; this breaks the binds for some reason
-  ;; (setf eglot-autoshutdown t)
-  (defhook eglot-mode
-    (flycheck-mode -1))
+  (setf eglot-autoshutdown t)
   (evil-define-key 'normal eglot-mode-map
     (kbd "<leader>=") #'eglot-format
     (kbd "<leader>gd") #'eglot-find-implementation
@@ -1387,50 +1395,6 @@ These variables are recommended by =lsp-mode= to increase performance.
 #+begin_src emacs-lisp
   (setf read-process-output-max (* 1024 1024))
 #+end_src
-*** LSP-Mode
-#+begin_src emacs-lisp
-  (pkg lsp-mode)
-  (setf lsp-eldoc-enable-hover nil
-        lsp-signature-render-documentation nil)
-  (add-hook 'lsp-mode-hook 'evil-normal-state)
-  (evil-define-key 'normal lsp-mode-map
-    (kbd "<leader>=") #'lsp-format-buffer
-    (kbd "<leader>gd") #'lsp-find-definition
-    (kbd "<leader>gD") #'lsp-find-declaration
-    (kbd "<leader>gr") #'lsp-find-references
-    (kbd "<leader>gi") #'lsp-find-implementation
-    (kbd "<leader>gt") #'lsp-find-type-definition
-    ;; (kbd "<leader>gh") #'hierarchy
-    (kbd "<leader>ga") #'xref-find-apropos
-    (kbd "<leader>o") #'lsp-organize-imports
-    (kbd "<leader>r") #'lsp-rename
-    (kbd "<leader>te") (interactive-toggle lsp-eldoc-enable-hover)
-    (kbd "<leader>a") #'lsp-execute-code-action
-    (kbd "K") #'lsp-ui-doc-show
-    (kbd "gK") #'lsp-describe-thing-at-point)
-#+end_src
-*** Corfu + Cape
-#+begin_src emacs-lisp
-  (setf lsp-completion-provider :none)
-  (defun my/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless+initialism partial-completion basic)))
-  (add-hook 'lsp-completion-mode #'my/lsp-mode-setup-completion)
-  (with-eval-after-load 'lsp-mode
-    (fset 'lsp-completion-at-point (cape-capf-buster (symbol-function 'lsp-completion-at-point))))
-#+end_src
-*** Prettify
-#+begin_src emacs-lisp
-  (pkg lsp-ui)
-  (setf lsp-ui-sideline-enable nil
-        lsp-ui-doc-enable t
-        lsp-ui-doc-delay most-positive-fixnum
-        lsp-ui-doc-position 'top
-        lsp-ui-sideline-show-hover t
-        lsp-ui-sideline-show-symbol t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-code-actions t)
-#+end_src
 ** Completion Filtering
 #+begin_src emacs-lisp
   (pkg orderless :require t)
@@ -1450,13 +1414,10 @@ These variables are recommended by =lsp-mode= to increase performance.
 ** Consult
 #+begin_src emacs-lisp
   (pkg consult)
-  (pkg consult-flycheck)
   (pkg consult-projectile)
   (with-eval-after-load 'consult
     (evil-collection-consult-setup))
 
-  (evil-define-key 'normal flycheck-mode-map
-    (kbd "<leader>e") #'consult-flycheck)
   (evil-define-key 'normal flymake-mode-map
     (kbd "<leader>e") #'consult-flymake)
   (evil-define-key 'normal 'global
@@ -1530,16 +1491,6 @@ These variables are recommended by =lsp-mode= to increase performance.
     (evil-define-key 'normal map
       (kbd "q") (interactive-chain #'kill-compilation #'quit-window)))
   (setf projectile-project-search-path '("~/code/"))
-#+end_src
-* Flycheck
-#+begin_src emacs-lisp
-  (pkg flycheck :require t)
-  (defhook emacs-lisp-mode (flycheck-mode -1))
-  (evil-declare-not-repeat #'flycheck-next-error)
-  (evil-declare-not-repeat #'flycheck-previous-error)
-  (evil-define-key 'normal flycheck-mode-map
-    (kbd "<leader>E") #'list-flycheck-errors)
-  (global-flycheck-mode)
 #+end_src
 * Pastebin Services
 #+begin_src emacs-lisp
