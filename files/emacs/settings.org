@@ -534,7 +534,7 @@ align with previews
   (defun print-text-on-line ()
     "Apply mode-print-formatter to the text on the current line."
     (interactive)
-    (act-on-line #'replace mode-print-formatter))
+    (act-on-line 'replace mode-print-formatter))
 
   (evil-define-key 'normal 'global
     (kbd "gp") #'print-text-on-line)
