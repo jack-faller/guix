@@ -16,8 +16,10 @@
 * Utilities
 ** Concat Symbols
 #+begin_src emacs-lisp
+  (defun str (x)
+    (if (symbolp x) (symbol-name x) x))
   (defun symcat (&rest symbols)
-    (intern (apply #'concat (mapcar #'symbol-name symbols))))
+    (intern (apply #'concat (mapcar #'str symbols))))
 #+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
@@ -85,17 +87,17 @@
 #+begin_src emacs-lisp
   (defmacro interactive-toggle (var-name)
     "Define a toggle function for var-name and return it."
-    `(evil-define-command ,(symcat 'toggle- var-name) ()
+    `(evil-define-command ,(symcat "toggle-" var-name) ()
        (setf ,var-name (not ,var-name))))
 #+end_src
 ** Defhook
 #+begin_src emacs-lisp
   (defmacro defhook (name &rest body)
-    "Define my--NAME-hook as a function that runs BODY and attach it to NAME-hook.
+    "Define my/NAME-hook as a function that runs BODY and attach it to NAME-hook.
   This form can be re-evaluated to redefine the hook."
     (declare (indent 1))
-    (let* ((hook (symcat name '-hook))
-           (func (symcat 'my-- hook)))
+    (let* ((hook (symcat name "-hook"))
+           (func (symcat "my/" hook)))
      `(progn
        (defun ,func () ,@body)
        (add-hook ',hook ',func))))
@@ -1477,7 +1479,7 @@ These variables are recommended by =lsp-mode= to increase performance.
     (kbd "<f7>") #'projectile-configure-project)
   (cl-mapc
    (lambda (cmd map)
-     (eval `(evil-define-command ,(symcat 'my/ cmd '-default) (arg)
+     (eval `(evil-define-command ,(symcat "my/" cmd "-default") (arg)
               (interactive "P")
               (remhash (projectile-compilation-dir) ,map)
               (,cmd arg))))
