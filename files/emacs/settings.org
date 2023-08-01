@@ -510,9 +510,7 @@ align with previews
   (evil-define-key 'normal 'global
     (kbd "U") #'evil-redo
     (kbd "<escape>") #'evil-ex-nohighlight
-    (kbd "<global-leader>s") (evil-define-command goto-scratch-buffer ()
-                               (switch-to-buffer "*scratch*")
-                               (unless (eq major-mode 'emacs-lisp-mode) (emacs-lisp-mode)))
+    (kbd "<global-leader>s") #'scratch-buffer
     (kbd "<global-leader>b") #'bookmark-jump
     (kbd "<global-leader>B") #'bookmark-set
     (kbd "<global-leader>td") #'toggle-debug-on-error
