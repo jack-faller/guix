@@ -1732,6 +1732,7 @@ These variables are recommended by =lsp-mode= to increase performance.
     "Dictionary to use.")
   (setf flyspell-issue-message-flag nil
         ispell-dictionary "dict")
+  (require 'ispell)
   (push
    `("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)
    ispell-dictionary-alist)
