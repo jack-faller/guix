@@ -1450,7 +1450,13 @@ align with previews
 ** Buffer
 *** Completions
 #+begin_src emacs-lisp
-  (pkg corfu :require t)
+  (straight-use-package '(corfu :files (:defaults "extensions/*")))
+  (require 'corfu)
+  (require 'corfu-popupinfo)
+  (require 'corfu-history)
+  (corfu-history-mode)
+  (corfu-popupinfo-mode)
+  (global-corfu-mode)
   (setf
    corfu-auto t
    corfu-auto-delay 0
@@ -1458,6 +1464,7 @@ align with previews
    corfu-separator ?\s
    corfu-on-exact-match nil
    corfu-quit-no-match nil
+   corfu-popupinfo-delay 0.1
    corfu-echo-documentation nil)
   (evil-define-key 'insert 'global
     (kbd "TAB") #'completion-at-point
@@ -1472,9 +1479,6 @@ align with previews
     (kbd "M-RET") #'corfu-insert
     (kbd "M-<return>") #'corfu-insert
     (kbd "M-q") #'corfu-reset)
-  (load "extensions/corfu-history.el")
-  (corfu-history-mode)
-  (global-corfu-mode)
 #+end_src
 *** Tab and Go Completion
 Binding these keys to insert the completion then exit allows for more fluid completion.
@@ -1535,15 +1539,6 @@ Cape suggests this snippet.
           ,@(cdddr output)))))
   (mapc (lambda (x) (add-to-list 'completion-at-point-functions x))
         (list #'cape-dabbrev #'cape-abbrev #'cape-tex #'cape-rfc1345 #'my/cape-file))
-#+end_src
-*** Documentation
-#+begin_src emacs-lisp
-  (pkg corfu-doc)
-  (add-hook 'corfu-mode-hook #'corfu-doc-mode)
-  (setf corfu-doc-max-width 80)
-  (evil-define-key nil corfu-map
-    (kbd "M-d") #'corfu-doc-scroll-up
-    (kbd "M-u") #'corfu-doc-scroll-down)
 #+end_src
 ** Eldoc
 #+begin_src emacs-lisp
