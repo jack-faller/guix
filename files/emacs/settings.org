@@ -21,6 +21,25 @@
   (defun symcat (&rest symbols)
     (intern (apply #'concat (mapcar #'str symbols))))
 #+end_src
+** Tree Sitter
+#+begin_src emacs-lisp
+  (setf treesit-language-source-alist nil)
+  (defun ts-lang-repo (lang-name)
+    (concat "https://github.com/tree-sitter/tree-sitter-" lang-name))
+  (defun ts-ensure (lang-name &optional url revision src-dir cc c++)
+    (push (list lang-name (or url (ts-lang-repo (symbol-name lang-name))) revision src-dir cc c++)
+          treesit-language-source-alist)
+    (unless (treesit-language-available-p lang-name)
+      (treesit-install-language-grammar lang-name)))
+  (defun ts-install-basic (lang-name mode-name ts-mode-name &optional url revision src-dir cc c++)
+    (push (cons mode-name ts-mode-name) major-mode-remap-alist)
+    (ts-ensure lang-name url revision src-dir cc c++))
+  (defun ts-install (ts-lang-name &optional lang-name url revision src-dir cc c++)
+    (ts-install-basic ts-lang-name
+                      (symcat (or lang-name ts-lang-name) "-mode")
+                      (symcat (or lang-name ts-lang-name) "-ts-mode")
+                      url revision src-dir cc c++))
+#+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
   (defun ensure-file (path)
@@ -600,13 +619,162 @@ align with previews
   (with-eval-after-load 'evil-maps
     (define-key evil-motion-state-map (kbd "M-u") nil))
 #+end_src
+** Structural Editing with Treesitter
+#+begin_src emacs-lisp
+  ;; Atoms are nodes with no children or unnamed nodes.
+  ;; Nodes beginning and ending with unnamed nodes tend to be lists.
+  ;; Nodes containing a mixture of lists and non-lists tend to be blocks.
+  ;; Blocks are usually all nodes that aren't lists or atoms.
+  (defun first-child (node &optional named)
+    (treesit-node-child node 0 named))
+  (defun last-child (node &optional named)
+    (treesit-node-child node (- (treesit-node-child-count node named) 1) named))
+
+  (defun node-atom-p (node)
+    (when (or (not (treesit-node-check node 'named))
+              (= (treesit-node-child-count node) 0))
+      node))
+  (defun node-list-p (node)
+    (and (not (node-atom-p node))
+         (<= 2 (treesit-node-child-count node))
+         (not (treesit-node-check (first-child node) 'named))
+         (not (treesit-node-check (last-child node) 'named))
+         node))
+  (defun node-block-p (node)
+    (and (not (node-list-p node))
+         (not (node-atom-p node))
+         node))
+
+  (defun node-at-point ()
+    (let ((min (treesit-node-at (point))))
+      (or (treesit-parent-while
+           min (lambda (node) (= (treesit-node-start node)
+                                 (treesit-node-start min))))
+          min)))
+  (defun list-at-point ()
+    (treesit-parent-until (node-at-point) #'node-list-p t))
+  (defun node-times (times node f &optional named)
+    (dotimes (_ times) (setf node (or (funcall f node named) node)))
+    node)
+  (defun nth-sibling (n node &optional named)
+    (if (< n 0)
+        (node-times (- n) node #'treesit-node-prev-sibling named)
+      (node-times n node #'treesit-node-next-sibling named)))
+  (defun node-body (node)
+    (if (node-list-p node)
+        node
+      (last-child node)))
+  (defun body-child (node)
+    (let ((body (if (node-list-p node) node (node-body node))))
+      (first-child body (node-list-p body))))
+  (defun body-parent (node)
+    (let* ((parent (treesit-node-parent node))
+           (grandarent (treesit-node-parent parent)))
+      (when(node-list-p parent) (message "part"))
+      (when (node-block-p grandarent) (message "gart"))
+      (message (treesit-node-type parent))
+      (if (and grandarent (node-list-p parent) (node-block-p grandarent))
+          grandarent parent)))
+
+  (defun nth-fun (n node fun &rest args)
+    (dotimes (_ n) (setf node (or (apply fun node args) node)))
+    node)
+  (defun nth-parent (n node) (nth-fun n node #'treesit-node-parent))
+  (defun nth-body-parent (n node) (nth-fun n node #'body-parent))
+  (defun nth-body-child (n node) (nth-fun n node #'body-child))
+  (defun goto-start (node)
+    (when node (goto-char (treesit-node-start node))))
+
+  (defun node-bounds (node)
+    (list (treesit-node-start node) (treesit-node-end node)))
+  (defun bounds-delete (bounds)
+    (delete-region (car bounds) (cadr bounds)))
+  (defun bounds-string (bounds)
+    (buffer-substring (car bounds) (cadr bounds)))
+  (defun bounds-replace (bounds str)
+    (bounds-delete bounds)
+    (save-excursion
+      (goto-char (car bounds))
+      (insert str)))
+  (defun bounds-swap (a b)
+    (when (< (car b) (car a))
+      (let ((tmp a))
+        (setf a b
+              b tmp)))
+    (let* ((a-str (bounds-string a))
+           (b-str (bounds-string b)))
+      (save-excursion
+       (bounds-replace b a-str)
+       (bounds-replace a b-str))))
+
+  (evil-define-key 'motion 'global
+    ;; TODO: aggregate jumps on these commands so that C-o will go back before a
+    ;; sequence of them.
+    (kbd "M-h") (evil-define-motion tree-up (count)
+                  (goto-start (nth-body-parent (or count 1) (node-at-point))))
+    (kbd "M-j") (evil-define-motion tree-next (count)
+                  (goto-start (nth-sibling (or count 1) (node-at-point) t)))
+    (kbd "M-k") (evil-define-motion tree-prev (count)
+                  (goto-start (nth-sibling (- (or count 1)) (node-at-point) t)))
+    (kbd "M-l") (evil-define-motion tree-down (count)
+                  (goto-start (nth-body-child (or count 1) (node-at-point)))))
+  (evil-define-key 'normal 'global
+    (kbd "M-J") (evil-define-command drag-forward (count)
+                  (interactive "<c>")
+                  (let* ((node (node-at-point))
+                         (next-bounds (node-bounds (nth-sibling (or count 1) node
+                                                                t))))
+                    (goto-char (car next-bounds))
+                    (bounds-swap (node-bounds node) next-bounds)))
+    (kbd "M-K") (evil-define-command drag-backward (count)
+                  (interactive "<c>")
+                  (drag-forward (- (or count 1))))
+    ;; TODO: make this work, both the binding and the action.
+    ;; (kbd "<leader>r") (evil-define-command raise (count)
+    ;; 					  (interactive "<c>")
+    ;; 					  (let* ((node (node-at-point))
+    ;; 							 (bounds (node-bounds node))
+    ;; 							 (replace (node-bounds (nth-parent (or count 1) node))))
+    ;; 						(delete-region (car replace) (car bounds))
+    ;; 						(delete-region (cadr bounds) (cadr replace))))
+    )
+  ;; TODO: ways to change block ib for it's body and ab for the whole thing. 
+  (evil-define-key nil evil-inner-text-objects-map
+    "e" (evil-define-text-object evil-inner-treesit-expr (count &optional beg end type)
+          (node-bounds (node-at-point)))
+    "a" (evil-define-text-object evil-inner-treesit-atom (count &optional beg end type)
+          (node-bounds (treesit-node-at (point))))
+    "l" (evil-define-text-object evil-inner-treesit-list (count &optional beg end type)
+          (let* ((l (list-at-point))
+                 (cnt (treesit-node-child-count l)))
+            (if (= cnt 2)
+                (list (treesit-node-end (treesit-node-child l 0))
+                      (treesit-node-start (treesit-node-child l 1)))
+                (list (treesit-node-start (treesit-node-child l 1))
+                      (treesit-node-end (treesit-node-child l (- cnt 2))))))))
+  (evil-define-key nil evil-outer-text-objects-map
+    ;; TODO: comments - multiple line comments should be glommed into one block.
+    "l" (evil-define-text-object evil-outer-treesit-list (count &optional beg end type)
+          (node-bounds (list-at-point))))
+#+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
   (pkg centered-cursor-mode :require t)
   (diminish 'centered-cursor-mode)
   (global-centered-cursor-mode 1)
-  (push #'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
   (push #'abort-recursive-edit ccm-ignored-commands)
+  
+  ;; ~~# ! '(todo (text "when emacs 29 comes out, try pixel-scroll-precision-mode to make this smooth enough to set globally"))
+  ;; ~~# # '(todo (text "maybe try to patch ccm functionality into emacs source code"))
+  ;; these should work on their own but produce jittery scrolling
+
+  ;; (hook 'buffer-face-mode-hook
+  ;;   (when (eq buffer-face-mode-face 'variable-pitch)
+  ;;     (setq-local
+  ;;      scroll-preserve-screen-position t
+  ;;      scroll-conservatively 0
+  ;;      maximum-scroll-margin 0.5
+  ;;      scroll-margin 99999)))
 #+end_src
 * Major Modes
 ** Prog
@@ -753,16 +921,15 @@ align with previews
 #+end_src
 ** C#
 #+begin_src emacs-lisp
-  (pkg csharp-mode)
-  (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
-  (setq-mode-local csharp-mode mode-print-formatter
+  (ts-install 'c-sharp 'csharp (ts-lang-repo "c-sharp"))
+  (setq-mode-local csharp-ts-mode mode-print-formatter
                    (lambda (str)
                      (setf str (replace-regexp-in-string ";" " +" str))
                      (concat "Console.WriteLine(" str ");")))
-  (defhook csharp-mode (eglot-ensure))
+  (defhook csharp-ts-mode (eglot-ensure))
   (after-load eglot
-    (push '((csharp-mode) "omnisharp" "-lsp") eglot-server-programs))
-  (set-tab-width-in csharp-mode 4)
+    (push '((csharp-ts-mode) "omnisharp" "-lsp") eglot-server-programs))
+  (set-tab-width-in csharp-ts-mode 4)
 #+end_src
 ** Scheme
 #+begin_src emacs-lisp
@@ -1027,8 +1194,10 @@ align with previews
       (kbd "<global-leader>o") #'org-agenda)
     (evil-define-key 'insert org-mode-map
       (kbd "<leader>b") #'org-insert-structure-template
-      (kbd "M-h") #'org-metaleft
-      (kbd "M-l") #'org-metaright)
+      (kbd "M-H") #'org-metaleft
+      (kbd "M-J") #'org-metaup
+      (kbd "M-K") #'org-metadown
+      (kbd "M-L") #'org-metaright)
     (evil-define-key 'normal org-capture-mode-map
       (leader "k") #'org-capture-kill
       (leader "c") #'org-capture-finalize)
@@ -1036,6 +1205,16 @@ align with previews
       (kbd "<leader>.") #'org-time-stamp
       (kbd "<leader>l") #'org-insert-link)
     (evil-define-key 'normal org-mode-map
+      ;; TODO: figure out why this doesn't work
+      (kbd "M-j") #'org-forward-element
+      (kbd "M-h") #'org-up-element
+      (kbd "M-k") #'org-backward-element
+      (kbd "M-l") #'org-down-element
+      (kbd "M-H") #'org-metaleft
+      (kbd "M-J") #'org-metaup
+      (kbd "M-K") #'org-metadown
+      (kbd "M-L") #'org-metaright
+
       (kbd "<leader>x") #'org-export-dispatch
       (kbd "<leader>i") #'org-display-inline-images
       (kbd "<leader>I") #'org-remove-inline-images
@@ -1089,6 +1268,10 @@ align with previews
     (kbd "M-h") #'magit-section-up
     (kbd "M-j") #'magit-section-forward-sibling
     (kbd "M-k") #'magit-section-backward-sibling
+    (kbd "M-l") (defun my/magit-section-down ()
+                  (interactive)
+                  (call-interactively #'magit-section-show)
+                  (magit-section-forward))
     (kbd "C-j") nil
     (kbd "C-k") nil
     (kbd "\\") nil
@@ -1539,17 +1722,6 @@ These variables are recommended by =lsp-mode= to increase performance.
       (call-interactively #'webpaste-paste-buffer-or-region)
       (set-webpaste-duration old-duration)))
 #+end_src
-* Tree-Sitter
-#+begin_src emacs-lisp
-  (pkg tree-sitter-langs :require t)
-  (pkg tree-sitter :require t)
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-
-  (pkg tree-edit)
-  (pkg evil-tree-edit)
-#+end_src  
-
 * Spellcheck
 ** Flyspell
 #+begin_src emacs-lisp
