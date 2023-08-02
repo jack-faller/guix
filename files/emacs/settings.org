@@ -268,14 +268,11 @@
 ** Start Screen (Dashboard)
 #+begin_src emacs-lisp
   (pkg dashboard)
-  (after-load config
-    (require 'projectile)
-    (require 'dashboard))
-  (after-load dashboard
-    (setf initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
-          dashboard-projects-backend 'projectile
-          dashboard-items '((recents . 5) (bookmarks . 5) (agenda . 5) (projects . 5)))
-    (dashboard-setup-startup-hook))
+  (require 'dashboard)
+  (setf initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
+        dashboard-projects-backend 'project-el
+        dashboard-items '((recents . 5) (bookmarks . 5) (agenda . 5) (projects . 5)))
+  (dashboard-setup-startup-hook)
 #+end_src
 ** Turn ^L (Line Feed) Into a Horizontal Line
 #+begin_src emacs-lisp
@@ -1589,7 +1586,7 @@ These variables are recommended by =lsp-mode= to increase performance.
 ** Consult
 #+begin_src emacs-lisp
   (pkg consult)
-  (pkg consult-projectile)
+  (pkg consult-project-extra)
   (with-eval-after-load 'consult
     (evil-collection-consult-setup))
 
@@ -1602,7 +1599,11 @@ These variables are recommended by =lsp-mode= to increase performance.
     (kbd "<global-leader>L") #'consult-line-multi
     (kbd "<global-leader>i") #'consult-imenu
     (kbd "<global-leader>I") #'consult-imenu-multi
-    (kbd "<global-leader>P") #'consult-projectile)
+    (kbd "<global-leader>p") (defun my/consult-project-extra-find (arg)
+                               (interactive "P")
+                               (if arg
+                                   (consult-project-extra-find-other-window)
+                                 (consult-project-extra-find))))
 #+end_src
 ** Embark
 #+begin_src emacs-lisp
@@ -1616,38 +1617,16 @@ These variables are recommended by =lsp-mode= to increase performance.
 * File Management
 ** Projects
 #+begin_src emacs-lisp
-  (pkg projectile :require t)
-  (diminish 'projectile-mode)
-  (projectile-mode)
   (setf compilation-scroll-output t)
   (evil-define-key 'normal 'global
-    (kbd "<global-leader>pd") #'projectile-edit-dir-locals
-    (kbd "<global-leader>pDp") (evil-define-command add-dir-locals-project-commands ()
-                                 (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
-
-    (kbd "<global-leader>pf") #'projectile-find-file
-    (kbd "<global-leader>pF") #'projectile-find-file-in-known-projects
-    (kbd "<global-leader>ps") #'projectile-switch-project)
-  (evil-define-key '(insert normal) projectile-mode-map
-    (kbd "<f5>") #'projectile-run-project
-    (kbd "<f6>") #'projectile-compile-project
-    (kbd "<f7>") #'projectile-configure-project)
-  (cl-mapc
-   (lambda (cmd map)
-     (eval `(evil-define-command ,(symcat "my/" cmd "-default") (arg)
-              (interactive "P")
-              (remhash (projectile-compilation-dir) ,map)
-              (,cmd arg))))
-   '(projectile-run-project projectile-compile-project projectile-configure-project)
-   '(projectile-run-cmd-map projectile-compilation-cmd-map projectile-configure-cmd-map))
-  (evil-define-key '(insert normal) projectile-mode-map
-    (kbd "S-<f5>") #'my/projectile-run-project-default
-    (kbd "S-<f6>") #'my/projectile-compile-project-default
-    (kbd "S-<f7>") #'my/projectile-configure-project-default)
-  (dolist (map evil-collection-compile-maps)
-    (evil-define-key 'normal map
-      (kbd "q") (interactive-chain #'kill-compilation #'quit-window)))
-  (setf projectile-project-search-path '("~/code/"))
+    (kbd "<global-leader>P") #'project-switch-project)
+  (setf compilation-read-command nil)
+  (evil-define-key '(insert normal) 'global
+    (kbd "<f5>") #'project-compile)
+  (after-load evil-collection-comile
+    (dolist (map evil-collection-compile-maps)
+      (evil-define-key 'normal map
+        (kbd "q") (interactive-chain #'kill-compilation #'quit-window))))
 #+end_src
 * Pastebin Services
 #+begin_src emacs-lisp
