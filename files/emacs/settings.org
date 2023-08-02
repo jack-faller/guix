@@ -1622,24 +1622,6 @@ These variables are recommended by =lsp-mode= to increase performance.
   (after-load consult (require 'embark-consult))
 #+end_src
 * File Management
-** File Tree
-#+begin_src emacs-lisp
-  (pkg treemacs)
-  (pkg treemacs-evil)
-  (pkg treemacs-all-the-icons)
-  (pkg treemacs-projectile)
-  (pkg treemacs-icons-dired)
-  (pkg treemacs-magit)
-  (evil-define-key 'normal 'global
-    (kbd "gt") #'treemacs)
-  (after-load treemacs
-    (require 'treemacs-evil)
-    (require 'treemacs-all-the-icons)
-    (require 'treemacs-projectile)
-    (require 'treemacs-icons-dired)
-    (require 'treemacs-magit)
-    (treemacs-load-theme 'all-the-icons))
-#+end_src
 ** Projects
 #+begin_src emacs-lisp
   (pkg projectile :require t)
