@@ -763,18 +763,6 @@ align with previews
   (diminish 'centered-cursor-mode)
   (global-centered-cursor-mode 1)
   (push #'abort-recursive-edit ccm-ignored-commands)
-  
-  ;; ~~# ! '(todo (text "when emacs 29 comes out, try pixel-scroll-precision-mode to make this smooth enough to set globally"))
-  ;; ~~# # '(todo (text "maybe try to patch ccm functionality into emacs source code"))
-  ;; these should work on their own but produce jittery scrolling
-
-  ;; (hook 'buffer-face-mode-hook
-  ;;   (when (eq buffer-face-mode-face 'variable-pitch)
-  ;;     (setq-local
-  ;;      scroll-preserve-screen-position t
-  ;;      scroll-conservatively 0
-  ;;      maximum-scroll-margin 0.5
-  ;;      scroll-margin 99999)))
 #+end_src
 * Major Modes
 ** Prog
@@ -834,7 +822,6 @@ align with previews
                (insert " ")
                (backward-char 1)
                (evil-insert 1)))))
-    ;; TODO make these work for visual
     (evil-define-key '(visual normal) lispyville-mode-map
       (kbd "<leader>(") #'lispy-wrap-round
       (kbd "<leader>{") #'lispy-wrap-braces
