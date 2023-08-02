@@ -1199,7 +1199,6 @@ align with previews
       (kbd "<leader>.") #'org-time-stamp
       (kbd "<leader>l") #'org-insert-link)
     (evil-define-key 'normal org-mode-map
-      ;; TODO: figure out why this doesn't work
       (kbd "M-j") #'org-forward-element
       (kbd "M-h") #'org-up-element
       (kbd "M-k") #'org-backward-element
@@ -1723,11 +1722,6 @@ These variables are recommended by =lsp-mode= to increase performance.
   (evil-define-key 'normal flyspell-mode-map
     (kbd "[s") #'evil-prev-flyspell-error
     (kbd "]s") #'evil-next-flyspell-error)
-#+end_src
-** Grammarly
-#+begin_src emacs-lisp
-  ;; todo, maybe re-write this myself
-  ;; (pkg flycheck-grammarly)
 #+end_src
 * Ebangs
 #+begin_src emacs-lisp
