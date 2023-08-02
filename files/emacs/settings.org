@@ -144,7 +144,7 @@
         (cond
          ((not valid) (error "No text on line."))
          (replace (kill-region text-start end)
-                  (setf (point) text-start)
+                  (goto-char text-start)
                   (insert (funcall f text)))
          (t (funcall f text))))))
 #+end_src
@@ -164,7 +164,7 @@
   (defmacro with-point-at (pos &rest body)
     "Move the point to the specified position, then move it back to where it was before."
     (declare (indent 1))
-    `(save-excursion (setf (point) ,pos) ,@body))
+    `(save-excursion (goto-char ,pos) ,@body))
 #+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
@@ -842,8 +842,15 @@ align with previews
       (kbd "<leader>)") #'lispyville-wrap-with-round
       (kbd "<leader>}") #'lispyville-wrap-with-braces
       (kbd "<leader>]") #'lispyville-wrap-with-brackets
-      (kbd "M-j") #'lispyville-drag-forward
-      (kbd "M-k") #'lispyville-drag-backward
+      (kbd "M-h") #'lispyville-backward-up-list
+      (kbd "M-j") (lambda ()
+                    (interactive)
+                    (lispyville-forward-sexp)
+                    (lispyville-forward-sexp-begin))
+      (kbd "M-k") #'lispyville-backward-sexp
+      (kbd "M-l") #'lispyville-next-opening
+      (kbd "M-J") #'lispyville-drag-forward
+      (kbd "M-K") #'lispyville-drag-backward
       (kbd "<leader>@") #'lispy-splice
       (kbd "<leader>w") (surround-paren-insert lispyville-inner-sexp start)
       (kbd "<leader>W") (surround-paren-insert lispyville-inner-sexp end)
@@ -877,7 +884,7 @@ align with previews
                   `(evil-define-operator ,name (beg end)
                      :move-point nil
                      (save-excursion
-                       (setf (point) beg)
+                       (goto-char beg)
                        (,fn)))))
     (defmacroexpand sly-evil-macroexpand-all sly-macroexpand-all)
     (defmacroexpand sly-evil-macroexpand-1 sly-macroexpand-1)
@@ -1381,7 +1388,7 @@ align with previews
                   (interactive)
                   (save-match-data
                     (re-search-forward (rx "</" (*? any) ">"))
-                    (setf (point) (match-end 0)))))
+                    (goto-char (match-end 0)))))
 #+end_src
 ** Java
 #+begin_src emacs-lisp
