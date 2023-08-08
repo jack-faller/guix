@@ -21,7 +21,7 @@
 (defmacro after-load (modes &rest body)
   "Like with-eval-after-load, but also except a list of modes."
   (declare (indent 1))
-  (if (not (listp modes)) (setf modes (list modes)))
+  (when (not (listp modes)) (setf modes (list modes)))
   (push 'progn body)
   (dolist (i modes)
     (setf body `(with-eval-after-load ',i ,body)))

@@ -378,7 +378,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
   (setf evil-collection-setup-minibuffer t)
   (pkg evil-collection :require t)
-  (with-eval-after-load 'evil-collection-unimpaired (diminish 'evil-collection-unimpaired-mode))
+  (after-load evil-collection-unimpaired (diminish 'evil-collection-unimpaired-mode))
   (setf evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
   (evil-collection-init)
 #+end_src
@@ -605,7 +605,7 @@ align with previews
     (setf unread-command-events
           (nconc (listify-key-sequence (kbd keys))
                  unread-command-events)))
-  (with-eval-after-load 'evil
+  (after-load evil
     (evil-define-key '(normal visual) 'global
       (kbd "SPC") (lambda () (interactive) (send-keys "<leader>"))
       (kbd "\\") (lambda () (interactive) (send-keys "<global-leader>")))
@@ -618,7 +618,7 @@ align with previews
   (define-key global-map (kbd "M-u") #'universal-argument)
   (define-key universal-argument-map (kbd "C-u") nil)
   (define-key universal-argument-map (kbd "M-u") #'universal-argument-more)
-  (with-eval-after-load 'evil-maps
+  (after-load evil-maps
     (define-key evil-motion-state-map (kbd "M-u") nil))
 #+end_src
 ** Structural Editing with Treesitter
@@ -826,7 +826,7 @@ align with previews
 ** Lisp
 #+begin_src emacs-lisp
   (pkg lispy)
-  (with-eval-after-load 'lispy (diminish 'lispy-mode))
+  (after-load lispy (diminish 'lispy-mode))
   (set-tab-width-in lisp-mode 2)
   (set-tab-width-in emacs-lisp-mode 2)
   (set-tab-width-in common-lisp-mode 2)
@@ -834,7 +834,7 @@ align with previews
   (set-tab-width-in scheme-mode 2)
 
   (pkg lispyville)
-  (with-eval-after-load 'lispyville (diminish 'lispyville-mode))
+  (after-load lispyville (diminish 'lispyville-mode))
   (add-hook 'emacs-lisp-mode-hook #'lispyville-mode)
   (add-hook 'common-lisp-mode-hook #'lispyville-mode)
   (add-hook 'lisp-mode-hook #'lispyville-mode)
@@ -948,18 +948,17 @@ align with previews
   (setq rustic-lsp-client 'eglot)
 
   ;; Rustic sets eglot server programs so relace that value.
-  (after-load rustic
-    (after-load eglot
-      (push
-       '((rustic-mode)
-         "rust-analyzer"
-         :initializationOptions
-         (:rust-analyzer
-          (:checkOnSave
-           (
-            :enable t
-            :command "clippy"))))
-       eglot-server-programs)))
+  (after-load (rustic eglot)
+    (push
+     '((rustic-mode)
+       "rust-analyzer"
+       :initializationOptions
+       (:rust-analyzer
+        (:checkOnSave
+         (
+          :enable t
+          :command "clippy"))))
+     eglot-server-programs))
   (set-tab-width-in rust-mode 2)
   (setf rust-indent-offset 2)
   (custom-set-default 'rustic-indent-offset 2)
@@ -974,7 +973,7 @@ align with previews
                    (lambda (str)
                      (setf str (replace-regexp-in-string ";" " +" str))
                      (concat "Console.WriteLine(" str ");")))
-  (defhook csharp-ts-mode (eglot-ensure))
+  (add-hook 'csharp-ts-mode #'eglot-ensure)
   (after-load eglot
     (push '((csharp-ts-mode) "omnisharp" "-lsp") eglot-server-programs))
   (set-tab-width-in csharp-ts-mode 4)
@@ -1033,7 +1032,7 @@ align with previews
 ** Haskell
 #+begin_src emacs-lisp
   (pkg haskell-mode)
-  (defhook haskell-mode (eglot-ensure))
+  (add-hook 'haskell-mode #'eglot-ensure)
   (setq-mode-local haskell-mode
                    electric-pair-pairs (cons '(?` . ?`) electric-pair-pairs))
   (setf lsp-haskell-formatting-provider "fourmolu")
@@ -1089,7 +1088,7 @@ align with previews
 ** Org
 *** Org-mode
 #+begin_src emacs-lisp
-  (with-eval-after-load 'org-indent (diminish 'org-indent-mode))
+  (after-load org-indent (diminish 'org-indent-mode))
   (defhook org-mode
     (org-indent-mode)
     (variable-pitch-mode)
@@ -1137,7 +1136,7 @@ align with previews
 *** Hide Org Markup
 #+begin_src emacs-lisp
   (pkg org-appear)
-  (add-hook 'org-mode-hook 'org-appear-mode)
+  (add-hook 'org-mode-hook #'org-appear-mode)
   (mapc (lambda (sym) (set sym t))
         '(org-appear-autoemphasis
           org-appear-autolinks
@@ -1233,8 +1232,8 @@ align with previews
 *** Evil Integration
 #+begin_src emacs-lisp
   (pkg evil-org)
-  (with-eval-after-load 'evil-org (diminish 'evil-org-mode))
-  (add-hook 'org-mode-hook 'evil-org-mode)
+  (after-load evil-org (diminish 'evil-org-mode))
+  (add-hook 'org-mode-hook #'evil-org-mode)
   (after-load evil-org
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
@@ -1432,7 +1431,7 @@ align with previews
 #+end_src
 ** Java
 #+begin_src emacs-lisp
-  (defhook java-mode (eglot-ensure))
+  (add-hook 'java-mode #'eglot-ensure)
 #+end_src
 ** Clojure
 #+begin_src emacs-lisp
@@ -1453,7 +1452,7 @@ align with previews
 #+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
-  (pkg which-key :require t)
+  (pkg which-key)
   (diminish 'which-key-mode)
   (which-key-mode)
 #+end_src
@@ -1593,7 +1592,7 @@ Cape suggests this snippet.
 #+end_src
 ** Eldoc
 #+begin_src emacs-lisp
-  (with-eval-after-load 'eldoc (diminish 'eldoc-mode))
+  (after-load eldoc (diminish 'eldoc-mode))
   (setf eldoc-idle-delay 0)
 #+end_src
 ** Language Server Support (LSP)
@@ -1643,7 +1642,7 @@ These variables are recommended by =lsp-mode= to increase performance.
 #+begin_src emacs-lisp
   (pkg consult)
   (pkg consult-project-extra)
-  (with-eval-after-load 'consult
+  (after-load consult
     (evil-collection-consult-setup))
 
   (evil-define-key 'normal flymake-mode-map
@@ -1739,21 +1738,21 @@ These variables are recommended by =lsp-mode= to increase performance.
   (add-hook 'text-mode-hook #'flyspell-mode)
   (defvar dict "en_GB"
     "Dictionary to use.")
-  (setf flyspell-issue-message-flag nil
-        ispell-dictionary "dict")
-  (require 'ispell)
-  (push
-   `("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)
-   ispell-dictionary-alist)
-  (cond
-   ((executable-find "hunspell")
-    (setf ispell-program-name "hunspell")
-    (when (boundp 'ispell-hunspell-dictionary-alist)
-      (setf ispell-hunspell-dictionary-alist ispell-dictionary-alist)))
-   ((executable-find "aspell")
-    (setf ispell-program-name "aspell"
-          ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
-                              "--run-together" "--run-together-limit=16"))))
+  (setf flyspell-issue-message-flag nil)
+  (after-load ispell
+    (push
+     `("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)
+     ispell-dictionary-alist)
+    (setf ispell-dictionary "dict")
+    (cond
+     ((executable-find "hunspell")
+      (setf ispell-program-name "hunspell")
+      (when (boundp 'ispell-hunspell-dictionary-alist)
+        (setf ispell-hunspell-dictionary-alist ispell-dictionary-alist)))
+     ((executable-find "aspell")
+      (setf ispell-program-name "aspell"
+            ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
+                                "--run-together" "--run-together-limit=16")))))
   (evil-define-key 'normal flyspell-mode-map
     (kbd "[s") #'evil-prev-flyspell-error
     (kbd "]s") #'evil-next-flyspell-error)
