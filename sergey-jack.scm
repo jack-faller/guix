@@ -201,9 +201,6 @@ Its value is a string containing the number of the generation to switch to."))))
 				(dir-files (fname "files/programs/")))
 		;; duplicate to make passmenu work correctly
 		(".local/programs/dmenu-wl" ,(fexec "files/programs/dmenu"))
-		(".local/programs/em"
-		 ,(program-file "em-script" #~(apply system* "emacsclient" "-nw"
-											 (cdr (program-arguments)))))
 		(".local/programs/dev"
 		 ,(program-file
 		   "dev-script"

@@ -16,7 +16,8 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 
 bindkey '^[[Z' reverse-menu-complete
 bindkey '^[[Z' reverse-menu-complete
 
-export EDITOR=$(which em)
+export EDITOR="emacsclient -t -a emacs"
+alias em="$EDITOR"
 export VISUAL="$EDITOR"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
@@ -53,6 +54,7 @@ else
 	export PS1="%K{red}%F{black}%n@%m%f%k %F{blue}%~%f %#"
 fi
 
+alias lv='gzip --to-stdout -d'
 alias ls="exa"
 alias la="exa -a"
 alias ll="exa -la"
