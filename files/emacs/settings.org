@@ -1594,7 +1594,6 @@ Cape suggests this snippet.
 ** Language Server Support (LSP)
 *** Eglot
 #+begin_src emacs-lisp
-  (pkg eglot)
   (setf eglot-autoshutdown t)
   (evil-define-key 'normal eglot-mode-map
     (kbd "<leader>=") #'eglot-format
