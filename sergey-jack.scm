@@ -298,9 +298,17 @@ Its value is a string containing the number of the generation to switch to."))))
 		;; later defvar will be overridden by this
 		(defvar dict "en_GB-ise")
 		(load-file ,(f "files/emacs/init.el"))
-		(let ((settings (concat user-emacs-directory "settings.org")))
-		  (org-babel-tangle-file ,(f "files/emacs/settings.org") settings)
-		  (load-file settings))))))
+		(load-file ,(computed-file
+					 "settings.el"
+					 #~(system*
+						(string-append #$emacs "/bin/emacs") "--batch" "--eval"
+						(with-output-to-string
+						  (lambda ()
+							(write `(progn (require 'org)
+										   (org-babel-tangle-file
+											,#$(f "files/emacs/settings.org")
+											,#$output
+											"emacs-lisp"))))))))))))
    (generate-nix-packages-service
 	"discord" "teams" "tor-browser-bundle-bin")))
  (packages

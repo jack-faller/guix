@@ -39,5 +39,3 @@
      `(straight-use-package ',name))
    (if require `(require ',name) nil)
    `',name))
-
-(pkg org :require t)
