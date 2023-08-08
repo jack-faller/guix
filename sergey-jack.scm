@@ -124,7 +124,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	  (documentation "run ssh-agent")
 	  (start #~(make-system-constructor
 				"ssh-agent > $XDG_RUNTIME_DIR/ssh-agent.env"
-				" 2> $XDG_LOG_HOME/ssh-agent.log"))
+				" 2> $XDG_CACHE_HOME/ssh-agent.log"))
 	  (stop #~(make-system-destructor "pkill ssh-agent")))
 	 ;; TODO the arrows for magit sections don't work properly
 	 (shepherd-service
@@ -136,14 +136,14 @@ Its value is a string containing the number of the generation to switch to."))))
 						 "emacs-daemon-script"
 						 "source $XDG_RUNTIME_DIR/ssh-agent.env"
 						 "emacs --fg-daemon"))
-				#:log-file (string-append (getenv "XDG_LOG_HOME") "/emacs.log")))
+				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
 	  (stop #~(make-kill-destructor)))
 	 (shepherd-service
 	  (provision '(udiskie))
 	  (documentation "run udiskie")
 	  (start #~(make-forkexec-constructor
 				(list #$(file-append udiskie "/bin/udiskie") "-N")
-				#:log-file (string-append (getenv "XDG_LOG_HOME") "/udiskie.log")))
+				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/udiskie.log")))
 	  (stop #~(make-kill-destructor)))
 	 (shepherd-service
 	  (provision '(fetch-icons))
