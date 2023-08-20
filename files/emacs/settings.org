@@ -975,7 +975,8 @@ align with previews
                      (concat "Console.WriteLine(" str ");")))
   (add-hook 'csharp-ts-mode #'eglot-ensure)
   (after-load eglot
-    (push '((csharp-ts-mode) "omnisharp" "-lsp") eglot-server-programs))
+    (push `((csharp-ts-mode) ,(concat "omnisharp" (if using-guix "-wrapper" "")) "-lsp")
+          eglot-server-programs))
   (set-tab-width-in csharp-ts-mode 4)
 #+end_src
 ** Scheme
