@@ -23,11 +23,6 @@
  haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz xorg code
  lisp image man chromium gimp base hunspell freedesktop)
 
-(define my-glibc-locales
-  (make-glibc-utf8-locales
-   glibc
-   #:locales (list "en_GB")
-   #:name "glibc-english-utf8-locales"))
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -310,7 +305,7 @@ Its value is a string containing the number of the generation to switch to."))))
  (packages
   (list
    ;; basic
-   glibc my-glibc-locales ntfs-3g
+   glibc ntfs-3g
    adwaita-icon-theme
    udiskie
    pulseaudio
@@ -324,7 +319,7 @@ Its value is a string containing the number of the generation to switch to."))))
    ;; editing
    emacs emacs-all-the-icons emacs-emacsql-sqlite3 hunspell hunspell-dict-en-gb
    ;; for latex previews
-   texlive-base texlive-ulem texlive-amsfonts
+   texlive-scheme-basic texlive-ulem texlive-amsfonts
    cloc
    vim
    ;; zsh
