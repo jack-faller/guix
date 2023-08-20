@@ -1736,7 +1736,7 @@ These variables are recommended by =lsp-mode= to increase performance.
   (pkg flyspell)
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   (add-hook 'text-mode-hook #'flyspell-mode)
-  (defvar dict "en_GB"
+  (defvar dict (if using-guix "en_GB-ise" "en_GB")
     "Dictionary to use.")
   (setf flyspell-issue-message-flag nil)
   (after-load ispell

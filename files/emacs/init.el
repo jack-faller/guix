@@ -1,4 +1,8 @@
 ;; -*- lexical-binding: t -*-
+
+;; This won't set the variable in Guix as it will have already been defvar-ed t.
+(defvar using-guix nil)
+
 ;; setup straight to load org mode 
 (defvar bootstrap-version)
 ;; (defvar all-the-icons-fonts-installed? t)
