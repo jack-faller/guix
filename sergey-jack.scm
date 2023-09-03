@@ -245,8 +245,7 @@ Its value is a string containing the number of the generation to switch to."))))
 			 --indicator-radius 100
 			 --indicator-thickness 12
 			 --effect-blur 7x5
-			 --effect-vignette 0.5:0.5
-			 --fade-in 0.2)
+			 --effect-vignette 0.5:0.5)
 		(seat seat0 xcursor_theme Quintom_Ink 12)
 		(exec fnott --config=.cache/wal/fnott.ini &)
 		(include "~/.config/sway/base-config")

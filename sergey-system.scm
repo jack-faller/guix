@@ -70,7 +70,7 @@
 		 (nopass "halt")
 		 (nopass "reboot")))))
 
- (packages (cons* nix sway vim git zsh
+ (packages (cons* nix sway swaylock-effects vim git zsh
 				  (specification->package "nss-certs") %base-packages))
 
  (name-service-switch %mdns-host-lookup-nss)
@@ -118,7 +118,10 @@
    (service sane-service-type)
    (service screen-locker-service-type
 			(screen-locker-configuration
-			 "swaylock" (file-append swaylock-effects "/bin/swaylock") #f))
+             (name "swaylock")
+             (program (file-append swaylock-effects "/bin/swaylock"))
+             (using-pam? #t)
+             (using-setuid? #f)))
 
    (service pulseaudio-service-type)
    (service alsa-service-type)
