@@ -23,22 +23,28 @@
 #+end_src
 ** Tree Sitter
 #+begin_src emacs-lisp
-  (setf treesit-language-source-alist nil)
   (defun ts-lang-repo (lang-name)
-    (concat "https://github.com/tree-sitter/tree-sitter-" lang-name))
-  (defun ts-ensure (lang-name &optional url revision src-dir cc c++)
-    (push (list lang-name (or url (ts-lang-repo (symbol-name lang-name))) revision src-dir cc c++)
-          treesit-language-source-alist)
-    (unless (treesit-language-available-p lang-name)
-      (treesit-install-language-grammar lang-name)))
-  (defun ts-install-basic (lang-name mode-name ts-mode-name &optional url revision src-dir cc c++)
-    (push (cons mode-name ts-mode-name) major-mode-remap-alist)
-    (ts-ensure lang-name url revision src-dir cc c++))
-  (defun ts-install (ts-lang-name &optional lang-name url revision src-dir cc c++)
-    (ts-install-basic ts-lang-name
-                      (symcat (or lang-name ts-lang-name) "-mode")
-                      (symcat (or lang-name ts-lang-name) "-ts-mode")
-                      url revision src-dir cc c++))
+    (list
+     lang-name
+     (concat "https://github.com/tree-sitter/tree-sitter-" (symbol-name lang-name))))
+  (setf
+   treesit-language-source-alist
+   (append
+    (mapcar
+     #'ts-lang-repo
+     '(bash c cmake cpp css elisp go go html json lua make markdown python r rust toml yaml))
+    '((common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
+      (csharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
+      (js "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+      (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))))
+  (defun ts-install (mode-name &optional lang-name)
+    (setf lang-name (or lang-name mode-name))
+    (let ((orig-mode (symcat mode-name "-mode"))
+          (ts-mode (symcat mode-name "-ts-mode")))
+      (add-to-list 'major-mode-remap-alist (cons orig-mode ts-mode))
+      (unless (treesit-language-available-p lang-name)
+        (treesit-install-language-grammar lang-name))))
 #+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
@@ -968,7 +974,7 @@ align with previews
 #+end_src
 ** C#
 #+begin_src emacs-lisp
-  (ts-install 'c-sharp 'csharp (ts-lang-repo "c-sharp"))
+  (ts-install 'csharp 'c-sharp)
   (setq-mode-local csharp-ts-mode mode-print-formatter
                    (lambda (str)
                      (setf str (replace-regexp-in-string ";" " +" str))
@@ -1376,15 +1382,17 @@ align with previews
 #+end_src
 ** C
 #+begin_src emacs-lisp
-  (defhook c-mode
+  (ts-install 'c)
+  (defhook c-ts-mode
     (indent-tabs-mode -1)
     (eglot-ensure))
-  (evil-define-key '(normal insert) c-mode-map
+  (evil-define-key '(normal insert) c-ts-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
 #+end_src
 ** C++
 #+begin_src emacs-lisp
-  (defhook c++-mode
+  (ts-install 'c++ 'cpp)
+  (defhook c++-ts-mode
     (indent-tabs-mode -1)
     (eglot-ensure))
   (after-load eglot
@@ -1407,7 +1415,7 @@ align with previews
        "--header-insertion=never"
        "--header-insertion-decorators=0")
      eglot-server-programs))
-  (evil-define-key '(normal insert) c++-mode-map
+  (evil-define-key '(normal insert) c++-ts-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
 #+end_src
 ** HTML
