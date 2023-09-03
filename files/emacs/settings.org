@@ -552,6 +552,8 @@ align with previews
     (kbd "S") (evil-define-command evil-file-substitute () (evil-ex "%s/"))
     (kbd "gB") #'ibuffer
     (kbd "<global-leader>d") #'dired)
+  (evil-define-key nil 'global
+    (kbd "<f1>r") #'info-display-manual)
 #+end_src
 ** Printing
 #+begin_src emacs-lisp
@@ -1331,6 +1333,8 @@ align with previews
     (kbd "SPC") nil)
   (evil-define-key nil magit-mode-map
     (kbd "SPC") nil)
+  (evil-define-key 'normal git-rebase-mode-map
+    (kbd "ZZ") #'with-editor-finish)
 #+end_src
 ** Help Mode
 #+begin_src emacs-lisp
