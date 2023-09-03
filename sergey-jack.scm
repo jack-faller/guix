@@ -16,12 +16,7 @@
 			 (rde home services wm)
 			 (gnu home-services emacs))
 (use-package-modules
- shellutils vim emacs emacs-xyz rust-apps rsync web bash admin version-control
- password-utils wm tmux ssh terminals fonts glib imagemagick xdisorg
- fontutils ghostscript web-browsers bittorrent suckless linux gnome aidc
- gnuzilla freedesktop package-management pulseaudio gnupg admin compression
- haskell-apps pdf video xdisorg gcc libreoffice aspell tex python-xyz xorg code
- lisp image man chromium gimp base hunspell freedesktop)
+ freedesktop gnupg glib wm python-xyz suckless vim shellutils bittorrent)
 
 
 (define config-directory (dirname (current-filename)))
@@ -303,43 +298,47 @@ Its value is a string containing the number of the generation to switch to."))))
    (generate-nix-packages-service
 	"discord" "teams" "tor-browser-bundle-bin")))
  (packages
-  (list
-   ;; basic
-   glibc ntfs-3g
-   adwaita-icon-theme
-   udiskie
-   pulseaudio
-   gnupg pinentry ;; allows gnupg to prompt for password
-   ;; wm
-   sway waybar gammastep wl-clipboard fnott xorg-server-xwayland
-   python-pywal imagemagick
-   brightnessctl
-   kitty
-   slurp grim xdg-user-dirs zenity ;; screenshots
-   ;; editing
-   emacs emacs-all-the-icons emacs-emacsql-sqlite3 hunspell hunspell-dict-en-gb
-   ;; for latex previews
-   texlive-scheme-basic texlive-ulem texlive-amsfonts
-   cloc
-   vim
-   ;; zsh
-   zsh-syntax-highlighting zsh-autosuggestions
-   password-store
-   ;; font
-   font-iosevka
-   font-google-material-design-icons
-   font-microsoft-impact gs-fonts font-dejavu font-gnu-freefont
-   ;; cli utilities
-   exa ;; ls alternative
-   git tmux rsync tree p7zip shellcheck glances
-   dmenu
-   zbar ;; reads bar/qr codes for qute script
-   sbcl
-   man-pages
-   yt-dlp
-   ;; applications
-   qutebrowser fontforge (list transmission "gui") icedove xournalpp evince mpv
-   ungoogled-chromium gimp
-   xdg-utils
-   ;; NOTE: this should be steam nvidia on nvidia systems
-   steam)))
+  (map
+   (lambda (i) (if (string? i) (specification->package i) i))
+   (list
+	;; basic
+	"glibc" "ntfs-3g"
+	"adwaita-icon-theme"
+	"udiskie"
+	"pulseaudio"
+	"gnupg" "pinentry" ;; allows gnupg to prompt for password
+	;; wm
+	"sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "fnott" "xorg-server-xwayland"
+	"python-pywal" "imagemagick"
+	"brightnessctl"
+	"kitty"
+	"slurp" "grim" "xdg-user-dirs" "zenity" ;; screenshots
+	;; editing
+	"emacs" "emacs-all-the-icons" "emacs-emacsql-sqlite3" "hunspell" "hunspell-dict-en-gb"
+	"perl" ;; needed for magit
+	;; for latex previews
+	"texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
+	"cloc"
+	"vim"
+	;; zsh
+	"zsh-syntax-highlighting" "zsh-autosuggestions"
+	"password-store"
+	;; font
+	"font-iosevka"
+	"font-google-material-design-icons"
+	"font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont"
+	;; cli utilities
+	"exa" ;; ls alternative
+	"git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
+	"dmenu"
+	"zbar" ;; reads bar/qr codes for qute script
+	"sbcl"
+	"man-pages"
+	"yt-dlp"
+	"rakudo"
+	;; applications
+	"qutebrowser" "fontforge" (list transmission "gui") "icedove"
+	"xournalpp" "evince" "mpv" "ungoogled-chromium-wayland" "gimp"
+	"xdg-utils"
+	;; NOTE: this should be steam-nvidia on nvidia systems
+	"steam"))))
