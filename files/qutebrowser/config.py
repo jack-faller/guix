@@ -2,13 +2,13 @@ from qutebrowser.keyinput import keyutils
 config.load_autoconfig()
 config.bind('<Escape>', 'mode-enter normal;; set statusbar.show in-mode', mode='command')
 config.bind('<Return>', 'command-accept;; set statusbar.show in-mode', mode='command')
-config.bind('eo', 'set-cmd-text :open google.com/search?q=')
-config.bind('eO', 'set-cmd-text :open -t google.com/search?q=')
+config.bind('eo', 'cmd-set-text :open google.com/search?q=')
+config.bind('eO', 'cmd-set-text :open -t google.com/search?q=')
+setshow = 'set statusbar.show always;; '
 for i in ['o', 'O', 'T', ':', '/', 'eo', 'eO', 'go', 'gO']:
-    config.bind(i, 'set statusbar.show always;; '
-                + config._keyconfig.get_command(keyutils.KeySequence.parse(i), 'normal'))
-c.editor.command = ["emacswindow", "{file}", "--eval", "(text-mode)",
-                    "--position", "{line}", "{column}"]
+    s = config._keyconfig.get_command(keyutils.KeySequence.parse(i), 'normal')
+    if not i.startswith(setshow):
+        config.bind(i, setshow + s)
 c.editor.command = ["emacsclient", "-nc", "--frame-parameters=((name . \"floating\") (width . 130) (height . 40))",
                     "+{line}:{column}", "{file}"]
 
@@ -25,15 +25,19 @@ config.bind("<Space>", "tab-focus last")
 config.bind("B", "spawn --userscript ~/.config/qutebrowser/stow.sh -o")
 config.bind("b", "spawn --userscript ~/.config/qutebrowser/stow.sh")
 config.bind("et", "open -t youtube.com/feed/subscriptions")
-config.bind("el", "open -t https://www.livechart.me/users/xeere/library?completed=false&considering=true&layout=grid")
-config.bind("eL", "open -t https://www.livechart.me/users/xeere/library?completed=false&considering=false&layout=grid")
-config.bind("j", "run-with-count 5 scroll down")
-config.bind("k", "run-with-count 5 scroll up")
+config.bind("el", "open -t https://www.livechart.me/users/xeere/library?layout=regular&page=1&sort=next_episode_countdown&statuses%5B%5D=rewatching&statuses%5B%5D=watching&statuses%5B%5D=planning&statuses%5B%5D=considering&titles=romaji")
+config.bind("eL", "open -t https://www.livechart.me/users/xeere/library?layout=regular&page=1&sort=next_episode_countdown&statuses%5B%5D=rewatching&statuses%5B%5D=watching&statuses%5B%5D=planning&statuses%5B%5D=considering&titles=romaji")
+config.bind("j", "cmd-run-with-count 5 scroll down")
+config.bind("k", "cmd-run-with-count 5 scroll up")
+
+config.bind("*", "search {primary}")
+config.bind("<Alt+Shift+*>", "search --reverse {primary}")
 
 c.auto_save.session = True
 c.colors.webpage.preferred_color_scheme = "dark"
 c.fonts.web.family.fixed = "iosevka"
 c.fonts.default_family = "iosevka"
+c.fonts.default_size = "10pt"
 c.hints.auto_follow = "always"
 c.hints.chars = "abcdefghijklmnopqrstuvwxyz"
 c.scrolling.bar = "always"
