@@ -5,15 +5,13 @@
 
 ;; setup straight to load org mode 
 (defvar bootstrap-version)
-;; (defvar all-the-icons-fonts-installed? t)
-(setf display-warning-minimum-level :error
-      ;straight-vc-git-default-protocol 'ssh
-      )
+(defvar all-the-icons-fonts-installed? t)
+(setf display-warning-minimum-level :error)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
       (bootstrap-version 5))
   (unless (file-exists-p bootstrap-file)
-    ;; (setf all-the-icons-fonts-installed? nil)
+    (setf all-the-icons-fonts-installed? nil)
     (with-current-buffer
         (url-retrieve-synchronously
          "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
