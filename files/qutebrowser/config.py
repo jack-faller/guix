@@ -9,6 +9,8 @@ for i in ['o', 'O', 'T', ':', '/', 'eo', 'eO', 'go', 'gO']:
                 + config._keyconfig.get_command(keyutils.KeySequence.parse(i), 'normal'))
 c.editor.command = ["emacswindow", "{file}", "--eval", "(text-mode)",
                     "--position", "{line}", "{column}"]
+c.editor.command = ["emacsclient", "-nc", "--frame-parameters=((name . \"floating\") (width . 130) (height . 40))",
+                    "+{line}:{column}", "{file}"]
 
 config.bind("#", "tab-focus")
 config.bind(";gv", "hint -r links spawn sh '-c' '~/.config/zsh/aliases/pla {hint-url}'")
@@ -38,5 +40,6 @@ c.scrolling.bar = "always"
 c.statusbar.show = "in-mode"
 c.tabs.last_close = "close"
 c.tabs.new_position.unrelated = "next"
+c.editor.remove_file = False
 
 c.spellcheck.languages = ["en-GB"]
