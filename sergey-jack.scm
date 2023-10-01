@@ -16,8 +16,7 @@
 			 (rde home services wm)
 			 (gnu home-services emacs))
 (use-package-modules
- freedesktop gnupg glib wm python-xyz suckless vim shellutils bittorrent)
-
+ emacs freedesktop gnupg glib wm python-xyz suckless vim shellutils bittorrent)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -279,8 +278,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	 (early-init-el
 	  `((load-file ,(f "files/emacs/early-init.el"))))
 	 (init-el
-	  `((require 'emacsql-sqlite)
-		;; Override later defvar of `using-guix' in init.el.
+	  `(;; Override later defvar of `using-guix' in init.el.
 		(defvar using-guix t)
 		(load-file ,(f "files/emacs/init.el"))
 		(load-file ,(computed-file
@@ -313,7 +311,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	"kitty"
 	"slurp" "grim" "xdg-user-dirs" "zenity" ;; screenshots
 	;; editing
-	"emacs" "emacs-all-the-icons" "emacs-emacsql-sqlite3" "hunspell" "hunspell-dict-en-gb"
+	"emacs" "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
 	"perl" ;; needed for magit
 	;; for latex previews
 	"texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
