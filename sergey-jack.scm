@@ -336,6 +336,6 @@ Its value is a string containing the number of the generation to switch to."))))
 	;; applications
 	"qutebrowser" "fontforge" (list transmission "gui") "icedove"
 	"xournalpp" "evince" "mpv" "ungoogled-chromium-wayland" "gimp"
-	"xdg-utils"
+	"xdg-utils" (load "./packages/miny.scm")
 	;; NOTE: this should be steam-nvidia on nvidia systems
 	"steam"))))
