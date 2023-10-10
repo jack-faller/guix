@@ -20,14 +20,11 @@
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
-(define (f . x) (local-file (apply fname x)))
+(define (f . x) (local-file (apply fname x) #:recursive? #t))
 (define (not-dot file) (not (or (string= file ".") (string= file ".."))))
+(define (dir-files dir) (scandir dir not-dot))
 (define (lines . lines) (string-join lines "\n" 'suffix))
 
-(define (executable-file file)
-  (chmod file #o777)
-  (local-file file #:recursive? #t))
-(define (fexec . x) (executable-file (apply fname x)))
 (define (executable-shell-script name . lines-list)
   (define script (apply lines (cons "#!/bin/sh" lines-list)))
   (computed-file name #~(begin
@@ -168,28 +165,21 @@ Its value is a string containing the number of the generation to switch to."))))
 	  (one-shot? #t))))
    (simple-service
 	'my-config-manager home-files-service-type
-	(let* ((map2 (λ (f1 f2 lst) (map (λ (a) (list (f1 a) (f2 a))) lst)))
-		   (dir-files (λ (dir) (scandir dir not-dot)))
-		   (pre
-			(λ pre (λ (name) (string-append (apply string-append pre) name))))
-		   (from-dir
-			(λ (dir files)
-			  (map2 (pre ".config/" dir "/") (λ (x) (f "files/" dir "/" x))
-					files)))
-		   (whole-dir
-			(λ (dir target)
-			  (map2 (pre target "/")
-					(λ (file) (f "files/" dir "/" file))
-					(dir-files (fname "files/" dir))))))
+	(let* ((dir
+			(λ (target dir)
+			  (define dir* (fname dir))
+			  (unless (file-exists? dir*)
+				(error "File doesn't exist: " dir*))
+			  (map (lambda (file) (list (string-append target "/" file)
+										(f dir "/" file)))
+				   (dir-files dir*)))))
 	  `((".config/tmux/tmux.conf" ,(f "files/tmux.conf"))
-		,@(from-dir "sway" '("base-config" "binds" "input" "output"))
-		,@(whole-dir "waybar" ".config/waybar")
+		,@(dir ".config/sway" "files/sway/config")
+		,@(dir ".config/waybar" "files/waybar")
 		(".config/kitty/kitty.conf" ,(f "files/kitty.conf"))
-		,@(map2 (pre ".local/programs/")
-				(λ (file) (fexec "files/programs/" file))
-				(dir-files (fname "files/programs/")))
+		,@(dir ".local/programs" "files/programs")
 		;; duplicate to make passmenu work correctly
-		(".local/programs/dmenu-wl" ,(fexec "files/programs/dmenu"))
+		(".local/programs/dmenu-wl" ,(f "files/programs/dmenu"))
 		(".local/programs/dev"
 		 ,(program-file
 		   "dev-script"
@@ -212,8 +202,10 @@ Its value is a string containing the number of the generation to switch to."))))
 							(else (loop (dirname dir))))))
 					   (cdr (program-arguments)))))))
 		(".config/git/config" ,(f "files/gitconfig"))
-		,@(whole-dir "qutebrowser" ".config/qutebrowser")
-		,@(whole-dir "wal/templates" ".config/wal/templates")
+		(".config/qutebrowser/config.py" ,(f "files/qutebrowser/config.py"))
+		,@(dir ".local/share/qutebrowser/userscripts"
+			   "files/qutebrowser/userscripts")
+		,@(dir ".config/wal/templates" "files/wal/templates")
 		(".gnupg/gpg-agent.conf"
 		 ,(mixed-text-file
 		   "gnupg-agent.conf"
@@ -236,9 +228,9 @@ Its value is a string containing the number of the generation to switch to."))))
 		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		;; resolves files/programs/dmenu
 		(set $menu dmenu)
-		(set $volume ,(fexec "files/sway/scripts/vol"))
-		(set $brightness ,(fexec "files/sway/scripts/light"))
-		(set $mute ,(fexec "files/sway/scripts/mute"))
+		(set $volume ,(f "files/sway/scripts/vol"))
+		(set $brightness ,(f "files/sway/scripts/light"))
+		(set $mute ,(f "files/sway/scripts/mute"))
 		(set $lock exec swaylock
 			 --screenshots --clock --indicator
 			 --indicator-radius 100
@@ -248,7 +240,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		(seat seat0 xcursor_theme Quintom_Ink 12)
 		(exec fnott --config=.cache/wal/fnott.ini &)
 		(include "~/.config/sway/base-config")
-		(exec ,(fexec "files/sway/startup-programs.sh"))))))
+		(exec ,(f "files/sway/startup-programs.sh"))))))
    (service
 	home-zsh-service-type
 	(home-zsh-configuration
