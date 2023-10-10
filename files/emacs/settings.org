@@ -1464,6 +1464,21 @@ align with previews
 #+begin_src emacs-lisp
   (pkg glsl-mode)
 #+end_src
+** Lean
+#+begin_src emacs-lisp
+  (pkg lean-mode)
+  (evil-define-key 'normal lean-mode-map
+    (kbd "<leader>gd") #'lean-find-definition
+    (kbd "<leader>k") #'quail-show-key
+    (kbd "<leader>x") #'lean-std-exe
+    (kbd "<leader>SPC") #'lean-hole
+    ;; (kbd "<leader>d") #'helm-lean-definitions
+    (kbd "<leader>g") #'lean-toggle-show-goal
+    (kbd "<leader>n") #'lean-toggle-next-error
+    (kbd "<leader>b") #'lean-message-boxes-toggle
+    (kbd "<leader>r") #'lean-server-restart
+    (kbd "<leader>s") #'lean-server-switch-version)
+#+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
   (pkg which-key)
