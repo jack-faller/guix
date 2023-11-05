@@ -16,7 +16,7 @@
 			 (rde home services wm)
 			 (gnu home-services emacs))
 (use-package-modules
- emacs freedesktop gnupg glib wm python-xyz suckless vim shellutils bittorrent)
+ emacs freedesktop gnupg glib wm python-xyz suckless vim shellutils bittorrent perl6)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -24,6 +24,8 @@
 (define (not-dot file) (not (or (string= file ".") (string= file ".."))))
 (define (dir-files dir) (scandir dir not-dot))
 (define (lines . lines) (string-join lines "\n" 'suffix))
+
+(define set-PATH "export PATH=\"$HOME/.local/programs:$PATH\"")
 
 (define (executable-shell-script name . lines-list)
   (define script (apply lines (cons "#!/bin/sh" lines-list)))
@@ -121,6 +123,7 @@ Its value is a string containing the number of the generation to switch to."))))
 				(list #$(executable-shell-script
 						 "emacs-daemon-script"
 						 "source $XDG_RUNTIME_DIR/ssh-agent.env"
+						 set-PATH
 						 "emacs --fg-daemon"))
 				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
 	  (stop #~(make-kill-destructor)))
@@ -178,6 +181,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		,@(dir ".config/waybar" "files/waybar")
 		(".config/kitty/kitty.conf" ,(f "files/kitty.conf"))
 		,@(dir ".local/programs" "files/programs")
+		(".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
 		;; duplicate to make passmenu work correctly
 		(".local/programs/dmenu-wl" ,(f "files/programs/dmenu"))
 		(".local/programs/dev"
@@ -251,7 +255,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
 		"brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%" "\n"
 		"export SYSTEM_DMENU='" dmenu "/bin/dmenu'" "\n"
-		"export PATH=\"$HOME/.local/programs:$PATH\"" "\n")))
+		set-PATH "\n")))
 	 (zshrc
 	  (list
 	   (mixed-text-file "assign-vim-sys" "VIM_SYS='" vim "/bin/vim'" "\n")

@@ -372,13 +372,14 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
         evil-replace-state-cursor 'hbar
         evil-operator-state-cursor 'hollow)
   (setf evil-extra-operator-eval-modes-alist
-        '((lisp-mode sly-eval-region)
-          (scheme-mode geiser-eval-region)
-          (clojure-mode cider-eval-region)
-          (ruby-mode ruby-send-region)
-          (enh-ruby-mode ruby-send-region)
-          (python-mode python-shell-send-region)
-          (julia-mode julia-shell-run-region)))
+        '((lisp-mode . sly-eval-region)
+          (scheme-mode . geiser-eval-region)
+          (clojure-mode . cider-eval-region)
+          (ruby-mode . ruby-send-region)
+          (enh-ruby-mode . ruby-send-region)
+          (python-mode . python-shell-send-region)
+          (julia-mode . julia-shell-run-region)
+          (raku-mode . raku-send-region-to-repl)))
 #+end_src
 ** Evil Collection
 #+begin_src emacs-lisp
@@ -492,12 +493,12 @@ align with previews
     "ge" (evil-define-operator evil-eval (beg end)
            "Evaluate code."
            :move-point nil
-           (let* ((ele (assoc major-mode evil-extra-operator-eval-modes-alist))
-                  (f-a (cdr-safe ele))
-                  (func (car-safe f-a))
-                  (args (cdr-safe f-a)))
-             (if (fboundp func)
-                 (apply func beg end args)
+           (let ((func (cdr-safe (assoc major-mode evil-extra-operator-eval-modes-alist))))
+             (if func
+                 (save-mark-and-excursion
+                   (setf (point) beg)
+                   (setf (mark) end)
+                   (call-interactively func))
                (eval-region beg end t))))
     "gE" (evil-define-operator evil-eval-elisp-replace (beg end)
            "Evaluate code then replace with result."
@@ -1478,6 +1479,11 @@ align with previews
     (kbd "<leader>b") #'lean-message-boxes-toggle
     (kbd "<leader>r") #'lean-server-restart
     (kbd "<leader>s") #'lean-server-switch-version)
+#+end_src
+** Raku
+#+begin_src emacs-lisp
+  (pkg raku-mode)
+  (add-to-list 'auto-mode-alist '("\\.raku\\'" . raku-mode))
 #+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
