@@ -192,22 +192,40 @@ Its value is a string containing the number of the generation to switch to."))))
 		   "dev-script"
 		   #~(begin
 			   (use-modules (srfi srfi-1))
-			   (apply system*
-					  "guix" "shell"
-					  (fold
-					   (lambda (arg acc)
-						 (let ((file (string-append "/config/dev/" arg ".scm")))
-						   (cond
-							((equal? arg "-r") (cons "--rebuild-cache" acc))
-							((file-exists? file) (cons* "-f" file acc))
-							(else (cons arg acc)))))
-					   (let loop ((dir (getcwd)))
-						 (let ((guixscm (string-append dir "/guix.scm")))
-						   (cond
-							((file-exists? guixscm) `("-D" "-f" ,guixscm))
-							((equal? dir "/") '())
-							(else (loop (dirname dir))))))
-					   (cdr (program-arguments)))))))
+			   (define guix-scm
+				 (let loop ((dir (getcwd)))
+				   (let ((guixscm (string-append dir "/guix.scm")))
+					 (cond
+					  ((file-exists? guixscm) `("-D" "-f" ,guixscm))
+					  ((equal? dir "/") #f)
+					  (else (loop (dirname dir)))))))
+			   (define args
+				 (let loop ((args (cdr (program-arguments)))
+							(acc '())
+							(guix-scm-used? #f))
+				   (if (null? args)
+					   (append (apply append (reverse acc))
+							   (if guix-scm-used? '() guix-scm))
+					   (let* ((arg (car args))
+							  (file (string-append "/config/dev/" arg ".scm")))
+						 (cond
+						  ((or (equal? arg "--rebuild-cache") (equal? arg "-r"))
+						   (loop (cdr args) (cons '("--rebuild-cache") acc)
+								 guix-scm-used?))
+						  ((equal? arg "--")
+						   (loop '() acc guix-scm-used?))
+						  ((file-exists? file)
+						   (loop (cdr args) (cons (list "-f" file) acc)
+								 guix-scm-used?))
+						  ((or (equal? arg "--guix") (equal? arg "-g"))
+						   (if (and guix-scm (not guix-scm-used?))
+							   (loop (cdr args) (cons guix-scm acc) #t)
+							   (error (if guix-scm
+										  "Duplicate --guix"
+										  "Could not find guix.scm"))))
+						  (else
+						   (loop (cdr args) (cons (list arg) acc) guix-scm-used?)))))))
+			   (apply system* "guix" "shell" args))))
 		(".config/git/config" ,(f "files/gitconfig"))
 		(".config/qutebrowser/config.py" ,(f "files/qutebrowser/config.py"))
 		,@(dir ".local/share/qutebrowser/userscripts"
