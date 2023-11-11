@@ -1,3 +1,4 @@
+(add-to-load-path (dirname (current-filename)))
 (use-modules (ice-9 textual-ports)
 			 (ice-9 ftw)
 			 (ice-9 popen)
@@ -14,7 +15,8 @@
 			 (nongnu packages steam-client)
 			 (nongnu packages fonts)
 			 (rde home services wm)
-			 (gnu home-services emacs))
+			 (gnu home-services emacs)
+			 (packages miny))
 (use-package-modules
  emacs freedesktop gnupg glib wm python-xyz suckless vim shellutils bittorrent perl6)
 
@@ -180,6 +182,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		,@(dir ".config/sway" "files/sway/config")
 		,@(dir ".config/waybar" "files/waybar")
 		(".config/kitty/kitty.conf" ,(f "files/kitty.conf"))
+		(".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
 		,@(dir ".local/programs" "files/programs")
 		(".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
 		;; duplicate to make passmenu work correctly
@@ -332,6 +335,6 @@ Its value is a string containing the number of the generation to switch to."))))
 	;; applications
 	"qutebrowser" "fontforge" (list transmission "gui") "icedove"
 	"xournalpp" "evince" "mpv" "ungoogled-chromium-wayland" "gimp"
-	"xdg-utils" (load "./packages/miny.scm")
+	"xdg-utils" miny
 	;; NOTE: this should be steam-nvidia on nvidia systems
 	"steam"))))

@@ -1,22 +1,29 @@
-(use-modules (guix packages)
-			 (guix git-download)
-			 (guix build-system gnu)
-			 ((guix licenses) #:prefix license:)
-			 (gnu packages gl))
+(define-module (packages miny)
+  #:export (miny)
 
+  #:use-module (guix packages)
+  #:use-module (guix git-download)
+  #:use-module (guix build-system gnu)
+  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module (gnu packages gl))
+
+(use-modules)
+
+(define commit "6f028ca")
+(define revision "5")
 (define miny
   (package
    (name "miny")
-   (version "0.5.12")
+   (version (git-version "0.6.0" revision commit))
    (source (origin
 			(method git-fetch)
 			(uri (git-reference
-				  (url "https://github.com/spacecamper/miny")
-				  (commit "4f6b214")))
+				  (url "https://github.com/jack-faller/miny")
+				  (commit commit)))
 			(file-name (git-file-name name version))
 			(sha256
 			 (base32
-			  "02c8dqiqk9j818daqmkc68clxgs0bdsr8g7xfywp6pjsahjc1byg"))))
+			  "0qzd9k5xxcgv8lfd2n42g339lj0q30pyyxzqib8qakkfyf8a3h36"))))
    (build-system gnu-build-system)
    (arguments `(#:phases
 				(modify-phases
