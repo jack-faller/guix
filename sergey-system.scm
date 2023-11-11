@@ -88,8 +88,7 @@
 						(list (file-append nfs-utils "/sbin/mount.nfs")
                               (file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
    fontconfig-file-system-service
-   (service iwd-service-type
-			(iwd-configuration (config-file (local-file "files/iwd/main.conf"))))
+   (service iwd-service-type)
    (service ntp-service-type)
    (simple-service 'mtp udev-service-type (list libmtp))
    (service openssh-service-type
