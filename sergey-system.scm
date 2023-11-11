@@ -1,3 +1,4 @@
+(add-to-load-path (dirname (current-filename)))
 (use-modules (ice-9 textual-ports)
 			 (gnu)
 			 (gnu services)
@@ -5,8 +6,10 @@
 			 (guix gexp)
 			 (gnu system nss)
 			 (nongnu system linux-initrd)
-			 (nongnu packages linux))
-(use-service-modules desktop networking ssh dbus networking shepherd xorg avahi pm
+			 (nongnu packages linux)
+
+			 (iwd-service))
+(use-service-modules desktop networking ssh dbus shepherd xorg avahi pm
 					 cups sound nix)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
 					 package-management)
@@ -20,7 +23,6 @@
  (locale "en_GB.utf8")
 
  (keyboard-layout (keyboard-layout "gb"))
-
 
  (bootloader (bootloader-configuration
 			  (bootloader grub-efi-bootloader)
@@ -86,8 +88,8 @@
 						(list (file-append nfs-utils "/sbin/mount.nfs")
                               (file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
    fontconfig-file-system-service
-   (service connman-service-type)
-   (service wpa-supplicant-service-type)
+   (service iwd-service-type
+			(iwd-configuration (config-file (local-file "files/iwd/main.conf"))))
    (service ntp-service-type)
    (simple-service 'mtp udev-service-type (list libmtp))
    (service openssh-service-type
@@ -129,8 +131,8 @@
    (service nix-service-type)
 
    #; (simple-service 'sway-environment session-environment-service-type
-   '(("CLUTTER_BACKEND" . "wayland")	
-   ("QT_QPA_PLATFORM" . "wayland")	
+   '(("CLUTTER_BACKEND" . "wayland")
+   ("QT_QPA_PLATFORM" . "wayland")
    ("XDG_SESSION_TYPE" . "wayland")
    ("XDG_SESSION_DESKTOP" . "sway")
    ("XDG_CURRENT_DESKTOP" . "sway")))
