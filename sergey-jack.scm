@@ -191,7 +191,6 @@ Its value is a string containing the number of the generation to switch to."))))
 		 ,(program-file
 		   "dev-script"
 		   #~(begin
-			   (use-modules (srfi srfi-1))
 			   (define guix-scm
 				 (let loop ((dir (getcwd)))
 				   (let ((guixscm (string-append dir "/guix.scm")))
@@ -213,7 +212,9 @@ Its value is a string containing the number of the generation to switch to."))))
 						   (loop (cdr args) (cons '("--rebuild-cache") acc)
 								 guix-scm-used?))
 						  ((equal? arg "--")
-						   (loop '() acc guix-scm-used?))
+						   (append (apply append (reverse acc))
+								   (if guix-scm-used? '() guix-scm)
+								   args))
 						  ((file-exists? file)
 						   (loop (cdr args) (cons (list "-f" file) acc)
 								 guix-scm-used?))
