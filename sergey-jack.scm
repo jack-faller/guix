@@ -196,7 +196,7 @@ Its value is a string containing the number of the generation to switch to."))))
 				   (let ((guixscm (string-append dir "/guix.scm")))
 					 (cond
 					  ((file-exists? guixscm) `("-D" "-f" ,guixscm))
-					  ((equal? dir "/") #f)
+					  ((equal? dir "/") '())
 					  (else (loop (dirname dir)))))))
 			   (define args
 				 (let loop ((args (cdr (program-arguments)))
