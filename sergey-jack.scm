@@ -352,7 +352,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	"rakudo"
 	;; applications
 	"qutebrowser" "fontforge" (list transmission "gui") "icedove"
-	"xournalpp" "evince" "mpv" "ungoogled-chromium-wayland" "gimp"
+	"xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
 	"xdg-utils" miny
 	;; NOTE: this should be steam-nvidia on nvidia systems
 	"steam"))))
