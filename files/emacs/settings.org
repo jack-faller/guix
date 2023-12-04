@@ -475,7 +475,8 @@ align with previews
    ;; This also highlights a lot of non-error things.
    next-error-message-highlight t
    ;; Ensure documentation is loaded from autoloaded functions
-   help-enable-symbol-autoload t)
+   help-enable-symbol-autoload t
+   show-trailing-whitespace t)
   (setq-default
    ;; files must end in newline
    require-final-newline t)
