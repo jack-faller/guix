@@ -9,8 +9,8 @@
 
 (use-modules)
 
-(define commit "6f028ca")
-(define revision "5")
+(define commit "143eb06")
+(define revision "7")
 (define miny
   (package
    (name "miny")
@@ -23,7 +23,7 @@
 			(file-name (git-file-name name version))
 			(sha256
 			 (base32
-			  "0qzd9k5xxcgv8lfd2n42g339lj0q30pyyxzqib8qakkfyf8a3h36"))))
+			  "1jifzrr14ga9ajy860sx4km041mwxff1q37440pnysv0r2zh4l9q"))))
    (build-system gnu-build-system)
    (arguments `(#:phases
 				(modify-phases
