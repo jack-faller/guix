@@ -923,8 +923,8 @@ align with previews
       (kbd "<leader>o") #'lispyville-open-below-list
       (kbd "<leader>O") #'lispyville-open-above-list))
   (evil-define-key '(insert) lispyville-mode-map
-    (kbd "M-£") (lambda () (interactive) (insert "Λ"))
-    (kbd "£") (lambda () (interactive) (insert "λ")))
+    (kbd "M-l") (lambda () (interactive) (insert "λ"))
+    (kbd "M-L") (lambda () (interactive) (insert "Λ")))
 #+end_src
 *** Rainbow Delimiters
 #+begin_src emacs-lisp
