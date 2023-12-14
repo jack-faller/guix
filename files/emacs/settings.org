@@ -294,6 +294,10 @@
   (diminish 'page-break-lines-mode)
   (global-page-break-lines-mode)
 #+end_src
+** Trailing Whitespace
+#+begin_src emacs-lisp
+  (setq-default show-trailing-whitespace t)
+#+end_src
 ** Line Wrap
 #+begin_src emacs-lisp
   (pkg visual-fill-column)
