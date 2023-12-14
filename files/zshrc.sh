@@ -55,9 +55,9 @@ else
 fi
 
 alias lv='gzip --to-stdout -d'
-alias ls="exa"
-alias la="exa -a"
-alias ll="exa -la"
+alias ls="eza --icons=auto"
+alias la="eza --icons=auto -a"
+alias ll="eza --icons=auto -la"
 alias se="sudoedit"
 alias off="sudo halt"
 alias glances="glances -1"
@@ -69,14 +69,14 @@ cd-then () {
   cd $2 && eval $1
 }
 
-alias cd="cd-then 'exa'"
+alias cd="cd-then 'ls'"
 
 export QT_QPA_PLATFORMTHEME=qt5ct
 
 # fix delete
 bindkey "^?" backward-delete-char
-bindkey "^W" backward-kill-word 
-bindkey "^U" backward-kill-line            
+bindkey "^W" backward-kill-word
+bindkey "^U" backward-kill-line
 
 source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 if [[ -v DISPLAY ]]; then

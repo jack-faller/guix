@@ -342,7 +342,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	"font-google-material-design-icons"
 	"font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont"
 	;; cli utilities
-	"exa" ;; ls alternative
+	"eza" ;; ls alternative
 	"git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
 	"dmenu"
 	"zbar" ;; reads bar/qr codes for qute script
