@@ -18,7 +18,7 @@
 			 (gnu home-services emacs)
 			 (packages miny))
 (use-package-modules
- emacs freedesktop gnupg glib wm python-xyz suckless vim shellutils bittorrent perl6)
+ emacs freedesktop gnupg glib wm python-xyz suckless shellutils bittorrent perl6)
 
 (define config-directory (dirname (current-filename)))
 (define (fname . x) (apply string-append config-directory "/" x))
@@ -280,7 +280,6 @@ Its value is a string containing the number of the generation to switch to."))))
 		set-PATH "\n")))
 	 (zshrc
 	  (list
-	   (mixed-text-file "assign-vim-sys" "VIM_SYS='" vim "/bin/vim'" "\n")
 	   (f "files/zshrc.sh")
 	   (mixed-text-file
 		"source-zsh-extensions"
@@ -334,7 +333,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	;; for latex previews
 	"texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
 	"cloc"
-	"vim"
+	"neovim"
 	;; zsh
 	"zsh-syntax-highlighting" "zsh-autosuggestions"
 	"password-store"

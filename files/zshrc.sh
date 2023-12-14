@@ -63,7 +63,7 @@ alias off="sudo halt"
 alias glances="glances -1"
 alias please="sudo"
 alias tm="mv --verbose --backup --target-directory ~/trash"
-alias pass="EDITOR='$VIM_SYS -u NONE' pass"
+alias pass="EDITOR='nvim -u NONE' pass"
 
 cd-then () {
   cd $2 && eval $1
