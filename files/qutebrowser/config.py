@@ -48,6 +48,7 @@ c.scrolling.bar = "always"
 c.statusbar.show = "in-mode"
 c.tabs.last_close = "close"
 c.tabs.new_position.unrelated = "next"
+c.tabs.show = "multiple"
 c.editor.remove_file = False
 
 c.spellcheck.languages = ["en-GB"]
