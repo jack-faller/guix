@@ -11,12 +11,15 @@
 			 (gnu home services)
 			 (gnu home services xdg)
 			 (gnu home services shells)
+			 (gnu home services desktop)
 			 (gnu home services shepherd)
 			 (nongnu packages steam-client)
 			 (nongnu packages fonts)
 			 (rde home services wm)
 			 (gnu home-services emacs)
-			 (packages miny))
+
+			 (packages miny)
+			 (home-pipewire-service))
 (use-package-modules
  emacs freedesktop gnupg glib wm python-xyz suckless shellutils bittorrent perl6)
 
@@ -99,6 +102,8 @@ Its value is a string containing the number of the generation to switch to."))))
 			 (videos "$HOME/vids")
 			 (pictures "$HOME/pics")
 			 (music "$HOME/music")))
+   (service home-dbus-service-type)
+   (service home-pipewire-service-type)
    (service
 	home-xdg-mime-applications-service-type
 	(home-xdg-mime-applications-configuration
@@ -161,7 +166,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	 (shepherd-service
 	  (provision '(global-symlinks))
 	  (documentation "setup symlinks that I want")
-	  (start #~(make-system-constructor 
+	  (start #~(make-system-constructor
 				#$(lines
 				   "mkdir -p ~/.local/share/Trash/files"
 				   "ln -s ~/.local/share/Trash/files ~/trash"
@@ -249,8 +254,8 @@ Its value is a string containing the number of the generation to switch to."))))
 	home-sway-service-type
 	(home-sway-configuration
 	 (config
-	  `((exec ,(file-append dbus "/bin/dbus-update-activation-environment")
-			  WAYLAND_DISPLAY XDG_CURRENT_DESKTOP)
+	  `((exec --no-startup-id
+		 ,(file-append dbus "/bin/dbus-update-activation-environment") --all)
 		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		;; resolves files/programs/dmenu
 		(set $menu dmenu)
@@ -277,7 +282,8 @@ Its value is a string containing the number of the generation to switch to."))))
 		python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
 		"brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%" "\n"
 		"export SYSTEM_DMENU='" dmenu "/bin/dmenu'" "\n"
-		set-PATH "\n")))
+		set-PATH "\n"
+		"[ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ] && dbus-run-session sway" "\n")))
 	 (zshrc
 	  (list
 	   (f "files/zshrc.sh")
@@ -287,8 +293,7 @@ Its value is a string containing the number of the generation to switch to."))))
 		"\n"
 		;; this must be the last item in zshrc for some reason
 		"source " zsh-syntax-highlighting "/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-		"\n"
-		"pgrep sway &> /dev/null || " sway "/bin/sway" "\n")))))
+		"\n")))))
    (service
 	home-emacs-service-type
 	(home-emacs-configuration
@@ -319,7 +324,6 @@ Its value is a string containing the number of the generation to switch to."))))
 	"glibc" "ntfs-3g"
 	"adwaita-icon-theme"
 	"udiskie"
-	"pulseaudio"
 	"gnupg" "pinentry" ;; allows gnupg to prompt for password
 	;; wm
 	"sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "fnott" "xorg-server-xwayland"
@@ -327,6 +331,7 @@ Its value is a string containing the number of the generation to switch to."))))
 	"brightnessctl"
 	"kitty"
 	"slurp" "grim" "xdg-user-dirs" "zenity" ;; screenshots
+	"xdg-desktop-portal" "xdg-desktop-portal-wlr" ;; these are started by dbus
 	;; editing
 	"emacs" "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
 	"perl" ;; needed for magit
@@ -350,9 +355,11 @@ Its value is a string containing the number of the generation to switch to."))))
 	"man-pages"
 	"yt-dlp"
 	"rakudo"
+	"android-file-transfer"
 	;; applications
 	"qutebrowser" "fontforge" (list transmission "gui") "icedove"
 	"xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
 	"xdg-utils" miny
+	"obs" "obs-wlrobs"
 	;; NOTE: this should be steam-nvidia on nvidia systems
 	"steam"))))

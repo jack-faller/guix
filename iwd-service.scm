@@ -1,3 +1,4 @@
+;; Adapted from Nikita Domnitskii's dotfiles.
 (define-module (iwd-service)
   #:export (iwd-configuration
             iwd-configuration?

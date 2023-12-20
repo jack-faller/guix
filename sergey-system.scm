@@ -124,9 +124,6 @@
              (using-pam? #t)
              (using-setuid? #f)))
 
-   (service pulseaudio-service-type)
-   (service alsa-service-type)
-
    (service nix-service-type)
 
    #; (simple-service 'sway-environment session-environment-service-type
