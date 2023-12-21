@@ -356,7 +356,6 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
    evil-search-module 'evil-search
    evil-undo-system 'undo-tree
    evil-cross-lines t
-   evil-ex-substitute-global t
    evil-want-C-u-scroll t
    evil-want-C-i-jump t
    evil-want-visual-char-semi-exclusive t
@@ -370,7 +369,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
    )
 
   (pkg evil :require t)
-  
+
   (evil-mode 1)
   (setf evil-emacs-state-cursor 'box
         evil-normal-state-cursor 'box
@@ -545,7 +544,11 @@ align with previews
 
   (evil-define-key 'normal 'global
     (kbd "U") #'evil-redo
-    (kbd "<escape>") #'evil-ex-nohighlight
+    (kbd "<escape>") (defun my/evil-escape-or-no-highlight ()
+  					 (interactive)
+  					 (if (minibufferp)
+  						 (abort-recursive-edit)
+  					   (evil-ex-nohighlight)))
     (kbd "<global-leader>s") #'scratch-buffer
     (kbd "<global-leader>b") #'bookmark-jump
     (kbd "<global-leader>B") #'bookmark-set
@@ -553,11 +556,11 @@ align with previews
     (kbd "<global-leader>tw") #'toggle-word-wrap
     (kbd "<global-leader>tW") #'toggle-word-wrap-at-col
     (kbd "<global-leader>tp") (evil-define-command toggle-profiler ()
-                                (require 'profiler)
-                                (if (not (profiler-running-p))
-                                    (profiler-start 'cpu+mem)
-                                  (profiler-stop)
-                                  (profiler-report)))
+  							  (require 'profiler)
+  							  (if (not (profiler-running-p))
+  								  (profiler-start 'cpu+mem)
+  								(profiler-stop)
+  								(profiler-report)))
     (kbd "S") (evil-define-command evil-file-substitute () (evil-ex "%s/"))
     (kbd "gB") #'ibuffer
     (kbd "<global-leader>d") #'dired)
