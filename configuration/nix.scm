@@ -16,7 +16,7 @@
    (compose concatenate)
    (extend append)
    (description
-	"Like home-files-service-type, but when a string is provided, take it recursively from the files directory.")
+	"Make sure the given nix packages are installed")
    (extensions
 	(list
 	 (service-extension
