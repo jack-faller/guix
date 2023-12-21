@@ -1,69 +1,59 @@
 (define-module (configuration nix)
-  #:export (generate-nix-packages-service nix-packages-service-type nix-system-services)
+  #:export (nix-packages-service-type nix-system-services)
 
   #:use-module (file-utils)
 
   #:use-module (srfi srfi-1)
-  #:use-module (ice-9 popen)
-  #:use-module (ice-9 rdelim)
-  #:use-module (ice-9 textual-ports)
   #:use-module (guix gexp)
   #:use-module (gnu home services)
   #:use-module (gnu home services shells)
   #:use-module (gnu services)
   #:use-module (gnu services nix))
 
-(define nix-profile-service-type
-  (let* ((switch-to-generstion
-		  (λ (generation)
-			#~(system* "nix-env" "--switch-generation" #$generation)))
-		 (nix-profile
-		  (plain-file
-		   "nix-source-command"
-		   "source /run/current-system/profile/etc/profile.d/nix.sh"))
-		 (profile-extension
-		  (const (list nix-profile))))
-	(service-type
-	 (name 'nix-profile)
-	 (extensions
-	  (list
-	   (service-extension home-activation-service-type switch-to-generstion)
-	   (service-extension home-shell-profile-service-type profile-extension)))
-	 (description
-	  "A home service that switches to a generation of the user's nix profile.
-Its value is a string containing the number of the generation to switch to."))))
-;; run a script to install the packages
-(define (generate-nix-packages-service . packages)
-  (define (assert-nix-success return-code)
-	(unless (= 0 return-code)
-	   (error "failed to run nix command")))
-  (define package-file
-	(string-append (getenv "HOME") "/.cache/installed-nix-packages"))
-  (assert-nix-success
-   (system
-	(lines
-	 "if [ \"$(nix-channel --list)\" = \"\" ]; then"
-	 "  nix-channel --add https://nixos.org/channels/nixpkgs-unstable"
-	 "  nix-channel --update"
-	 "  nix-env -iA nixpkgs.nix nixpkgs.cacert"
-	 (string-append "echo '()' > " package-file)
-	 "fi")))
-  (unless (equal? packages (with-input-from-file package-file read))
-	(with-output-to-file package-file (λ () (write packages) (newline)))
-	(let* ((cmd (cons*
-				 "NIXPKGS_ALLOW_UNFREE=1" "nix-env" "--remove-all" "--install"
-				 packages))
-		   (cmd (if (null? packages) '("nix-env" "--uninstall" "'.*'") cmd))
-		   (cmd (string-join cmd " ")))
-	  (assert-nix-success (system cmd))))
-  (service
-   nix-profile-service-type
-   (let* ((pipe
-		   (open-input-pipe
-			"nix-env --list-generations | grep current | grep --only-matching '[0-9]*'"))
-		  (output (read-line pipe)))
-	 (assert-nix-success (close-pipe pipe))
-	 output)))
+(define nix-packages-service-type
+  (service-type
+   (name 'nix-packages)
+   (compose concatenate)
+   (extend append)
+   (description
+	"Like home-files-service-type, but when a string is provided, take it recursively from the files directory.")
+   (extensions
+	(list
+	 (service-extension
+	  home-shell-profile-service-type
+	  (const (list (plain-file
+					"nix-source-command"
+					"source /run/current-system/profile/etc/profile.d/nix.sh"))))
+	 (service-extension
+	  home-activation-service-type
+	  (λ (packages)
+		(with-imported-modules
+		 '((ice-9 popen) (ice-9 rdelim) (ice-9 textual-ports))
+		 #~(begin
+			 (use-modules (ice-9 popen) (ice-9 rdelim) (ice-9 textual-ports))
+			 (define packages '#$(sort packages string<))
+			 (define package-file
+			   (string-append (getenv "HOME") "/.cache/installed-nix-packages"))
+			 (define (invoke . args)
+			   (unless (= 0 (apply system* args))
+				 (error "failed to run nix command" args)))
+			 (invoke #$(executable-shell-script
+						"nix-add-channels"
+						"if [ \"$(nix-channel --list)\" = \"\" ]; then"
+						"  nix-channel --add https://nixos.org/channels/nixpkgs-unstable || exit 1"
+						"  nix-channel --update || exit 1"
+						"  nix-env -iA nixpkgs.nix nixpkgs.cacert || exit 1"
+						"  echo '()' > ~/.cache/installed-nix-packages"
+						"fi"))
+			 (setenv "NIXPKGS_ALLOW_UNFREE" "1")
+			 (unless (equal? packages (with-input-from-file package-file read))
+			   (display "installing nix packages") (newline)
+			   (if (null? packages)
+				   (invoke "nix-env" "--uninstall" ".*")
+				   (apply invoke "nix-env" "--remove-all" "--install"
+						  packages))
+			   (with-output-to-file package-file
+				 (lambda () (write packages) (newline))))))))))))
 
 (define nix-system-services
   (list

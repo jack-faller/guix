@@ -169,8 +169,8 @@
 											,#$(f "emacs/settings.org")
 											,#$output
 											"emacs-lisp"))))))))))))
-   (generate-nix-packages-service
-	"discord" "teams" "tor-browser-bundle-bin")))
+   (service nix-packages-service-type
+			'("discord" "teams" "tor-browser-bundle-bin"))))
  (packages
   (packages
    ;; basic
