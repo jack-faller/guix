@@ -16,7 +16,7 @@
    (compose concatenate)
    (extend append)
    (description
-	"Make sure the given nix packages are installed")
+	"Make sure the given nix packages are installed, remove all other packages and install only them if they are not")
    (extensions
 	(list
 	 (service-extension
@@ -29,9 +29,7 @@
 	  (λ (packages)
 		#~(begin
 			(use-modules (ice-9 popen) (ice-9 rdelim) (ice-9 textual-ports))
-			(define packages '#$(sort packages string<))
-			(define package-file
-			  (string-append (getenv "HOME") "/.cache/installed-nix-packages"))
+			(define packages '#$packages)
 			(define (invoke . args)
 			  (unless (= 0 (apply system* args))
 				(error "failed to run nix command" args)))
@@ -41,17 +39,14 @@
 					   "  nix-channel --add https://nixos.org/channels/nixpkgs-unstable || exit 1"
 					   "  nix-channel --update || exit 1"
 					   "  nix-env -iA nixpkgs.nix nixpkgs.cacert || exit 1"
-					   "  echo '()' > ~/.cache/installed-nix-packages"
 					   "fi"))
 			(setenv "NIXPKGS_ALLOW_UNFREE" "1")
-			(unless (equal? packages (with-input-from-file package-file read))
+			(unless (= 0 (apply system* "nix-env" "--query" "--installed" packages))
 			  (display "installing nix packages") (newline)
 			  (if (null? packages)
 				  (invoke "nix-env" "--uninstall" ".*")
 				  (apply invoke "nix-env" "--remove-all" "--install"
-						 packages))
-			  (with-output-to-file package-file
-				(lambda () (write packages) (newline)))))))))))
+						 packages))))))))))
 
 (define nix-system-services
   (list
