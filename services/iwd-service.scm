@@ -1,5 +1,5 @@
 ;; Adapted from Nikita Domnitskii's dotfiles.
-(define-module (iwd-service)
+(define-module (services iwd-service)
   #:export (iwd-configuration
             iwd-configuration?
             iwd-configuration-iwd

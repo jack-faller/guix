@@ -8,7 +8,7 @@
 			 (nongnu system linux-initrd)
 			 (nongnu packages linux)
 
-			 (iwd-service))
+			 (services iwd-service))
 (use-service-modules desktop networking ssh dbus shepherd xorg avahi pm
 					 cups sound nix)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs

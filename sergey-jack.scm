@@ -19,7 +19,7 @@
 			 (gnu home-services emacs)
 
 			 (packages miny)
-			 (home-pipewire-service))
+			 (services home-pipewire-service))
 (use-package-modules
  emacs freedesktop gnupg glib wm python-xyz suckless shellutils bittorrent perl6)
 

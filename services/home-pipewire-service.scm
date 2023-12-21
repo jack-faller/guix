@@ -1,5 +1,5 @@
 ;; Copied from krevedkokun's dotfiles.
-(define-module (home-pipewire-service)
+(define-module (services home-pipewire-service)
   #:use-module (guix gexp)
 
   #:use-module (gnu packages linux)
