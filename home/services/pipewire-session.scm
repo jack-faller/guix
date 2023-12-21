@@ -1,10 +1,10 @@
 ;; Copied from krevedkokun's dotfiles.
-(define-module (services home-pipewire-service)
-  #:use-module (guix gexp)
+(define-module (home services pipewire-session)
+  #:export (home-pipewire-session-service-type)
 
+  #:use-module (guix gexp)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages pulseaudio)
-
   #:use-module (gnu home services)
   #:use-module (gnu home services shepherd))
 
@@ -71,9 +71,9 @@ ctl_type.pipewire {
     (start #~(make-forkexec-constructor
               (list #$(file-append pipewire "/bin/pipewire-pulse")))))))
 
-(define-public home-pipewire-service-type
+(define home-pipewire-session-service-type
   (service-type
-   (name 'home-pipewire)
+   (name 'home-pipewire-session)
    (extensions
     (list (service-extension
            home-xdg-configuration-files-service-type

@@ -8,9 +8,12 @@
 			 (nongnu system linux-initrd)
 			 (nongnu packages linux)
 
-			 (services iwd-service))
-(use-service-modules desktop networking ssh dbus shepherd xorg avahi pm
-					 cups sound nix)
+			 (services iwd-service)
+			 (configuration nix)
+			 (configuration sway-desktop))
+
+(use-service-modules desktop networking ssh dbus shepherd avahi pm
+					 cups sound)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
 					 package-management)
 
@@ -72,13 +75,29 @@
 		 (nopass "halt")
 		 (nopass "reboot")))))
 
- (packages (cons* nix sway swaylock-effects vim git zsh
-				  (specification->package "nss-certs") %base-packages))
+ (packages (cons* vim git zsh (specification->package "nss-certs") %base-packages))
 
  (name-service-switch %mdns-host-lookup-nss)
 
  (services
-  (cons*
+  ((λ args
+	 (append
+	  args
+	  sway-desktop-system-services
+	  nix-system-services
+	  (modify-services
+	   %base-services
+	   (guix-service-type
+		config =>
+		(guix-configuration
+		 (inherit config)
+		 (substitute-urls
+		  (append (list "https://substitutes.nonguix.org")
+				  %default-substitute-urls))
+		 (authorized-keys
+		  (cons* (local-file "/config/signing-key.pub")
+				 %default-authorized-guix-keys)))))))
+
    ;; Allow desktop users to also mount NTFS and NFS file systems
    ;; without root.
    (simple-service 'mount-setuid-helpers setuid-program-service-type
@@ -116,31 +135,4 @@
    (service elogind-service-type)
    (service dbus-root-service-type)
 
-   (service sane-service-type)
-   (service screen-locker-service-type
-			(screen-locker-configuration
-             (name "swaylock")
-             (program (file-append swaylock-effects "/bin/swaylock"))
-             (using-pam? #t)
-             (using-setuid? #f)))
-
-   (service nix-service-type)
-
-   #; (simple-service 'sway-environment session-environment-service-type
-   '(("CLUTTER_BACKEND" . "wayland")
-   ("QT_QPA_PLATFORM" . "wayland")
-   ("XDG_SESSION_TYPE" . "wayland")
-   ("XDG_SESSION_DESKTOP" . "sway")
-   ("XDG_CURRENT_DESKTOP" . "sway")))
-   (modify-services
-	%base-services
-	(guix-service-type
-	 config =>
-	 (guix-configuration
-	  (inherit config)
-	  (substitute-urls
-	   (append (list "https://substitutes.nonguix.org")
-			   %default-substitute-urls))
-	  (authorized-keys
-	   (cons* (local-file "/config/signing-key.pub")
-			  %default-authorized-guix-keys))))))))
+   (service sane-service-type))))

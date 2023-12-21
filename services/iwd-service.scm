@@ -18,7 +18,6 @@
   #:use-module (gnu services base)
   #:use-module (gnu services shepherd)
   #:use-module (gnu services configuration)
-
   #:use-module (guix gexp)
   #:use-module (guix records))
 
