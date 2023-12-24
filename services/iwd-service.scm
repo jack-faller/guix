@@ -30,9 +30,7 @@
   (config-file iwd-configuration-config-file
                (default (plain-file "iwd-main.conf"
                                     (string-join
-                                     '("[General]"
-                                       "EnableNetworkConfiguration=true"
-                                       "[Network]"
+                                     '("[Network]"
                                        "NameResolvingService=resolvconf")
                                      "\n" 'suffix)))))
 

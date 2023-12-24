@@ -108,8 +108,10 @@
                               (file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
    fontconfig-file-system-service
    (service iwd-service-type)
+   (service dhcp-client-service-type
+			(dhcp-client-configuration
+			 (shepherd-provision '(dhcp-client))))
    (service ntp-service-type)
-   (simple-service 'mtp udev-service-type (list libmtp))
    (service openssh-service-type
 			(openssh-configuration
 			 (permit-root-login 'prohibit-password)
@@ -119,8 +121,7 @@
 				  ("jack" ,my-key))))))
    (service cups-service-type)
    (service tlp-service-type)
-   (simple-service 'udev-rules udev-service-type
-				   (list libmtp brightnessctl))
+   (simple-service 'my-udev-rules udev-service-type (list libmtp brightnessctl))
 
    ;; The D-Bus clique.
    (service avahi-service-type)
