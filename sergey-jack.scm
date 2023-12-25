@@ -13,12 +13,13 @@
 			 (gnu home-services emacs)
 
 			 (packages miny)
+			 (packages qutebrowser)
 			 (packages guix-dev)
 			 (file-utils)
 			 (configuration nix)
 			 (configuration sway-desktop))
 (use-package-modules
- emacs freedesktop gnupg wm python-xyz suckless shellutils bittorrent perl6)
+ emacs freedesktop gnupg wm python-xyz suckless shellutils bittorrent perl6 tor)
 
 (define set-PATH "export PATH=\"$HOME/.local/programs:$PATH\"")
 
@@ -42,6 +43,16 @@
    (simple-service
 	'my-daemons home-shepherd-service-type
 	(list
+	 (shepherd-service
+	  (provision '(tor-client))
+	  (auto-start? #f)
+	  (respawn? #f)
+	  (requirement '())
+	  (documentation "run tor client")
+	  (start #~(make-forkexec-constructor
+				(list #$(file-append tor-client "/bin/tor"))
+				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/tor.log")))
+	  (stop #~(make-kill-destructor)))
 	 (shepherd-service
 	  (provision '(ssh-agent))
 	  (documentation "run ssh-agent")
@@ -108,6 +119,12 @@
 	  (".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
 	  (".local/programs" "programs")
 	  (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
+	  (".local/programs/tor-qutebrowser"
+	   ,(executable-shell-script
+		 "tor-qutebrowser"
+		 "herd start tor-client"
+		 "qutebrowser --temp-basedir --set content.proxy socks://localhost:9050/ --config-py ~/.config/qutebrowser/config.py"
+		 "herd stop tor-client"))
 	  ;; duplicate to make passmenu work correctly
 	  (".local/programs/dmenu-wl" "programs/dmenu")
 	  (".config/git/config" "gitconfig")
@@ -204,7 +221,7 @@
    "android-file-transfer"
    guix-dev
    ;; applications
-   "kitty" "qutebrowser" "fontforge" (list transmission "gui") "icedove"
+   "kitty" qutebrowser "fontforge" (list transmission "gui") "icedove"
    "xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
    "xdg-utils" miny
    "obs" "obs-wlrobs"
