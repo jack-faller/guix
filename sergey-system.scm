@@ -13,7 +13,7 @@
 			 (configuration sway-desktop))
 
 (use-service-modules desktop networking ssh dbus shepherd avahi pm
-					 cups sound)
+					 cups sound sysctl)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
 					 package-management)
 
@@ -96,7 +96,12 @@
 				  %default-substitute-urls))
 		 (authorized-keys
 		  (cons* (local-file "/config/signing-key.pub")
-				 %default-authorized-guix-keys)))))))
+				 %default-authorized-guix-keys))))
+	   (sysctl-service-type
+		config =>
+		(sysctl-configuration
+		 (settings (append '(("kernel.sysrq" . "1"))
+						   %default-sysctl-settings)))))))
 
    ;; Allow desktop users to also mount NTFS and NFS file systems
    ;; without root.
