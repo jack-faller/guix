@@ -41,8 +41,8 @@
 	'sway-desktop-profile
 	home-profile-service-type
 	(packages
-	 "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "fnott" "xorg-server-xwayland"
-	 "python-pywal" "imagemagick"
+	 "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
+	 "python-pywal" "imagemagick"  "dunst"
 	 "brightnessctl"
 	 ;; screenshots
 	 "slurp" "grim" "xdg-user-dirs" "zenity"
@@ -67,7 +67,7 @@
 			 --effect-blur 7x5
 			 --effect-vignette 0.5:0.5)
 		(seat seat0 xcursor_theme Quintom_Ink 12)
-		(exec fnott --config=.cache/wal/fnott.ini &)
+		(exec dunst -config ,(f "dunstrc") &)
 		(exec gammastep -l 50.721680:-1.878530 &)
 		(include "~/.config/sway/base-config")
 		(exec ,(f "sway/startup-programs.sh"))))))))

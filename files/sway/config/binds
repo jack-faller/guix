@@ -143,11 +143,11 @@
 # Passwords:
     bindsym $mod+SemiColon exec passmenu
 
-# Mako:
-    set $recentNotification "$(fnottctl list | tac | grep --only-matching '[0-9]*' | sed 1q)"
-    bindsym Ctrl+Space exec fnottctl dismiss $recentNotification
-    bindsym Ctrl+Shift+Space exec fnottctl actions $recentNotification
-    bindsym Ctrl+Alt+Space exec fnottctl actions $recentNotification && fnottctl dismiss $recentNotification
+# Notifications:
+    bindsym Ctrl+Space exec dunstctl close
+    bindsym Ctrl+Shift+Space exec dunstctl history-pop
+    bindsym Ctrl+Alt+Space exec dunstctl action 0 && dunstctl close
+    bindsym Ctrl+Alt+Shift+Space exec dunstctl context
 
 # Lock:
     bindsym $mod+F2 $lock
