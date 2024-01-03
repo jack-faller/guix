@@ -1,11 +1,11 @@
 (define-module (configuration sway-desktop)
   #:export (sway-desktop-system-services sway-desktop-home-services sway-desktop-launch-command)
 
-  #:use-module (home services pipewire-session)
   #:use-module (file-utils)
 
   #:use-module (guix gexp)
   #:use-module (gnu home services)
+  #:use-module (gnu home services sound)
   #:use-module (gnu home services desktop)
   #:use-module (gnu services)
   #:use-module (gnu services xorg)
@@ -33,7 +33,7 @@
 (define sway-desktop-home-services
   (list
    (service home-dbus-service-type)
-   (service home-pipewire-session-service-type)
+   (service home-pipewire-service-type)
    (simple-service 'sway-desktop-config-files config-files-service-type
 				   '((".config/sway" "sway/config")
 					 (".config/waybar" "waybar")))
@@ -42,8 +42,9 @@
 	home-profile-service-type
 	(packages
 	 "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
-	 "python-pywal" "imagemagick"  "dunst"
-	 "brightnessctl"
+	 "python-pywal" "imagemagick" "dunst"
+	 ;; these are for binds
+	 "brightnessctl" "pulseaudio"
 	 ;; screenshots
 	 "slurp" "grim" "xdg-user-dirs" "zenity"
 	 ;; these are started automatically by dbus

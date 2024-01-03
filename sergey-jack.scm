@@ -221,7 +221,7 @@
    "android-file-transfer"
    guix-dev
    ;; applications
-   "kitty" qutebrowser "fontforge" (list transmission "gui") "icedove"
+   "kitty" qutebrowser "fontforge" (list transmission "gui")
    "xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
    "xdg-utils" miny
    "obs" "obs-wlrobs"
