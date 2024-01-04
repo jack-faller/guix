@@ -8,11 +8,14 @@
 			 (nongnu system linux-initrd)
 			 (nongnu packages linux)
 
-			 (services iwd-service)
+			 (services networking)
 			 (configuration nix)
-			 (configuration sway-desktop))
+			 (configuration sway-desktop)
 
-(use-service-modules desktop networking ssh dbus shepherd avahi pm
+			 ((gnu services networking)
+			  #:select (ntp-service-type)))
+
+(use-service-modules desktop ssh dbus shepherd avahi pm
 					 cups sound sysctl)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
 					 package-management)
@@ -113,9 +116,16 @@
                               (file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
    fontconfig-file-system-service
    (service iwd-service-type)
-   (service dhcp-client-service-type
-			(dhcp-client-configuration
-			 (shepherd-provision '(dhcp-client))))
+   (service connman-service-type
+			(connman-configuration
+			 (main
+			  '((General
+				 ((AllowHostNameUpdates . #f)
+				  (AllowDomainNameUpdates .#f)
+				  (PreferredTechnologies
+				   ethernet wifi)
+				  (NetworkInterfacesBlacklist
+				   vmnet vboxnet virbr ifb docker veth eth wlan)))))))
    (service ntp-service-type)
    (service openssh-service-type
 			(openssh-configuration
