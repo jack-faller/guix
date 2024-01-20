@@ -10,6 +10,7 @@ for i in ['o', 'O', 'T', ':', '/', 'eo', 'eO', 'go', 'gO']:
     if not i.startswith(setshow):
         config.bind(i, setshow + s)
 c.editor.command = ["emacsclient", "-nc", "--frame-parameters=((name . \"floating\") (width . 130) (height . 40))",
+c.editor.command = ["emacsclient", "-c", "--frame-parameters=((name . \"floating\") (width . 130) (height . 40))",
                     "+{line}:{column}", "{file}"]
 
 config.bind("#", "tab-focus")
