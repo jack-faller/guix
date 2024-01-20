@@ -1,3 +1,0 @@
-#! /bin/sh
-cd ~/code/rebox-voxel/src
-nvim

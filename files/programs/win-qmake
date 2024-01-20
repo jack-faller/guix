@@ -1,3 +1,0 @@
-#! /bin/sh
-export PATH=/opt/mxe/usr/bin:$PATH
-make -f "$1"

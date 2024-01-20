@@ -1,6 +1,0 @@
-for i in "$@"
-do
-    regex=$(echo "$i" | sed 's/\[\(.*\)\] \(.*\) -.*(\(.*p\)).*/.*\1.*\2.*\3.*/' | sed 's/ /./g')
-    echo $regex
-    echo "filter = { pattern => \"$regex\" }" >> ~/.config/automatic/automatic.conf
-done

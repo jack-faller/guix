@@ -1,7 +1,0 @@
-#! /bin/sh
-x=""
-quote=\'
-for i in "$@"; do
-	x="$x '$(echo "$i" | sed "s/$quote/$quote\\$quote$quote/")'"
-done
-eval $x </dev/null >/dev/null 2>&1 &
