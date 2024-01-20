@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 if [ -t 0 ]; then #use $1 if running interacitive
     input="$1"
@@ -6,8 +6,10 @@ else              #else use stdin
     input="$(cat)"
 fi
 
-if [ -d "$input" ]; then 
-    lsd "$input"
+if [ "$input" = "" ]; then
+    ls
+elif [ -d "$input" ]; then
+    ls "$input"
 elif [ -f "$input" ]; then
-    nvim "$input"
+    less --quit-if-one-screen "$input"
 fi
