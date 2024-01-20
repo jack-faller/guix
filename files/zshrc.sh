@@ -55,9 +55,8 @@ else
 fi
 
 alias lv='gzip --to-stdout -d'
-alias ls="eza --icons=auto"
-alias la="eza --icons=auto -a"
-alias ll="eza --icons=auto -la"
+alias la="ls -a"
+alias ll="ls -la"
 alias se="sudoedit"
 alias off="sudo halt"
 alias glances="glances -1"
