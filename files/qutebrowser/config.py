@@ -52,5 +52,6 @@ c.tabs.last_close = "close"
 c.tabs.new_position.unrelated = "next"
 c.tabs.show = "multiple"
 c.editor.remove_file = False
+c.downloads.open_dispatcher="xdg-open"
 
 c.spellcheck.languages = ["en-GB"]
