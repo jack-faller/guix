@@ -1645,6 +1645,7 @@ Cape suggests this snippet.
 ** Eldoc
 #+begin_src emacs-lisp
   (after-load eldoc (diminish 'eldoc-mode))
+  (setf eldoc-echo-area-use-multiline-p nil)
   (setf eldoc-idle-delay 0)
 #+end_src
 ** Language Server Support (LSP)
