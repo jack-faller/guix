@@ -1498,6 +1498,10 @@ align with previews
   (pkg raku-mode)
   (add-to-list 'auto-mode-alist '("\\.raku\\'" . raku-mode))
 #+end_src
+** Dockerfile
+#+begin_src emacs-lisp
+  (pkg dockerfile-mode)
+#+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
   (pkg which-key)
