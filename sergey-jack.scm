@@ -39,7 +39,11 @@
 	 (default '((application/pdf . org.gnome.Evince.desktop)
 				(application/x-torrent . transmission-gtk.desktop)
 				(x-scheme-handler/magnet . transmission-gtk.desktop)
-				(application/x-bittorrent . transmission-gtk.desktop)))))
+				(application/x-bittorrent . transmission-gtk.desktop)
+				(image/jpeg . feh.desktop)
+				(image/png . feh.desktop)
+				(x-scheme-handler/http . org.qutebrowser.desktop)
+				(x-scheme-handler/https . org.qutebrowser.desktop)))))
    (simple-service
 	'my-daemons home-shepherd-service-type
 	(list
