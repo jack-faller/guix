@@ -1669,6 +1669,10 @@ Cape suggests this snippet.
     (kbd "<leader>H") #'eglot-inlay-hints-mode
     (kbd "<leader>E") #'flymake-show-buffer-diagnostics
     (kbd "<leader>M-E") #'flymake-show-project-diagnostics)
+  ;; Prevent missing completions when there are too many options.
+  (defhook eglot-managed-mode-hook
+    (setq-local completion-at-point-functions
+  			  (list (cape-capf-buster #'eglot-completion-at-point 'equal))))
 #+end_src
 *** Performance
 These variables are recommended by =lsp-mode= to increase performance.
