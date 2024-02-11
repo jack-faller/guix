@@ -1787,10 +1787,9 @@ These variables are recommended by =lsp-mode= to increase performance.
       (call-interactively #'webpaste-paste-buffer-or-region)
       (set-webpaste-duration old-duration)))
 #+end_src
-* Spellcheck
+* Fly*
 ** Flyspell
 #+begin_src emacs-lisp
-  (pkg flyspell)
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   (add-hook 'text-mode-hook #'flyspell-mode)
   (defvar dict (if using-guix "en_GB-ise" "en_GB")
@@ -1813,6 +1812,16 @@ These variables are recommended by =lsp-mode= to increase performance.
   (evil-define-key 'normal flyspell-mode-map
     (kbd "[s") #'evil-prev-flyspell-error
     (kbd "]s") #'evil-next-flyspell-error)
+#+end_src
+** Flycheck
+#+begin_src emacs-lisp
+  (pkg flycheck)
+  (pkg consult-flycheck)
+  (evil-declare-not-repeat #'flycheck-next-error)
+  (evil-declare-not-repeat #'flycheck-previous-error)
+  (evil-define-key 'normal flycheck-mode-map
+    (kbd "<leader>e") #'consult-flycheck
+    (kbd "<leader>E") #'list-flycheck-errors)
 #+end_src
 * Ebangs
 #+begin_src emacs-lisp
