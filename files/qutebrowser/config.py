@@ -4,13 +4,11 @@ config.bind('<Escape>', 'mode-enter normal;; set statusbar.show in-mode', mode='
 config.bind('<Return>', 'command-accept;; set statusbar.show in-mode', mode='command')
 config.bind('eo', 'cmd-set-text :open google.com/search?q=')
 config.bind('eO', 'cmd-set-text :open -t google.com/search?q=')
-setshow = 'set statusbar.show always;; '
-for i in ['o', 'O', 'T', ':', '/', 'eo', 'eO', 'go', 'gO']:
-    s = config._keyconfig.get_command(keyutils.KeySequence.parse(i), 'normal')
-    if not i.startswith(setshow):
-        config.bind(i, setshow + s)
-c.editor.command = ["emacsclient", "-c", "--frame-parameters=((name . \"floating\") (width . 130) (height . 40))",
-                    "+{line}:{column}", "{file}"]
+c.editor.command = ["emacsclient", "-c", "+{line}:{column}", "{file}",
+                    "--frame-parameters=((name . \"floating\") (width . 130) (height . 40))"]
+
+def script(name):
+    return "~/.local/share/qutebrowser/userscripts/" + name
 
 config.bind("#", "tab-focus")
 config.bind(";gv", "hint -r links spawn sh '-c' '~/.config/zsh/aliases/pla {hint-url}'")
@@ -22,6 +20,9 @@ config.bind("<Alt+f>", "hint links spawn --detach mpv --force-window yes {hint-u
 config.bind("<Alt+j>", "scroll down")
 config.bind("<Alt+k>", "scroll up")
 config.bind("<Space>", "tab-focus last")
+config.bind(";i", "hint images yank")
+config.bind(";I", "hint images yank --rapid")
+config.bind("es", "tab-move end;; spawn --userscript " + script("shuffle.scm"))
 config.bind("B", "spawn --userscript stow.sh -o")
 config.bind("b", "spawn --userscript stow.sh")
 config.bind("pu", "spawn --userscript unsee.sh {primary}")

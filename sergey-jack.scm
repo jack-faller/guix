@@ -13,7 +13,6 @@
 			 (gnu home-services emacs)
 
 			 (packages miny)
-			 (packages qutebrowser)
 			 (packages guix-dev)
 			 (file-utils)
 			 (configuration nix)
@@ -225,7 +224,7 @@
    "android-file-transfer"
    guix-dev
    ;; applications
-   "kitty" qutebrowser "fontforge" (list transmission "gui")
+   "kitty" "qutebrowser" "fontforge" (list transmission "gui")
    "xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
    "xdg-utils" miny
    "obs" "obs-wlrobs"
