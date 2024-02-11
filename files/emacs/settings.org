@@ -1360,6 +1360,9 @@ align with previews
 ** ERC
 #+begin_src emacs-lisp
   (pkg password-store)
+  (pkg erc-hl-nicks)
+  (pkg erc-nick-notify)
+
   (setf erc-nick "JackFaller"
         erc-user-full-name "Jack Faller"
         erc-track-shorten-start 10
@@ -1375,12 +1378,10 @@ align with previews
      :port 6697
      :password (password-store-get "irc/freenode")))
 
-  (pkg erc-nick-notify)
-
-  (defhook erc-mode
   (defhook erc-mode-hook
     (require 'erc-nick-notify)
     (require 'erc-pcomplete)
+    (require 'erc-hl-nicks)
     (pcomplete-erc-setup)
     (erc-completion-mode 1)
     (erc-spelling-mode 1)
