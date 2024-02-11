@@ -117,15 +117,14 @@
 #+end_src
 ** Defhook
 #+begin_src emacs-lisp
-  (defmacro defhook (name &rest body)
+  (defmacro defhook (hook &rest body)
     "Define my/NAME-hook as a function that runs BODY and attach it to NAME-hook.
   This form can be re-evaluated to redefine the hook."
     (declare (indent 1))
-    (let* ((hook (symcat name "-hook"))
-           (func (symcat "my/" hook)))
+    (let ((func (symcat "my/" hook)))
      `(progn
        (defun ,func () ,@body)
-       (add-hook ',hook ',func))))
+       (add-hook ',hook #',func))))
 #+end_src
 ** Mode Local
 #+begin_src emacs-lisp
@@ -159,7 +158,7 @@
   (defvar frame-kill-buffers nil
     "Buffers that should kill their frame when killed. Used for emacs server.")
 
-  (defhook kill-buffer
+  (defhook kill-buffer-hook
     (when (memq (current-buffer) frame-kill-buffers)
       (setf frame-kill-buffers
             (delete (current-buffer) frame-kill-buffers))
@@ -339,7 +338,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
     (setf undo-tree-history-directory-alist (list (cons "." undo-dir))))
   ;; this is broken, the after save hook below fixes it, but it still needs to be here
-  (defhook after-save (when undo-tree-mode (undo-tree-save-history nil t)))
+  (defhook after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
   (global-undo-tree-mode)
 
   (pkg goto-chg :require t)
@@ -1003,7 +1002,7 @@ align with previews
 ** Scheme
 #+begin_src emacs-lisp
   (pkg geiser)
-  (defhook scheme-mode (geiser-mode) (lispyville-mode))
+  (defhook scheme-mode-hook (geiser-mode) (lispyville-mode))
   (setf geiser-mode-start-repl-p t)
 
   (pkg geiser-guile)
@@ -1111,7 +1110,7 @@ align with previews
 *** Org-mode
 #+begin_src emacs-lisp
   (after-load org-indent (diminish 'org-indent-mode))
-  (defhook org-mode
+  (defhook org-mode-hook
     (org-indent-mode)
     (variable-pitch-mode)
     (setq-local electric-pair-inhibit-predicate
@@ -1321,7 +1320,7 @@ align with previews
 ** Eshell
 #+begin_src emacs-lisp
   (pkg pcmpl-args)
-  (defhook eshell-mode
+  (defhook eshell-mode-hook
     (require 'pcmpl-args)
     (setq-local corfu-map (copy-keymap corfu-map))
     (evil-define-key 'insert corfu-map
@@ -1379,6 +1378,7 @@ align with previews
   (pkg erc-nick-notify)
 
   (defhook erc-mode
+  (defhook erc-mode-hook
     (require 'erc-nick-notify)
     (require 'erc-pcomplete)
     (pcomplete-erc-setup)
@@ -1400,7 +1400,7 @@ align with previews
 ** C
 #+begin_src emacs-lisp
   (ts-install 'c)
-  (defhook c-ts-mode
+  (defhook c-ts-mode-hook
     (indent-tabs-mode -1)
     (eglot-ensure))
   (evil-define-key '(normal insert) c-ts-mode-map
@@ -1409,7 +1409,7 @@ align with previews
 ** C++
 #+begin_src emacs-lisp
   (ts-install 'c++ 'cpp)
-  (defhook c++-ts-mode
+  (defhook c++-ts-mode-hook
     (indent-tabs-mode -1)
     (eglot-ensure))
   (after-load eglot
@@ -1464,7 +1464,7 @@ align with previews
 #+begin_src emacs-lisp
   (pkg cider)
   (setq cider-repl-pop-to-buffer-on-connect 'display-only)
-  (defhook clojure-mode
+  (defhook clojure-mode-hook
     (cider-mode 1)
     (lispyville-mode 1)
     (unless (cider-connected-p)
