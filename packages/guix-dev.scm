@@ -14,6 +14,8 @@
 	(program-file
 	 "dev-script"
 	 #~(begin
+		 (use-modules (ice-9 getopt-long)
+					  (srfi srfi-1))
 		 (define guix-scm
 		   (let loop ((dir (getcwd)))
 			 (let ((guixscm (string-append dir "/guix.scm")))
@@ -21,35 +23,35 @@
 				((file-exists? guixscm) `("-D" "-f" ,guixscm))
 				((equal? dir "/") '())
 				(else (loop (dirname dir)))))))
-		 (define args
-		   (let loop ((args (cdr (program-arguments)))
-					  (acc '())
-					  (guix-scm-used? #f))
-			 (if (null? args)
-				 (append (apply append (reverse acc))
-						 (if guix-scm-used? '() guix-scm))
-				 (let* ((arg (car args))
-						(file (string-append #$(load "../get-config-dir.scm") "/dev/" arg ".scm")))
-				   (cond
-					((or (equal? arg "--rebuild-cache") (equal? arg "-r"))
-					 (loop (cdr args) (cons '("--rebuild-cache") acc)
-						   guix-scm-used?))
-					((equal? arg "--")
-					 (append (apply append (reverse acc))
-							 (if guix-scm-used? '() guix-scm)
-							 args))
-					((file-exists? file)
-					 (loop (cdr args) (cons (list "-f" file) acc)
-						   guix-scm-used?))
-					((or (equal? arg "--guix") (equal? arg "-g"))
-					 (if (and guix-scm (not guix-scm-used?))
-						 (loop (cdr args) (cons guix-scm acc) #t)
-						 (error (if guix-scm
-									"Duplicate --guix"
-									"Could not find guix.scm"))))
-					(else
-					 (loop (cdr args) (cons (list arg) acc) guix-scm-used?)))))))
-		 (apply system* "guix" "shell" args))))
+		 (define args (program-arguments))
+		 (define spec
+		   `((rebuild-cache (single-char #\r) (value #f))
+			 (print         (single-char #\p) (value #f))
+			 (guix          (single-char #\g) (value #t))))
+		 (define pos (list-index (lambda (x) (equal? x "--")) args))
+		 (define-values (flags command)
+		   (if pos (split-at args pos) (values args #f)))
+		 (define options (getopt-long flags spec))
+		 (define (dev-file f)
+		   (string-append #$(load "../get-config-dir.scm") "/dev/" f ".scm"))
+		 (define args*
+		   `("man-db" "texinfo"
+			 ,@(if (option-ref options 'rebuild-cache #f)
+				   '("--rebuild-cache") '())
+			 ,@(append-map
+				(lambda (x)
+				  (define file (dev-file x))
+				  (if (file-exists? file) (list "-f" file) (list x)))
+				(option-ref options '() '()))
+			 ,@(let ((opt-guix (option-ref options 'guix #f)))
+				 (cond
+				  (opt-guix (list "-D" "-f" opt-guix))
+				  (guix-scm guix-scm)
+				  (else '())))
+			 ,@(or command '())))
+		 (if (option-ref options 'print #f)
+			 (begin (display (string-join args*)) (newline))
+			 (apply system* "guix" "shell" args*)))))
    (build-system copy-build-system)
    (arguments '(#:install-plan '(("dev-script" "/bin/dev"))))
    (home-page "https://github.com/jackfaller/guix")
