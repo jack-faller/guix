@@ -8,7 +8,7 @@
 			 (gnu home services xdg)
 			 (gnu home services shells)
 			 (gnu home services shepherd)
-			 (nongnu packages steam-client)
+			 (nongnu packages game-client)
 			 (nongnu packages fonts)
 			 (gnu home-services emacs)
 
