@@ -8,6 +8,7 @@
   #:use-module (gnu home services)
   #:use-module (gnu home services shells)
   #:use-module (gnu services)
+  #:use-module (gnu packages)
   #:use-module (gnu services nix))
 
 (define nix-packages-service-type
@@ -48,4 +49,4 @@
 (define nix-system-services
   (list
    (service nix-service-type)
-   (simple-service 'nix-system-packages profile-service-type (packages "nix"))))
+   (simple-service 'nix-system-packages profile-service-type (specification->package "nix"))))

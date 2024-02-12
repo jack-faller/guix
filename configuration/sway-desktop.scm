@@ -40,7 +40,7 @@
    (simple-service
 	'sway-desktop-profile
 	home-profile-service-type
-	(packages
+	(specifications->package-list
 	 "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
 	 "python-pywal" "imagemagick" "dunst"
 	 ;; these are for binds

@@ -192,7 +192,7 @@
    (service nix-packages-service-type
 			'("discord" "teams" "tor-browser-bundle-bin"))))
  (packages
-  (packages
+  (specifications->package-list
    ;; basic
    "glibc" "ntfs-3g"
    "adwaita-icon-theme"
@@ -224,7 +224,7 @@
    "android-file-transfer"
    guix-dev
    ;; applications
-   "kitty" "qutebrowser" "fontforge" (list transmission "gui")
+   "kitty" "qutebrowser" "fontforge" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
    "xdg-utils" miny
    "obs" "obs-wlrobs"

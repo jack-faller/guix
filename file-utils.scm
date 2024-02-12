@@ -1,11 +1,15 @@
 (define-module (file-utils)
-  #:export (lines config-directory executable-shell-script config-files-service-type packages f)
+  #:export (lines
+			config-directory executable-shell-script
+			specifications->package-list config-files-service-type f)
   #:use-module (gnu)
   #:use-module (gnu services)
+  #:use-module (guix packages)
   #:use-module (gnu home services)
   #:use-module (guix gexp)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 ftw)
+  #:use-module (ice-9 receive)
   #:use-module (ice-9 string-fun))
 
 ;; make this work with both guix pull and from other commands
@@ -61,6 +65,18 @@
    (description
 	"Like home-files-service-type, but when a string is provided, take it recursively from the files directory.")))
 
-(define (packages . names)
-  (map (lambda (i) (if (string? i) (specification->package i) i))
+(define (specifications->package-list . names)
+  (map (lambda (i)
+		 (cond
+		  ((string? i)
+		   (if (string-contains i ":")
+			   (receive (a b) (specification->package+output i) (list a b))
+			   (specification->package i)))
+		  ((and (list? i) (= (length i) 2) (string? (cadr i)))
+		   (if (string? (car i))
+			   (cons (specification->package (car i)) (cdr i))
+			   i))
+		  ((package? i) i)
+		  (else
+		   (error "Unrecognised package format"))))
 	   names))
