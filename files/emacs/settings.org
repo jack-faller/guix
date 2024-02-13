@@ -609,8 +609,11 @@ align with previews
 #+begin_src emacs-lisp
   (targets-define-to regex-group "\\\\(" "\\\\)" pair
                      :bind t :keys "g")
+  (targets-define-to regex-group "\\\\( " " \\\\)" pair
+                     :bind t :keys "G")
   (setq-default evil-surround-pairs-alist
-                `((?g "\\(" . "\\)") ,@evil-surround-pairs-alist))
+                `((?g "\\(" . "\\)") (?G "\\( " . " \\)")
+  				,@evil-surround-pairs-alist))
 
   (evil-define-text-object evil-whole-buffer (count &optional beg end type)
     "Whole buffer." (list (point-min) (point-max)))
