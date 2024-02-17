@@ -49,4 +49,4 @@
 (define nix-system-services
   (list
    (service nix-service-type)
-   (simple-service 'nix-system-packages profile-service-type (specification->package "nix"))))
+   (simple-service 'nix-system-packages profile-service-type (list (specification->package "nix")))))
