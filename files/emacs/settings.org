@@ -408,7 +408,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 *** Text Objects
 #+begin_src emacs-lisp
   (pkg targets :require t :github "noctuid/targets.el")
-  (targets-setup t)
+  (targets-setup t :last-key "N")
 #+end_src
 *** Swap Text Using =gx=
 #+begin_src emacs-lisp
