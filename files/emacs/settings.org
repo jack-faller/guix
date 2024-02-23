@@ -1163,10 +1163,11 @@ align with previews
   (add-hook 'org-mode-hook #'org-appear-mode)
   (mapc (lambda (sym) (set sym t))
         '(org-appear-autoemphasis
-          org-appear-autolinks
-          org-appear-autoentities
-          org-appear-autokeywords
-          org-appear-autosubmarkers))
+  		org-appear-autolinks
+  		org-appear-autoentities
+  		org-appear-autokeywords
+  		org-appear-autosubmarkers
+  		org-appear-inside-latex))
 #+end_src
 *** Toggle Latex Fragments
 #+begin_src emacs-lisp
