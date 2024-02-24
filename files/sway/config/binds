@@ -12,7 +12,7 @@
     bindsym $mod+w kill
 
     # Start launcher
-    bindsym $mod+Space exec dmenu_path | $menu  | xargs swaymsg exec --
+    bindsym $mod+Space exec $menu_run
 
     # Start custom launcher
     bindsym $mod+Shift+Space exec echo "~/.config/appmenu/$(ls ~/.config/appmenu | $menu)" | xargs swaymsg exec --

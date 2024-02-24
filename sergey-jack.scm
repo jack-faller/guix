@@ -18,7 +18,7 @@
 			 (configuration nix)
 			 (configuration sway-desktop))
 (use-package-modules
- emacs freedesktop gnupg wm python-xyz suckless shellutils bittorrent perl6 tor)
+ emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor)
 
 (define set-PATH "export PATH=\"$HOME/.local/programs:$PATH\"")
 
@@ -119,6 +119,7 @@
 	config-files-service-type
 	`((".config/tmux/tmux.conf" "tmux.conf")
 	  (".config/kitty/kitty.conf" "kitty.conf")
+	  (".config/rofi/config.rasi" "rofi/config.rasi")
 	  (".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
 	  (".local/programs" "programs")
 	  (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
@@ -156,7 +157,6 @@
 		"zsh-profile"
 		python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
 		"brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%" "\n"
-		"export SYSTEM_DMENU='" dmenu "/bin/dmenu'" "\n"
 		set-PATH "\n"
 		"[ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ] && " sway-desktop-launch-command "\n")))
 	 (zshrc
@@ -215,7 +215,7 @@
    ;; cli utilities
    "eza" ;; ls alternative
    "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
-   "dmenu"
+   "rofi"
    "zbar" ;; reads bar/qr codes for qute script
    "sbcl"
    "man-pages"

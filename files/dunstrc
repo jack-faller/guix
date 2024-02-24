@@ -117,9 +117,7 @@ horizontal_padding = 6
 #  * anything else will be interpreted as a X color.
 separator_color = frame
 
-# dmenu path.
-# TODO: this is wrong
-dmenu = /usr/bin/dmenu -p dunst:
+dmenu = dmenu -p dunst:
 
 # Browser for opening urls in context menu.
 browser = /usr/bin/firefox -new-tab

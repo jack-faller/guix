@@ -59,6 +59,7 @@
 		(bar swaybar_command ,(file-append waybar "/bin/waybar"))
 		;; resolves files/programs/dmenu
 		(set $menu dmenu)
+		(set $menu_run rofi -show run)
 		(set $volume ,(f "sway/scripts/vol"))
 		(set $brightness ,(f "sway/scripts/light"))
 		(set $mute ,(f "sway/scripts/mute"))
