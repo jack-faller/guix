@@ -2,6 +2,7 @@
   #:export (sway-desktop-system-services sway-desktop-home-services sway-desktop-launch-command)
 
   #:use-module (file-utils)
+  #:use-module (packages wl-mirror)
 
   #:use-module (guix gexp)
   #:use-module (gnu home services)
@@ -42,7 +43,7 @@
 	home-profile-service-type
 	(specifications->package-list
 	 "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
-	 "python-pywal" "imagemagick" "dunst"
+	 "python-pywal" "imagemagick" "dunst" wl-mirror
 	 ;; these are for binds
 	 "brightnessctl" "pulseaudio"
 	 ;; screenshots

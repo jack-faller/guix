@@ -4,40 +4,38 @@
   #:use-module (guix packages)
   #:use-module (guix git-download)
   #:use-module (guix build-system gnu)
-  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module ((guix licenses)
+                #:prefix license:)
   #:use-module (gnu packages gl))
 
-(use-modules)
-
-(define commit "143eb06")
-(define revision "7")
 (define miny
-  (package
-   (name "miny")
-   (version (git-version "0.6.0" revision commit))
-   (source (origin
-			(method git-fetch)
-			(uri (git-reference
-				  (url "https://github.com/jack-faller/miny")
-				  (commit commit)))
-			(file-name (git-file-name name version))
-			(sha256
-			 (base32
-			  "1jifzrr14ga9ajy860sx4km041mwxff1q37440pnysv0r2zh4l9q"))))
-   (build-system gnu-build-system)
-   (arguments `(#:phases
-				(modify-phases
-				 %standard-phases
-				 (delete 'configure)
-				 (replace 'install
-						  (lambda* (#:key outputs #:allow-other-keys)
-							(let* ((out (assoc-ref outputs "out"))
-								   (bin (string-append out "/bin")))
-							  (install-file "miny" bin)))))
-				#:tests? #f))
-   (inputs (list freeglut))
-   (home-page "https://github.com/spacecamper/miny")
-   (synopsis "Minesweeper")
-   (description "Minesweeper")
-   (license license:expat)))
+  (let ((commit "143eb06")
+        (revision "7"))
+    (package
+      (name "miny")
+      (version (git-version "0.6.0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/jack-faller/miny")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1jifzrr14ga9ajy860sx4km041mwxff1q37440pnysv0r2zh4l9q"))))
+      (build-system gnu-build-system)
+      (arguments
+       `(#:phases (modify-phases %standard-phases
+                    (delete 'configure)
+                    (replace 'install
+                      (lambda* (#:key outputs #:allow-other-keys)
+                        (let* ((out (assoc-ref outputs "out"))
+                               (bin (string-append out "/bin")))
+                          (install-file "miny" bin)))))
+         #:tests? #f))
+      (inputs (list freeglut))
+      (home-page "https://github.com/spacecamper/miny")
+      (synopsis "Minesweeper")
+      (description "Minesweeper")
+      (license license:expat))))
 miny
