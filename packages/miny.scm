@@ -9,8 +9,8 @@
   #:use-module (gnu packages gl))
 
 (define miny
-  (let ((commit "143eb06")
-        (revision "7"))
+  (let ((commit "6ad92b8")
+        (revision "8"))
     (package
       (name "miny")
       (version (git-version "0.6.0" revision commit))
