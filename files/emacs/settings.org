@@ -1736,6 +1736,12 @@ These variables are recommended by =lsp-mode= to increase performance.
   (setf compilation-scroll-output t)
   (evil-define-key 'normal 'global
     (kbd "<global-leader>P") #'project-switch-project)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>s") (lambda ()
+                               (interactive)
+                               (if (project-current)
+                                 (call-interactively #'project-find-regexp)
+                                 (call-interactively #'rgrep))))
   (setf compilation-read-command nil)
   (evil-define-key '(insert normal) 'global
     (kbd "<f5>") #'project-compile)
