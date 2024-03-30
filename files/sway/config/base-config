@@ -26,8 +26,8 @@ for_window [app_id="floating"] floating enable
 for_window [class="floating"] floating enable
 for_window [title="floating"] floating enable
 for_window [title="Miny.*"] floating enable
-assign [title="Discord"] workspace 3
-assign [app_id="transmission"] workspace 4
+assign [title="Discord"] workspace 6
+assign [app_id="transmission"] workspace 5
 focus_wrapping no
 
 default_border pixel 3
