@@ -1,4 +1,4 @@
-(define-module (file-utils)
+(define-module (utilities)
   #:export (lines
 			config-directory executable-shell-script
 			specifications->package-list config-files-service-type f)

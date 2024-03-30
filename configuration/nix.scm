@@ -1,7 +1,7 @@
 (define-module (configuration nix)
   #:export (nix-packages-service-type nix-system-services)
 
-  #:use-module (file-utils)
+  #:use-module (utilities)
 
   #:use-module (srfi srfi-1)
   #:use-module (guix gexp)

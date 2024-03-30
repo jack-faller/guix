@@ -14,7 +14,7 @@
 
 			 (packages miny)
 			 (packages guix-dev)
-			 (file-utils)
+			 (utilities)
 			 (configuration nix)
 			 (configuration sway-desktop))
 (use-package-modules

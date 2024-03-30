@@ -1,7 +1,7 @@
 (define-module (configuration sway-desktop)
   #:export (sway-desktop-system-services sway-desktop-home-services sway-desktop-launch-command)
 
-  #:use-module (file-utils)
+  #:use-module (utilities)
   #:use-module (packages wl-mirror)
 
   #:use-module (guix gexp)
