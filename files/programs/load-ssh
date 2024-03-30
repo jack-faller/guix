@@ -1,4 +1,8 @@
 #! /bin/sh
+file=~/.ssh/my-ssh-key
+if [ "$1" != "" ]; then
+	file="$1"
+fi
 if [ ! -e /tmp/loaded-ssh-key ]; then
-    ssh-add ~/.ssh/my-ssh-key && touch /tmp/loaded-ssh-key
+	ssh-add -l | grep -q "$(ssh-keygen -lf $file | awk '{print $2}')" || ssh-add "$file"
 fi
