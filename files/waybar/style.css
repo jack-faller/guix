@@ -32,6 +32,9 @@ window#waybar {
 #workspaces button:not(.current_output) {
 	opacity: 0.3;
 }
+#workspaces button.focused:not(.current_output) {
+	opacity: 0.6;
+}
 #memory, #cpu, #temperature, #network, #pulseaudio#mic, #pulseaudio, #backlight, #battery {
     padding: 0 10px;
     margin: 0 0;
