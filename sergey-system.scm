@@ -120,9 +120,7 @@
 			(connman-configuration
 			 (main
 			  '((General
-				 ((AllowHostNameUpdates . #f)
-				  (AllowDomainNameUpdates .#f)
-				  (PreferredTechnologies
+				 ((PreferredTechnologies
 				   ethernet wifi)
 				  (NetworkInterfacesBlacklist
 				   vmnet vboxnet virbr ifb docker veth eth wlan)))))))
