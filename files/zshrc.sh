@@ -81,7 +81,7 @@ source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 if [[ -v DISPLAY ]]; then
 	cat ~/.cache/wal/sequences
     if [[ $(pgrep tmux:\ client) != "" ]]; then
-        [ -z "${TMUX}" ] && (tmux attach \; new-window >/dev/null 2>&1 || tmux)
+        [ -z "${TMUX}" ] && (tmux attach || tmux)
     else
         [ -z "${TMUX}" ] && (tmux attach >/dev/null 2>&1 || tmux)
     fi
