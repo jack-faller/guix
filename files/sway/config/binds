@@ -44,6 +44,17 @@
     bindsym $mod+Up focus up
     bindsym $mod+Right focus right
 
+    # Move your focus around
+    bindsym $mod+Alt+$left focus output left
+    bindsym $mod+Alt+$down focus output down
+    bindsym $mod+Alt+$up focus output up
+    bindsym $mod+Alt+$right focus output right
+    # Or use $mod+Alt+[up|down|left|right]
+    bindsym $mod+Alt+Left focus output left
+    bindsym $mod+Alt+Down focus output down
+    bindsym $mod+Alt+Up focus output up
+    bindsym $mod+Alt+Right focus output right
+
     # Move the focused window with the same, but add Shift
     bindsym $mod+Shift+$left move left
     bindsym $mod+Shift+$down move down
@@ -54,6 +65,17 @@
     bindsym $mod+Shift+Down move down
     bindsym $mod+Shift+Up move up
     bindsym $mod+Shift+Right move right
+
+    # Move the focused desktop with the same, but add Alt+Shift
+    bindsym $mod+Alt+Shift+$left move workspace output left
+    bindsym $mod+Alt+Shift+$down move workspace output down
+    bindsym $mod+Alt+Shift+$up move workspace output up
+    bindsym $mod+Alt+Shift+$right move workspace output right
+    # Ditto, with arrow keys
+    bindsym $mod+Alt+Shift+Left move workspace output left
+    bindsym $mod+Alt+Shift+Down move workspace output down
+    bindsym $mod+Alt+Shift+Up move workspace output up
+    bindsym $mod+Alt+Shift+Right move workspace output right
 #
 # Media Keys
 #

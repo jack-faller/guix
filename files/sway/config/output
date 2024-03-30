@@ -1,1 +1,2 @@
 output * background $wallpaper fill
+output "Unknown Unknown Unknown" res --custom 1920x1080

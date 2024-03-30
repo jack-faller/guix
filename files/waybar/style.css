@@ -25,13 +25,12 @@ window#waybar {
     background: transparent;
     color: @foreground;
 }
-#workspaces button:hover {
-    box-shadow: inherit;
-    text-shadow: inherit;
-}
-#workspaces button.focused {
+#workspaces button.visible {
     background: @foreground;
-    color: @background
+    color: @background;
+}
+#workspaces button:not(.current_output) {
+	opacity: 0.3;
 }
 #memory, #cpu, #temperature, #network, #pulseaudio#mic, #pulseaudio, #backlight, #battery {
     padding: 0 10px;

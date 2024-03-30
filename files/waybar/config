@@ -4,6 +4,9 @@
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["clock"],
     "modules-right": ["memory", "cpu", "temperature", "network", "pulseaudio#mic", "pulseaudio", "backlight", "battery"],
+	"sway/workspaces": {
+		"all-outputs": true
+	},
     "memory": {
 		"interval": 5,
 		"format": "Mem {}%"
