@@ -8,6 +8,7 @@
 			 (gnu home services xdg)
 			 (gnu home services shells)
 			 (gnu home services shepherd)
+			 (gnu home services fontutils)
 			 (nongnu packages game-client)
 			 (nongnu packages fonts)
 			 (gnu home-services emacs)
@@ -192,6 +193,33 @@
 											"emacs-lisp"))))))))))))
    (service nix-packages-service-type
 			'("teams" "tor-browser-bundle-bin"))
+   (simple-service 'my-fonts
+				   home-fontconfig-service-type
+				   (list
+					'(alias
+					  (family "serif")
+					  (prefer (family "Noto Serif")
+							  (family "Noto Serif CJK SC")
+							  (family "Noto Serif CJK JP")
+							  (family "Noto Serif CJK TC")
+							  (family "Noto Color Emoji")))
+					'(alias
+					  (family "sans-serif")
+					  (prefer (family "Noto Sans")
+							  (family "Noto Sans CJK SC")
+							  (family "Noto Sans CJK JP")
+							  (family "Noto Sans CJK TC")
+							  (family "Noto Color Emoji")))
+					'(alias
+					  (family "monospace")
+					  (prefer (family "Iosevka")
+							  (family "Noto Sans Mono")
+							  (family "Noto Sans Mono CJK SC")
+							  (family "Noto Sans Mono CJK JP")
+							  (family "Noto Sans Mono CJK TC")))
+					'(alias
+					  (family "emoji")
+					  (prefer (family "Noto Color Emoji")))))))
  (packages
   (specifications->package-list
    ;; basic
@@ -212,7 +240,7 @@
    ;; font
    "font-iosevka"
    "font-google-material-design-icons"
-   "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont"
+   "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
    ;; cli utilities
    "eza" ;; ls alternative
    "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
@@ -225,7 +253,7 @@
    "android-file-transfer"
    guix-dev
    ;; applications
-   "kitty" "qutebrowser" "fontforge" "transmission:gui"
+   "kitty" "qutebrowser" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
    "xdg-utils" miny discord
    "obs" "obs-wlrobs"
