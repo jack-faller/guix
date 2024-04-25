@@ -41,9 +41,14 @@
 					   "  nix-channel --update || exit 1"
 					   "  nix-env -iA nixpkgs.nix nixpkgs.cacert || exit 1"
 					   "fi"))
-			(unless (or (null? packages)
-						(= 0 (apply system* "nix-env" "--query" "--installed"
-									packages)))
+			;; Check that all packages are installed and that no additional
+			;; packages are installed.
+			(when (or (not (= 0 (apply system* "nix-env" "--query" "--installed"
+									   packages)))
+					  (not (= 0 (system
+								 (string-append
+								  "test " (number->string (length packages))
+								  " = $(nix-env --query | wc -l)")))))
 			  (apply invoke "nix-env" "--remove-all" "--install" packages)))))))))
 
 (define nix-system-services
