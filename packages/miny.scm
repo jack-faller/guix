@@ -9,8 +9,8 @@
   #:use-module (gnu packages gl))
 
 (define miny
-  (let ((commit "6ad92b8")
-        (revision "8"))
+  (let ((commit "bcce397")
+        (revision "9"))
     (package
       (name "miny")
       (version (git-version "0.6.0" revision commit))
@@ -22,7 +22,7 @@
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "1gf9bnrsqnswmlp6z1rmbpyp1i7xxvnw5cyy8b6kdd8ymr1s1dc2"))))
+          (base32 "0ibiqbg1614d8g6b3jc6wzi4rbxjnjackww9476l50h36c9qspss"))))
       (build-system gnu-build-system)
       (arguments
        `(#:phases (modify-phases %standard-phases
