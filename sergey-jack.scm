@@ -13,6 +13,7 @@
 			 (gnu home-services emacs)
 
 			 (packages miny)
+			 (packages discord)
 			 (packages guix-dev)
 			 (utilities)
 			 (configuration nix)
@@ -190,7 +191,7 @@
 											,#$output
 											"emacs-lisp"))))))))))))
    (service nix-packages-service-type
-			'("discord" "teams" "tor-browser-bundle-bin"))))
+			'("teams" "tor-browser-bundle-bin"))
  (packages
   (specifications->package-list
    ;; basic
@@ -226,7 +227,7 @@
    ;; applications
    "kitty" "qutebrowser" "fontforge" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
-   "xdg-utils" miny
+   "xdg-utils" miny discord
    "obs" "obs-wlrobs"
    ;; NOTE: this should be steam-nvidia on nvidia systems
    "steam")))
