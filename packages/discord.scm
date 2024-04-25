@@ -70,72 +70,68 @@
 				(display "Disabled updates")
 				(newline))))))))
 
-(define install
-  #~(lambda* (#:key outputs inputs #:allow-other-keys)
-	  (use-modules (guix build utils)
-				   (srfi srfi-26)
-				   (sxml simple))
-	  (let* ((line (lambda args (display (apply string-append args)) (newline)))
-			 (output (assoc-ref outputs "out"))
-			 (fonts (list "font-google-noto" "font-dejavu" "font-awesome"
-						  "font-google-noto-emoji" "font-google-noto-sans-cjk"
-						  "font-google-noto-serif-cjk"))
-			 (libs (cons (string-append (assoc-ref inputs "nss") "/lib/nss")
-						 (map (lambda (i) (string-append (cdr i) "/lib"))
-							  inputs)))
-			 (bins (map (lambda (i) (string-append (cdr i) "/bin"))
-						inputs))
-			 (libs (filter file-exists? libs))
-			 (bins (filter file-exists? bins)))
-		(mkdir-p (string-append output "/opt/discord"))
-		(copy-recursively "." (string-append output "/opt/discord"))
-		(mkdir-p (string-append output "/bin"))
-		(mkdir-p (string-append output "/share/pixmaps"))
-		(mkdir-p (string-append output "/share/icons/hicolor/256x256/apps"))
-		(mkdir-p (string-append output "/etc"))
-		(with-output-to-file (string-append output "/etc/fonts.conf")
-		  (lambda _
-			(line "<?xml version='1.0'?>")
-			(line "<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>")
-			(sxml->xml `(fontconfig ,@(map (lambda (f)
-											 `(dir ,(assoc-ref inputs f)))
-										   fonts)))))
-		(with-output-to-file (string-append output "/bin/discord")
-		  (lambda _
-			(line "#!/bin/sh")
-			(line #$disable-breaking-updates)
-			(line "cd " output "/opt/discord")
-			(line "./Discord"
-				  ;; Always use Ozone on Wayland, not sure if this is a good idea.
-				  " ${WAYLAND_DISPLAY:+--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-features=WebRTCPipeWireCapturer}"
-				  " \"$@\"")))
-		(chmod (string-append output "/bin/discord") #o755)
-		(wrap-program
-		 (string-append output "/bin/discord")
-		 `("LD_LIBRARY_PATH" = ,(cons (string-append output "/opt/discord") libs))
-		 `("FONTCONFIG_FILE" = ,(list (string-append output "/etc/fonts.conf")))
-		 `("PATH" prefix ,bins))
-		(for-each
-		 (lambda (f)
-		   (chmod (string-append output "/opt/discord/" f) #o755)
-		   (invoke #+(file-append patchelf "/bin/patchelf")
-				   "--set-interpreter"
-				   (string-append #$glibc "/lib/ld-linux-x86-64.so.2")
-				   (string-append output "/opt/discord/" f)))
-		 (list "Discord" "chrome_crashpad_handler" "chrome-sandbox"))
-		(chmod (string-append output "/opt/discord/postinst.sh") #o755)
-		(link (string-append %output "/opt/discord/discord.png")
-			  (string-append %output "/share/pixmaps/discord.png"))
-		(link (string-append %output "/opt/discord/discord.png")
-			  (string-append %output "/share/icons/hicolor/256x256/apps/discord.png"))
-		#t)))
-(define phases
-  #~(modify-phases %standard-phases
-				   (delete 'bootstrap)
-				   (delete 'configure)
-				   (delete 'build)
-				   (delete 'check)
-				   (replace 'install #$install)))
+(define discord-install
+  (with-imported-modules
+   '((guix build utils))
+   #~(lambda* (#:key outputs inputs #:allow-other-keys)
+	   (use-modules (guix build utils)
+					(srfi srfi-26)
+					(sxml simple))
+	   (let* ((line (lambda args
+					  (display (apply string-append args)) (newline)))
+			  (output (assoc-ref outputs "out"))
+			  (fonts (list "font-google-noto" "font-dejavu" "font-awesome"
+						   "font-google-noto-emoji" "font-google-noto-sans-cjk"
+						   "font-google-noto-serif-cjk"))
+			  (libs (cons (string-append (assoc-ref inputs "nss") "/lib/nss")
+						  (map (lambda (i) (string-append (cdr i) "/lib"))
+							   inputs)))
+			  (bins (map (lambda (i) (string-append (cdr i) "/bin"))
+						 inputs))
+			  (libs (filter file-exists? libs))
+			  (bins (filter file-exists? bins)))
+		 (mkdir-p (string-append output "/opt/discord"))
+		 (copy-recursively "." (string-append output "/opt/discord"))
+		 (mkdir-p (string-append output "/bin"))
+		 (mkdir-p (string-append output "/share/pixmaps"))
+		 (mkdir-p (string-append output "/share/icons/hicolor/256x256/apps"))
+		 (mkdir-p (string-append output "/etc"))
+		 (with-output-to-file (string-append output "/etc/fonts.conf")
+		   (lambda _
+			 (line "<?xml version='1.0'?>")
+			 (line "<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>")
+			 (sxml->xml `(fontconfig ,@(map (lambda (f)
+											  `(dir ,(assoc-ref inputs f)))
+											fonts)))))
+		 (with-output-to-file (string-append output "/bin/discord")
+		   (lambda _
+			 (line "#!/bin/sh")
+			 (line #$disable-breaking-updates)
+			 (line "cd " output "/opt/discord")
+			 (line "./Discord"
+				   ;; Always use Ozone on Wayland, not sure if this is a good idea.
+				   " ${WAYLAND_DISPLAY:+--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-features=WebRTCPipeWireCapturer}"
+				   " \"$@\"")))
+		 (chmod (string-append output "/bin/discord") #o755)
+		 (wrap-program
+		  (string-append output "/bin/discord")
+		  `("LD_LIBRARY_PATH" = (,(string-append output "/opt/discord") ,@libs))
+		  `("FONTCONFIG_FILE" = (,(string-append output "/etc/fonts.conf")))
+		  `("PATH" prefix ,bins))
+		 (for-each
+		  (lambda (f)
+			(chmod (string-append output "/opt/discord/" f) #o755)
+			(invoke #+(file-append patchelf "/bin/patchelf")
+					"--set-interpreter"
+					(string-append #$glibc "/lib/ld-linux-x86-64.so.2")
+					(string-append output "/opt/discord/" f)))
+		  (list "Discord" "chrome_crashpad_handler" "chrome-sandbox"))
+		 (chmod (string-append output "/opt/discord/postinst.sh") #o755)
+		 (link (string-append %output "/opt/discord/discord.png")
+			   (string-append %output "/share/pixmaps/discord.png"))
+		 (link (string-append %output "/opt/discord/discord.png")
+			   (string-append %output "/share/icons/hicolor/256x256/apps/discord.png"))
+		 #t))))
 
 (define discord
   (package
@@ -151,7 +147,14 @@
    ;; Use this build system to set XDG variables.
    (build-system glib-or-gtk-build-system)
    (arguments
-	(list #:phases phases))
+	(list
+	 #:phases
+	 #~(modify-phases %standard-phases
+					  (delete 'bootstrap)
+					  (delete 'configure)
+					  (delete 'build)
+					  (delete 'check)
+					  (replace 'install #$discord-install))))
    (inputs (list alsa-lib
 				 at-spi2-core
 				 cairo
