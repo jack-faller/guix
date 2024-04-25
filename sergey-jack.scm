@@ -34,10 +34,6 @@
 			 (videos "$HOME/vids")
 			 (pictures "$HOME/pics")
 			 (music "$HOME/music")))
-   (simple-service
-	'my-env-vars
-	home-environment-variables-service-type
-	'(("QT_QPA_PLATFORM" . "wayland;xcb")))
    (service
 	home-xdg-mime-applications-service-type
 	(home-xdg-mime-applications-configuration

@@ -18,12 +18,12 @@
 
 (define sway-desktop-system-services
   (list
-   ; (simple-service 'sway-environment session-environment-service-type
-   ; '(("CLUTTER_BACKEND" . "wayland")
-   ; ("QT_QPA_PLATFORM" . "wayland")
-   ; ("XDG_SESSION_TYPE" . "wayland")
-   ; ("XDG_SESSION_DESKTOP" . "sway")
-   ; ("XDG_CURRENT_DESKTOP" . "sway")))
+   (simple-service 'sway-environment session-environment-service-type
+				   '(("QT_QPA_PLATFORM" . "wayland")
+					 ;; Not sure if these should be set.
+					 ;; ("XDG_SESSION_DESKTOP" . "sway")
+					 ;; ("XDG_CURRENT_DESKTOP" . "sway")
+					 ))
    (service screen-locker-service-type
 			(screen-locker-configuration
 			 (name "swaylock")
@@ -44,6 +44,8 @@
 	(specifications->package-list
 	 "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
 	 "python-pywal" "imagemagick" "dunst" wl-mirror
+	 ;; Make QT work.
+	 "qtwayland"
 	 ;; these are for binds
 	 "brightnessctl" "pulseaudio"
 	 ;; screenshots
