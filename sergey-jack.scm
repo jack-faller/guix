@@ -192,7 +192,7 @@
 											,#$output
 											"emacs-lisp"))))))))))))
    (service nix-packages-service-type
-			'("teams" "tor-browser-bundle-bin"))
+			'("teams"))
    (simple-service 'my-fonts
 				   home-fontconfig-service-type
 				   (list
@@ -253,7 +253,7 @@
    "android-file-transfer"
    guix-dev
    ;; applications
-   "kitty" "qutebrowser" "gucharmap" "transmission:gui"
+   "kitty" "qutebrowser" "torbrowser" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "ungoogled-chromium-wayland" "gimp"
    "xdg-utils" miny discord
    "obs" "obs-wlrobs"
