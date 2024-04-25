@@ -11,7 +11,6 @@
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cups)
   #:use-module (gnu packages elf)
-  #:use-module (gnu packages fonts)
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gcc)
@@ -80,9 +79,6 @@
        (let* ((line (lambda args
                       (display (apply string-append args)) (newline)))
               (output (assoc-ref outputs "out"))
-              (fonts (list "font-google-noto" "font-dejavu" "font-awesome"
-                           "font-google-noto-emoji" "font-google-noto-sans-cjk"
-                           "font-google-noto-serif-cjk"))
               (libs (cons (string-append (assoc-ref inputs "nss") "/lib/nss")
                           (map (lambda (i) (string-append (cdr i) "/lib"))
                                inputs)))
@@ -97,13 +93,6 @@
          (mkdir-p (string-append output "/share/applications"))
          (mkdir-p (string-append output "/share/icons/hicolor/256x256/apps"))
          (mkdir-p (string-append output "/etc"))
-         (with-output-to-file (string-append output "/etc/fonts.conf")
-           (lambda _
-             (line "<?xml version='1.0'?>")
-             (line "<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>")
-             (sxml->xml `(fontconfig ,@(map (lambda (f)
-                                              `(dir ,(assoc-ref inputs f)))
-                                            fonts)))))
          (with-output-to-file (string-append output "/bin/discord")
            (lambda _
              (line "#!/bin/sh")
@@ -117,7 +106,6 @@
          (wrap-program
           (string-append output "/bin/discord")
           `("LD_LIBRARY_PATH" = (,(string-append output "/opt/discord") ,@libs))
-          `("FONTCONFIG_FILE" = (,(string-append output "/etc/fonts.conf")))
           `("PATH" prefix ,bins))
          (for-each
           (lambda (f)
@@ -151,7 +139,7 @@
                          "/discord-" version ".tar.gz"))
      (sha256
       (base32 "12d5hghnn6a30szsdbay5rx5j31da8y51zxmxg4dcpc9m9wwpk63"))))
-   ;; Use this build system to set XDG variables.
+   ;; Use this build system to set XDG_DATA_DIRS and other variables.
    (build-system glib-or-gtk-build-system)
    (arguments
     (list
@@ -206,13 +194,6 @@
                  pulseaudio
 
                  glibc
-
-                 font-awesome
-                 font-dejavu
-                 font-google-noto
-                 font-google-noto-emoji
-                 font-google-noto-sans-cjk
-                 font-google-noto-serif-cjk
 
                  clang-runtime
                  pipewire
