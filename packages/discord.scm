@@ -163,6 +163,7 @@
                  (list gcc "lib")
                  gdk-pixbuf
                  glib
+                 glibc
                  gtk+
                  libappindicator
                  libcxx
@@ -189,19 +190,16 @@
                  pango
                  util-linux
                  wayland
-
-                 xdg-utils
-                 pulseaudio
-
-                 glibc
-
+				 ;; Not sure if all of these are needed.
                  clang-runtime
-                 pipewire
+                 gzip
                  libsm
                  node
+                 pipewire
+                 pulseaudio
                  unzip
-                 gzip
-                 wget))
+                 wget
+                 xdg-utils))
    (synopsis "Discord chat client")
    (description "All-in-one cross-platform voice and text chat for gamers")
    (license (license:nonfree "https://discord.com/terms"))
