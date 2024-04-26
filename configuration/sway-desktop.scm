@@ -18,8 +18,9 @@
 
 (define sway-desktop-system-services
   (list
-   (simple-service 'sway-environment session-environment-service-type
-				   '(("QT_QPA_PLATFORM" . "wayland")
+   (simple-service 'sway-environment
+				   home-environment-variables-service-type
+				   '(("QT_QPA_PLATFORM" . "wayland;xcb")
 					 ;; Not sure if these should be set.
 					 ;; ("XDG_SESSION_DESKTOP" . "sway")
 					 ;; ("XDG_CURRENT_DESKTOP" . "sway")
@@ -44,7 +45,7 @@
 	(specifications->package-list
 	 "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
 	 "python-pywal" "imagemagick" "dunst" wl-mirror
-	 ;; Make QT work.
+	 ;; Make QT work, but this might not work for QT 5.
 	 "qtwayland"
 	 ;; these are for binds
 	 "brightnessctl" "pulseaudio"
