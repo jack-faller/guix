@@ -233,7 +233,6 @@
    ;; for latex previews
    "texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
    "cloc"
-   "neovim"
    ;; zsh
    "zsh-syntax-highlighting" "zsh-autosuggestions"
    "password-store"

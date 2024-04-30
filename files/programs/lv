@@ -1,0 +1,7 @@
+#!/bin/sh
+find /var/log/guix/drvs -name "*.drv.gz" -type f -print0 \
+	| xargs -0 stat -c"%Y %y %n" \
+	| sort -rn \
+	| head -n 1 \
+	| awk '{print $5}' \
+	| xargs gzip --to-stdout -d

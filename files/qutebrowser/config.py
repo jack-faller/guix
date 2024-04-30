@@ -4,8 +4,7 @@ config.bind('<Escape>', 'mode-enter normal;; set statusbar.show in-mode', mode='
 config.bind('<Return>', 'command-accept;; set statusbar.show in-mode', mode='command')
 config.bind('eo', 'cmd-set-text :open google.com/search?q=')
 config.bind('eO', 'cmd-set-text :open -t google.com/search?q=')
-c.editor.command = ["emacsclient", "-c", "+{line}:{column}", "{file}",
-                    "--frame-parameters=((name . \"floating\") (width . 130) (height . 40))"]
+c.editor.command = ["e", "-c", "+{line}:{column}", "{file}"]
 
 def script(name):
     return "~/.local/share/qutebrowser/userscripts/" + name

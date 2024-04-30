@@ -16,8 +16,7 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 
 bindkey '^[[Z' reverse-menu-complete
 bindkey '^[[Z' reverse-menu-complete
 
-export EDITOR="emacsclient -t -a emacs"
-alias em="$EDITOR"
+export EDITOR="e"
 export VISUAL="$EDITOR"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
@@ -54,7 +53,6 @@ else
 	export PS1="%K{red}%F{black}%n@%m%f%k %F{blue}%~%f %#"
 fi
 
-alias lv='gzip --to-stdout -d'
 alias la="ls -a"
 alias ll="ls -la"
 alias se="sudoedit"
@@ -62,7 +60,7 @@ alias off="sudo halt"
 alias glances="glances -1"
 alias please="sudo"
 alias tm="mv --verbose --backup --target-directory ~/trash"
-alias pass="EDITOR='nvim -u NONE' pass"
+alias pass="EDITOR='vim' pass"
 
 cd-then () {
   cd $2 && eval $1
