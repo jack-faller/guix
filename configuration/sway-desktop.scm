@@ -18,13 +18,6 @@
 
 (define sway-desktop-system-services
   (list
-   (simple-service 'sway-environment
-				   home-environment-variables-service-type
-				   '(("QT_QPA_PLATFORM" . "wayland;xcb")
-					 ;; Not sure if these should be set.
-					 ;; ("XDG_SESSION_DESKTOP" . "sway")
-					 ;; ("XDG_CURRENT_DESKTOP" . "sway")
-					 ))
    (service screen-locker-service-type
 			(screen-locker-configuration
 			 (name "swaylock")
@@ -39,6 +32,13 @@
    (simple-service 'sway-desktop-config-files config-files-service-type
 				   '((".config/sway" "sway/config")
 					 (".config/waybar" "waybar")))
+   (simple-service 'sway-environment-variables
+				   home-environment-variables-service-type
+				   '(("QT_QPA_PLATFORM" . "wayland;xcb")
+					 ;; Not sure if these should be set.
+					 ;; ("XDG_SESSION_DESKTOP" . "sway")
+					 ;; ("XDG_CURRENT_DESKTOP" . "sway")
+					 ))
    (simple-service
 	'sway-desktop-profile
 	home-profile-service-type
