@@ -230,6 +230,7 @@
    ;; editing
    "emacs" "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
    "perl" ;; needed for magit
+   "gcc-toolchain" ;; needed to compile treesitter grammars
    ;; for latex previews
    "texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
    "cloc"

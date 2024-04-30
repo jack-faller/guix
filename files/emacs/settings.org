@@ -23,28 +23,21 @@
 #+end_src
 ** Tree Sitter
 #+begin_src emacs-lisp
-  (defun ts-lang-repo (lang-name)
-    (list
-     lang-name
-     (concat "https://github.com/tree-sitter/tree-sitter-" (symbol-name lang-name))))
-  (setf
-   treesit-language-source-alist
-   (append
-    (mapcar
-     #'ts-lang-repo
-     '(bash c cmake cpp css elisp go go html java json lua make markdown python r rust toml yaml))
-    '((common-lisp "https://github.com/theHamsta/tree-sitter-commonlisp")
-      (csharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
-      (js "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-      (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))))
-  (defun ts-install (mode-name &optional lang-name)
+  (require 'treesit)
+  (defun ts-url (url-name)
+    (concat "https://github.com/tree-sitter/tree-sitter-" url-name))
+  (defun ts-install (remap mode-name &optional lang-name url-name &rest rest)
     (setf lang-name (or lang-name mode-name))
     (let ((orig-mode (symcat mode-name "-mode"))
           (ts-mode (symcat mode-name "-ts-mode")))
-      (add-to-list 'major-mode-remap-alist (cons orig-mode ts-mode))
-      (unless (treesit-language-available-p lang-name)
-        (treesit-install-language-grammar lang-name))))
+      (when remap
+  	  (add-to-list 'major-mode-remap-alist (cons orig-mode ts-mode)))
+  	(with-eval-after-load ts-mode
+  	  (push
+  	   (cl-list* lang-name (ts-url (or url-name (symbol-name lang-name))) rest)
+  	   treesit-language-source-alist)
+  	  (unless (treesit-language-available-p lang-name)
+  		(treesit-install-language-grammar lang-name)))))
 #+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
@@ -991,7 +984,7 @@ align with previews
 #+end_src
 ** C#
 #+begin_src emacs-lisp
-  (ts-install 'csharp 'c-sharp)
+  (ts-install t 'csharp nil "c-sharp")
   (setq-mode-local csharp-ts-mode mode-print-formatter
                    (lambda (str)
                      (setf str (replace-regexp-in-string ";" " +" str))
@@ -1404,7 +1397,8 @@ align with previews
 #+end_src
 ** C
 #+begin_src emacs-lisp
-  (ts-install 'c)
+  (ts-install t 'c)
+  (add-to-list 'major-mode-remap-alist (cons 'c-or-c++-mode 'c-or-c++-ts-mode))
   (defhook c-ts-mode-hook
     (indent-tabs-mode -1)
     (eglot-ensure))
@@ -1413,7 +1407,7 @@ align with previews
 #+end_src
 ** C++
 #+begin_src emacs-lisp
-  (ts-install 'c++ 'cpp)
+  (ts-install t 'c++ 'cpp)
   (defhook c++-ts-mode-hook
     (indent-tabs-mode -1)
     (eglot-ensure))
@@ -1462,7 +1456,7 @@ align with previews
 #+end_src
 ** Java
 #+begin_src emacs-lisp
-  (ts-install 'java)
+  (ts-install t 'java)
   (add-hook 'java-ts-mode-hook #'eglot-ensure)
 #+end_src
 ** Clojure
@@ -1505,6 +1499,18 @@ align with previews
 ** Dockerfile
 #+begin_src emacs-lisp
   (pkg dockerfile-mode)
+#+end_src
+** OCaml
+#+begin_src emacs-lisp
+  (pkg ocaml-ts-mode)
+  (ts-install nil 'ocaml nil nil "master" "grammars/ocaml/src")
+  (ts-install nil 'ocaml 'ocaml-interface "ocaml" "master" "grammars/interface/src")
+  (add-hook 'ocaml-ts-mode-hook #'eglot-ensure)
+  (after-load eglot
+    (push
+     '((ocaml-ts-mode ocamli-ts-mode)
+  	 "ocamllsp")
+     eglot-server-programs))
 #+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
