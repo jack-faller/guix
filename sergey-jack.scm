@@ -22,8 +22,6 @@
 (use-package-modules
  emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor)
 
-(define set-PATH "export PATH=\"$HOME/.local/programs:$PATH\"")
-
 (home-environment
  (services
   ((lambda args (append args sway-desktop-home-services))
@@ -34,6 +32,10 @@
 			 (videos "$HOME/vids")
 			 (pictures "$HOME/pics")
 			 (music "$HOME/music")))
+   (simple-service
+	'my-env-vars
+	home-environment-variables-service-type
+	'(("PATH" . "$HOME/.local/programs:$PATH")))
    (service
 	home-xdg-mime-applications-service-type
 	(home-xdg-mime-applications-configuration
@@ -74,7 +76,6 @@
 				(list #$(executable-shell-script
 						 "emacs-daemon-script"
 						 "source $XDG_RUNTIME_DIR/ssh-agent.env"
-						 set-PATH
 						 "emacs --fg-daemon"))
 				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
 	  (stop #~(make-kill-destructor)))
@@ -159,7 +160,6 @@
 		"zsh-profile"
 		python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
 		"brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%" "\n"
-		set-PATH "\n"
 		"[ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ] && " sway-desktop-launch-command "\n")))
 	 (zshrc
 	  (list
