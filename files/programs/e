@@ -1,2 +1,2 @@
 #!/bin/sh
-emacsclient '--frame-parameters=((name . "floating") (width . 130) (height . 40))' "$@" -a
+emacsclient '--frame-parameters=((name . "floating") (width . 130) (height . 40))' -c -a "" "$@"
