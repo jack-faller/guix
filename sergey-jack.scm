@@ -122,7 +122,7 @@
 	config-files-service-type
 	`((".config/tmux/tmux.conf" "tmux.conf")
 	  (".config/kitty/kitty.conf" "kitty.conf")
-	  (".config/rofi/config.rasi" "rofi/config.rasi")
+	  (".config/rofi/" "rofi/")
 	  (".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
 	  (".local/programs" "programs")
 	  (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
