@@ -25,19 +25,19 @@
 #+begin_src emacs-lisp
   (require 'treesit)
   (defun ts-url (url-name)
-    (concat "https://github.com/tree-sitter/tree-sitter-" url-name))
-  (defun ts-install (remap mode-name &optional lang-name url-name &rest rest)
-    (setf lang-name (or lang-name mode-name))
-    (let ((orig-mode (symcat mode-name "-mode"))
-          (ts-mode (symcat mode-name "-ts-mode")))
-      (when remap
+  	(concat "https://github.com/tree-sitter/tree-sitter-" url-name))
+  (cl-defun ts-install (mode &optional &key (remap t) language url-name url)
+    (setf language (or language mode))
+    (setf url-name (or url-name (symbol-name language)))
+    (setf url (or url (ts-url url-name)))
+    (push (list language url) treesit-language-source-alist)
+    (let ((orig-mode (symcat mode "-mode"))
+  		(ts-mode (symcat mode "-ts-mode")))
+  	(when remap
   	  (add-to-list 'major-mode-remap-alist (cons orig-mode ts-mode)))
   	(with-eval-after-load ts-mode
-  	  (push
-  	   (cl-list* lang-name (ts-url (or url-name (symbol-name lang-name))) rest)
-  	   treesit-language-source-alist)
-  	  (unless (treesit-language-available-p lang-name)
-  		(treesit-install-language-grammar lang-name)))))
+  	  (unless (treesit-language-available-p language)
+  		(treesit-install-language-grammar language)))))
 #+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
@@ -984,7 +984,7 @@ align with previews
 #+end_src
 ** C#
 #+begin_src emacs-lisp
-  (ts-install t 'csharp nil "c-sharp")
+  (ts-install 'csharp :url-name "c-sharp")
   (setq-mode-local csharp-ts-mode mode-print-formatter
                    (lambda (str)
                      (setf str (replace-regexp-in-string ";" " +" str))
@@ -1397,7 +1397,7 @@ align with previews
 #+end_src
 ** C
 #+begin_src emacs-lisp
-  (ts-install t 'c)
+  (ts-install 'c)
   (add-to-list 'major-mode-remap-alist (cons 'c-or-c++-mode 'c-or-c++-ts-mode))
   (defhook c-ts-mode-hook
     (indent-tabs-mode -1)
@@ -1407,7 +1407,7 @@ align with previews
 #+end_src
 ** C++
 #+begin_src emacs-lisp
-  (ts-install t 'c++ 'cpp)
+  (ts-install 'c++ :language 'cpp)
   (defhook c++-ts-mode-hook
     (indent-tabs-mode -1)
     (eglot-ensure))
@@ -1456,7 +1456,7 @@ align with previews
 #+end_src
 ** Java
 #+begin_src emacs-lisp
-  (ts-install t 'java)
+  (ts-install 'java)
   (add-hook 'java-ts-mode-hook #'eglot-ensure)
 #+end_src
 ** Clojure
@@ -1502,10 +1502,7 @@ align with previews
 #+end_src
 ** OCaml
 #+begin_src emacs-lisp
-  (pkg ocaml-ts-mode)
-  (ts-install nil 'ocaml nil nil "master" "grammars/ocaml/src")
-  (ts-install nil 'ocaml 'ocaml-interface "ocaml" "master" "grammars/interface/src")
-  (add-hook 'ocaml-ts-mode-hook #'eglot-ensure)
+  (pkg tuareg)
   (after-load eglot
     (push
      '((ocaml-ts-mode ocamli-ts-mode)
