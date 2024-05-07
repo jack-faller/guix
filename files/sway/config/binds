@@ -7,6 +7,7 @@
 
     # Start Emacs
     bindsym $mod+BackSpace exec emacsclient -c
+    bindsym $mod+Shift+BackSpace exec emacsclient -c -s "$(ls "$XDG_RUNTIME_DIR/emacs" | rofi -dmenu -p Server)"
 
     # Kill focused window
     bindsym $mod+w kill
