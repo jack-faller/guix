@@ -34,10 +34,10 @@ default_border pixel 3
 gaps inner 2
 
 include {
-    ~/.config/sway/output
-    ~/.config/sway/input
-    ~/.config/sway/binds
-    # ~/.config/sway/bar
+    /config/files/sway/config/output
+    /config/files/sway/config/input
+    /config/files/sway/config/binds
+    # /config/files/sway/config/bar
 }
 bindswitch lid:on $lock
 

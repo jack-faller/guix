@@ -78,7 +78,7 @@
 		 (nopass "halt")
 		 (nopass "reboot")))))
 
- (packages (cons* vim git zsh (specification->package "nss-certs") %base-packages))
+ (packages (cons* vim git zsh %base-packages))
 
  (name-service-switch %mdns-host-lookup-nss)
 

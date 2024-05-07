@@ -67,7 +67,6 @@
 				"ssh-agent > $XDG_RUNTIME_DIR/ssh-agent.env"
 				" 2> $XDG_CACHE_HOME/ssh-agent.log"))
 	  (stop #~(make-system-destructor "pkill ssh-agent")))
-	 ;; TODO the arrows for magit sections don't work properly
 	 (shepherd-service
 	  (provision '(emacs-server))
 	  (requirement '(ssh-agent))
@@ -122,7 +121,7 @@
 	config-files-service-type
 	`((".config/tmux/tmux.conf" "tmux.conf")
 	  (".config/kitty/kitty.conf" "kitty.conf")
-	  (".config/rofi/" "rofi/")
+	  (".config/rofi" "rofi")
 	  (".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
 	  (".local/programs" "programs")
 	  (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
@@ -174,6 +173,7 @@
    (service
 	home-emacs-service-type
 	(home-emacs-configuration
+	 (emacs-servers '())
 	 (early-init-el
 	  `((load-file ,(f "emacs/early-init.el"))))
 	 (init-el

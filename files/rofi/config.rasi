@@ -1,6 +1,6 @@
 configuration {
 	font: "Iosevka 12";
-	modes: [ "pkill:~/.config/rofi/pkill.sh" ];
+	modes: [ "pkill:/config/files/rofi/pkill.sh" ];
 }
 
 @theme "default"

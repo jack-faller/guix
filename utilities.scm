@@ -14,12 +14,26 @@
 
 ;; make this work with both guix pull and from other commands
 (define config-directory (load "get-config-dir.scm"))
-(define (fname . x) (apply string-append config-directory "/files/" x))
+(define (files . x) (apply string-append config-directory "/files" x))
+(define substituted-files
+  (computed-file
+   "substituted-config-files"
+   (with-imported-modules '((guix build utils))
+	 #~(begin
+		 (use-modules (guix build utils)
+					  (ice-9 ftw))
+		 (copy-recursively #$(local-file (files) #:recursive? #t) #$output)
+		 (ftw
+		  #$output
+		  (lambda (name stat type)
+			(when (eq? type 'regular)
+			  (substitute* name ((#$(files)) #$output)))
+			#t))))))
 (define (f . x)
-  (define name (apply fname x))
+  (define name (apply files "/" x))
   (unless (file-exists? name)
 	(error "File doesn't exist:" name))
-  (local-file name #:recursive? #t))
+  (apply file-append substituted-files "/" x))
 (define (not-dot file) (not (or (string= file ".") (string= file ".."))))
 (define (lines . lines) (string-join lines "\n" 'suffix))
 
@@ -32,12 +46,12 @@
 						  (chmod #$output #o555))))
 
 (define (file-pairs target file-raw)
-  (define file (fname file-raw))
+  (define file (files "/" file-raw))
   (file-system-fold
    (const #t)
    (λ (path stat acc)
 	 (cons (list (string-replace-substring path file target)
-				 (local-file path #:recursive? #t))
+				 (f (string-replace-substring path (files "/") "")))
 		   acc))
    (λ (_1 _2 acc) acc)
    (λ (_1 _2 acc) acc)
