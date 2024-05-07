@@ -11,7 +11,7 @@
 			 (gnu home services fontutils)
 			 (nongnu packages game-client)
 			 (nongnu packages fonts)
-			 (gnu home-services emacs)
+			 (rde home services emacs)
 
 			 (packages miny)
 			 (packages discord)
