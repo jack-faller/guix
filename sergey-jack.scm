@@ -223,7 +223,7 @@
  (packages
   (specifications->package-list
    ;; basic
-   "glibc" "ntfs-3g"
+   "ntfs-3g"
    "adwaita-icon-theme"
    "udiskie"
    "gnupg" "pinentry" ;; allows gnupg to prompt for password
