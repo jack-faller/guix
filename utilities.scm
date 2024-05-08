@@ -5,6 +5,7 @@
   #:use-module (gnu)
   #:use-module (gnu services)
   #:use-module (guix packages)
+  #:use-module (gnu packages base)
   #:use-module (gnu home services)
   #:use-module (guix gexp)
   #:use-module (srfi srfi-1)
@@ -27,7 +28,9 @@
 		  #$output
 		  (lambda (name stat type)
 			(when (eq? type 'regular)
-			  (substitute* name ((#$(files)) #$output)))
+			  (invoke #$(file-append sed "/bin/sed")
+					  (string-append "s$" #$(files) "$" #$output "$")
+					  "-i" name))
 			#t))))))
 (define (f . x)
   (define name (apply files "/" x))
