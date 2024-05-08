@@ -16,6 +16,7 @@
 			 (packages miny)
 			 (packages discord)
 			 (packages guix-dev)
+			 (packages icons)
 			 (utilities)
 			 (configuration nix)
 			 (configuration sway-desktop))
@@ -85,28 +86,6 @@
 				(list #$(file-append udiskie "/bin/udiskie") "-N")
 				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/udiskie.log")))
 	  (stop #~(make-kill-destructor)))
-	 (shepherd-service
-	  (provision '(fetch-icons))
-	  (documentation "download the icons / fonts I want if they aren't already present")
-	  (start
-	   #~(make-system-constructor
-		  #$(lines
-			 "cd /tmp"
-			 "mkdir -p ~/.local/share/fonts"
-			 "mkdir -p ~/.icons"
-			 "if [ ! -e ~/.local/share/fonts/materialdesignicons-webfont.ttf ]; then"
-			 "  wget https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/master/fonts/materialdesignicons-webfont.ttf "
-			 "  mv materialdesignicons-webfont.ttf ~/.local/share/fonts/"
-			 "fi"
-			 "if [ ! -e ~/.icons/Quintom_Ink ]; then"
-			 "  git clone https://gitlab.com/Burning_Cube/quintom-cursor-theme"
-			 "  mv 'quintom-cursor-theme/Quintom_Ink Cursors/Quintom_Ink' ~/.icons"
-			 "fi"
-			 "if ! ls ~/.local/share/fonts/Crimson*; then "
-			 "  git clone https://github.com/skosch/Crimson.git"
-			 "  mv 'Crimson/Desktop Fonts/OTF/'* ~/.local/share/fonts/"
-			 "fi")))
-	  (one-shot? #t))
 	 (shepherd-service
 	  (provision '(global-symlinks))
 	  (documentation "setup symlinks that I want")
@@ -229,7 +208,7 @@
    "gnupg" "pinentry" ;; allows gnupg to prompt for password
    ;; editing
    "emacs" "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
-   "perl" ;; needed for magit
+   "perl"		 ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars
    ;; for latex previews
    "texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
@@ -239,8 +218,9 @@
    "password-store"
    ;; font
    "font-iosevka"
-   "font-google-material-design-icons"
+   font-crimson-pro font-google-material-design-icons-desktop
    "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
+   quintom-cursor-theme
    ;; cli utilities
    "eza" ;; ls alternative
    "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
