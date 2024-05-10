@@ -4,6 +4,7 @@
              (gnu services)
              (gnu system setuid)
              (guix gexp)
+             (guix channels)
              (gnu system nss)
              (nongnu system linux-initrd)
              (nongnu packages linux)
@@ -11,6 +12,7 @@
              (services networking)
              (configuration nix)
              (configuration sway-desktop)
+             (utilities)
 
              ((gnu services networking)
               #:select (ntp-service-type)))
@@ -97,8 +99,7 @@
             (append (list "https://substitutes.nonguix.org")
                     %default-substitute-urls))
            (authorized-keys
-            (cons* (local-file "/config/signing-key.pub")
-                   %default-authorized-guix-keys))
+            (cons* (f "signing-key.pub") %default-authorized-guix-keys))
            (channels
             (cons*
              (channel
@@ -139,7 +140,7 @@
              (openssh-configuration
               (permit-root-login 'prohibit-password)
               (authorized-keys
-               (let ((my-key (local-file "myKey.pub")))
+               (let ((my-key (f "myKey.pub")))
                  `(("root" ,my-key)
                    ("jack" ,my-key))))))
     (service cups-service-type)
