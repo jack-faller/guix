@@ -1,6 +1,7 @@
 (define-module (packages guix-dev)
   #:export (guix-dev)
 
+  #:use-module (utilities)
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix build-system copy)
@@ -33,7 +34,7 @@
 		   (if pos (split-at args pos) (values args #f)))
 		 (define options (getopt-long flags spec))
 		 (define (dev-file f)
-		   (string-append #$(load "../get-config-dir.scm") "/dev/" f ".scm"))
+		   (string-append #$config-directory "/dev/" f ".scm"))
 		 (define args*
 		   `("man-db" "texinfo"
 			 ,@(if (option-ref options 'rebuild-cache #f)

@@ -6,6 +6,7 @@
              (gnu services shepherd)
              (gnu home)
              (gnu home services)
+             (gnu home services dotfiles)
              (gnu home services guix)
              (gnu home services xdg)
              (gnu home services shells)
@@ -120,25 +121,11 @@
                    "ln -s /media/jack ~/drives")))
       (one-shot? #t))))
    (service
-    config-files-service-type
-    `((".config/tmux/tmux.conf" "tmux.conf")
-      (".config/kitty/kitty.conf" "kitty.conf")
-      (".config/rofi" "rofi")
-      (".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
-      (".local/programs" "programs")
-      (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
-      (".local/programs/tor-qutebrowser"
-       ,(executable-shell-script
-         "tor-qutebrowser"
-         "herd start tor-client"
-         "qutebrowser --temp-basedir --set content.proxy socks://localhost:9050/ --config-py ~/.config/qutebrowser/config.py"
-         "herd stop tor-client"))
-      ;; duplicate to make passmenu work correctly
-      (".local/programs/dmenu-wl" "programs/dmenu")
-      (".config/git/config" "gitconfig")
-      (".config/qutebrowser/config.py" "qutebrowser/config.py")
-      (".local/share/qutebrowser/userscripts" "qutebrowser/userscripts")
-      (".config/wal/templates" "wal/templates")
+    home-dotfiles-service-type
+    (home-dotfiles-configuration (directories (list "dotfiles/jack"))))
+   (service
+    home-files-service-type
+    `((".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
       (".gnupg/gpg-agent.conf"
        ,(mixed-text-file
          "gnupg-agent.conf"
@@ -149,9 +136,7 @@
        ,(plain-file "cursor-theme-index" (lines "[Icon Theme]"
                                                 "Name=Default"
                                                 "Comment=Default Cursor Theme"
-                                                "Inherits=Quintom_Ink")))
-      (".config/gtk-3.0/settings.ini" "gtk/3-settings.ini")
-      (".config/gtk-4.0/settings.ini" "gtk/4-settings.ini")))
+                                                "Inherits=Quintom_Ink")))))
    (service
     home-zsh-service-type
     (home-zsh-configuration
