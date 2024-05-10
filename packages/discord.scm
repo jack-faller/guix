@@ -1,16 +1,8 @@
 (define-module (packages discord)
-  #:export (discord)
-
-  #:use-module (guix gexp)
-  #:use-module (guix packages)
-  #:use-module (guix download)
-  #:use-module (guix build-system glib-or-gtk)
-
   #:use-module (gnu packages base)
-  #:use-module (gnu packages bootstrap)
+  #:use-module (gnu packages bash)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cups)
-  #:use-module (gnu packages elf)
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gcc)
@@ -18,9 +10,8 @@
   #:use-module (gnu packages glib)
   #:use-module (gnu packages gnome)
   #:use-module (gnu packages gtk)
-  #:use-module (gnu packages gnuzilla)
+  #:use-module (gnu packages kerberos)
   #:use-module (gnu packages linux)
-  #:use-module (gnu packages llvm)
   #:use-module (gnu packages node)
   #:use-module (gnu packages nss)
   #:use-module (gnu packages pulseaudio)
@@ -29,12 +20,17 @@
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages xorg)
-
+  #:use-module (guix download)
+  #:use-module (guix gexp)
+  #:use-module (guix packages)
+  #:use-module (guix utils)
+  #:use-module ((guix licenses) :prefix license:)
   #:use-module (nonguix build-system binary)
-  #:use-module ((nonguix licenses)
-                #:prefix license:))
+  #:use-module (nonguix build-system chromium-binary)
+  #:use-module ((nonguix licenses) :prefix license:)
+  #:use-module (ice-9 match))
 
-(define disable-breaking-updates
+(define discord-disable-breaking-updates
   (with-extensions
    (list (@ (gnu packages guile) guile-json-4))
    (program-file
@@ -69,66 +65,7 @@
                 (display "Disabled updates")
                 (newline))))))))
 
-(define discord-install
-  (with-imported-modules
-   '((guix build utils))
-   #~(lambda* (#:key outputs inputs #:allow-other-keys)
-       (use-modules (guix build utils)
-                    (srfi srfi-26)
-                    (sxml simple))
-       (let* ((line (lambda args
-                      (display (apply string-append args)) (newline)))
-              (output (assoc-ref outputs "out"))
-              (libs (cons (string-append (assoc-ref inputs "nss") "/lib/nss")
-                          (map (lambda (i) (string-append (cdr i) "/lib"))
-                               inputs)))
-              (bins (map (lambda (i) (string-append (cdr i) "/bin"))
-                         inputs))
-              (libs (filter file-exists? libs))
-              (bins (filter file-exists? bins)))
-         (mkdir-p (string-append output "/opt/discord"))
-         (copy-recursively "." (string-append output "/opt/discord"))
-         (mkdir-p (string-append output "/bin"))
-         (mkdir-p (string-append output "/share/pixmaps"))
-         (mkdir-p (string-append output "/share/applications"))
-         (mkdir-p (string-append output "/share/icons/hicolor/256x256/apps"))
-         (mkdir-p (string-append output "/etc"))
-         (with-output-to-file (string-append output "/bin/discord")
-           (lambda _
-             (line "#!/bin/sh")
-             (line #$disable-breaking-updates)
-             (line "cd " output "/opt/discord")
-             (line "./Discord"
-                   ;; Always use Ozone on Wayland, not sure if this is a good idea.
-                   " ${WAYLAND_DISPLAY:+--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-features=WebRTCPipeWireCapturer}"
-                   " \"$@\"")))
-         (chmod (string-append output "/bin/discord") #o755)
-         (wrap-program
-          (string-append output "/bin/discord")
-          `("LD_LIBRARY_PATH" = (,(string-append output "/opt/discord") ,@libs))
-          `("PATH" prefix ,bins))
-         (for-each
-          (lambda (f)
-            (chmod (string-append output "/opt/discord/" f) #o755)
-            (invoke #+(file-append patchelf "/bin/patchelf")
-                    "--set-interpreter"
-                    (string-append #$glibc "/lib/ld-linux-x86-64.so.2")
-                    (string-append output "/opt/discord/" f)))
-          (list "Discord" "chrome_crashpad_handler" "chrome-sandbox"))
-         (chmod (string-append output "/opt/discord/postinst.sh") #o755)
-         (link (string-append output "/opt/discord/discord.png")
-               (string-append output "/share/pixmaps/discord.png"))
-         (link (string-append output "/opt/discord/discord.png")
-               (string-append output "/share/icons/hicolor/256x256/apps/discord.png"))
-		 (link (string-append output "/opt/discord/discord.desktop")
-			   (string-append output "/share/applications/discord.desktop"))
-		 (substitute*
-		  (string-append output "/share/applications/discord.desktop")
-		  (("Exec=.*$") (string-append "Exec=" output "/bin/discord\n"))
-		  (("Path=.*$") (string-append "Path=" output "/opt/discord\n")))
-         #t))))
-
-(define discord
+(define-public discord
   (package
    (name "discord")
    (version "0.0.51")
@@ -140,58 +77,53 @@
      (sha256
       (base32 "12d5hghnn6a30szsdbay5rx5j31da8y51zxmxg4dcpc9m9wwpk63"))))
    ;; Use this build system to set XDG_DATA_DIRS and other variables.
-   (build-system glib-or-gtk-build-system)
+   (build-system chromium-binary-build-system)
    (arguments
     (list
+     #:patchelf-plan
+     #~`(("Discord") ("chrome_crashpad_handler") ("chrome-sandbox"))
+     #:install-plan
+     #~`(("." "opt/discord")
+         ("discord.desktop" "/share/applications/")
+         ("discord.sh" "bin/discord")
+         ("discord.png" "share/icons/hicolor/256x256/apps/")
+         ("discord.png" "share/pixmaps/"))
      #:phases
-     #~(modify-phases %standard-phases
-                      (delete 'bootstrap)
-                      (delete 'configure)
-                      (delete 'build)
-                      (delete 'check)
-                      (replace 'install #$discord-install))))
-   (inputs (list alsa-lib
-                 at-spi2-core
-                 cairo
-                 cups
-                 dbus
-                 eudev
-                 expat
-                 fontconfig
-                 freetype
-                 ffmpeg
-                 (list gcc "lib")
+     (with-imported-modules '((guix build utils))
+       #~(modify-phases %standard-phases
+           (add-after 'binary-unpack 'setup-cwd
+             (lambda* (#:key outputs #:allow-other-keys)
+               (use-modules (guix build utils))
+               (define output (assoc-ref outputs "out"))
+               (substitute* "discord.desktop"
+                 (("Exec=.*$")
+                  (string-append "Exec=" output "/bin/discord\n"))
+                 (("Path=.*$")
+                  (string-append "Path=" output "/opt/discord\n")))
+               (with-output-to-file "discord.sh"
+                 (lambda _
+                   (define (line . args)
+                     (display (apply string-append args)) (newline))
+                   (line "#!/bin/sh")
+                   (line #$discord-disable-breaking-updates)
+                   (line "cd " output "/opt/discord")
+                   (line "./Discord"
+                         ;; Always use Ozone on Wayland, not sure if this is a good idea.
+                         " ${WAYLAND_DISPLAY:+--enable-features=UseOzonePlatform --ozone-platform=wayland --enable-features=WebRTCPipeWireCapturer}"
+                         " \"$@\"")))
+               (for-each
+                (lambda (f) (chmod f #o755))
+                '("Discord" "chrome_crashpad_handler" "chrome-sandbox"
+                  "discord.sh" "postinst.sh"))))))))
+   (inputs (list ffmpeg
                  gdk-pixbuf
-                 glib
-                 glibc
-                 gtk+
                  libappindicator
-                 libcxx
                  libdbusmenu
-                 libdrm
                  libglvnd
-                 libnotify
-                 libx11
-                 libxcb
-                 libxcomposite
-                 libxcursor
-                 libxdamage
-                 libxext
-                 libxfixes
-                 libxi
-                 libxrandr
-                 libxrender
                  libxscrnsaver
-                 libxshmfence
-                 libxtst
-                 mesa
-                 nspr
-                 nss
-                 pango
                  util-linux
                  wayland
-				 ;; Not sure if all of these are needed.
-                 clang-runtime
+                 ;; Not sure if all of these are needed.
                  gzip
                  libsm
                  node
@@ -201,7 +133,6 @@
                  wget
                  xdg-utils))
    (synopsis "Discord chat client")
-   (description "All-in-one cross-platform voice and text chat for gamers")
+   (description "All-in-one cross-platform voice and text chat for gamers.")
    (license (license:nonfree "https://discord.com/terms"))
    (home-page "https://discordapp.com")))
-discord

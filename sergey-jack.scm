@@ -1,10 +1,12 @@
 (add-to-load-path (dirname (current-filename)))
 (use-modules (guix gexp)
+			 (guix channels)
 			 (gnu)
 			 (gnu services)
 			 (gnu services shepherd)
 			 (gnu home)
 			 (gnu home services)
+			 (gnu home services guix)
 			 (gnu home services xdg)
 			 (gnu home services shells)
 			 (gnu home services shepherd)
@@ -26,6 +28,27 @@
 (home-environment
  (services
   ((lambda args (append args sway-desktop-home-services))
+   (simple-service
+	'my-channels
+	home-channels-service-type
+	(list
+	 (channel
+	  (name 'guix-gaming-games)
+	  (url "https://gitlab.com/guix-gaming-channels/games.git")
+	  ;; Enable signature verification:
+	  (introduction
+	   (make-channel-introduction
+		"c23d64f1b8cc086659f8781b27ab6c7314c5cca5"
+		(openpgp-fingerprint
+		 "50F3 3E2E 5B0C 3D90 0424  ABE8 9BDC F497 A4BB CC7F"))))
+	 (channel
+	  (name 'rde)
+	  (url "https://git.sr.ht/~abcdw/rde")
+	  (introduction
+	   (make-channel-introduction
+		"257cebd587b66e4d865b3537a9a88cccd7107c95"
+		(openpgp-fingerprint
+		 "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
    (service home-xdg-user-directories-service-type
 			(home-xdg-user-directories-configuration
 			 (download "$HOME/dlds")
