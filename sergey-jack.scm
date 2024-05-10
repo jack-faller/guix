@@ -1,27 +1,27 @@
 (add-to-load-path (dirname (current-filename)))
 (use-modules (guix gexp)
-			 (guix channels)
-			 (gnu)
-			 (gnu services)
-			 (gnu services shepherd)
-			 (gnu home)
-			 (gnu home services)
-			 (gnu home services guix)
-			 (gnu home services xdg)
-			 (gnu home services shells)
-			 (gnu home services shepherd)
-			 (gnu home services fontutils)
-			 (nongnu packages game-client)
-			 (nongnu packages fonts)
-			 (rde home services emacs)
+             (guix channels)
+             (gnu)
+             (gnu services)
+             (gnu services shepherd)
+             (gnu home)
+             (gnu home services)
+             (gnu home services guix)
+             (gnu home services xdg)
+             (gnu home services shells)
+             (gnu home services shepherd)
+             (gnu home services fontutils)
+             (nongnu packages game-client)
+             (nongnu packages fonts)
+             (rde home services emacs)
 
-			 (packages miny)
-			 (packages discord)
-			 (packages guix-dev)
-			 (packages icons)
-			 (utilities)
-			 (configuration nix)
-			 (configuration sway-desktop))
+             (packages miny)
+             (packages discord)
+             (packages guix-dev)
+             (packages icons)
+             (utilities)
+             (configuration nix)
+             (configuration sway-desktop))
 (use-package-modules
  emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor)
 
@@ -29,199 +29,199 @@
  (services
   ((lambda args (append args sway-desktop-home-services))
    (simple-service
-	'my-channels
-	home-channels-service-type
-	(list
-	 (channel
-	  (name 'guix-gaming-games)
-	  (url "https://gitlab.com/guix-gaming-channels/games.git")
-	  ;; Enable signature verification:
-	  (introduction
-	   (make-channel-introduction
-		"c23d64f1b8cc086659f8781b27ab6c7314c5cca5"
-		(openpgp-fingerprint
-		 "50F3 3E2E 5B0C 3D90 0424  ABE8 9BDC F497 A4BB CC7F"))))
-	 (channel
-	  (name 'rde)
-	  (url "https://git.sr.ht/~abcdw/rde")
-	  (introduction
-	   (make-channel-introduction
-		"257cebd587b66e4d865b3537a9a88cccd7107c95"
-		(openpgp-fingerprint
-		 "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
+    'my-channels
+    home-channels-service-type
+    (list
+     (channel
+      (name 'guix-gaming-games)
+      (url "https://gitlab.com/guix-gaming-channels/games.git")
+      ;; Enable signature verification:
+      (introduction
+       (make-channel-introduction
+        "c23d64f1b8cc086659f8781b27ab6c7314c5cca5"
+        (openpgp-fingerprint
+         "50F3 3E2E 5B0C 3D90 0424  ABE8 9BDC F497 A4BB CC7F"))))
+     (channel
+      (name 'rde)
+      (url "https://git.sr.ht/~abcdw/rde")
+      (introduction
+       (make-channel-introduction
+        "257cebd587b66e4d865b3537a9a88cccd7107c95"
+        (openpgp-fingerprint
+         "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
    (service home-xdg-user-directories-service-type
-			(home-xdg-user-directories-configuration
-			 (download "$HOME/dlds")
-			 (documents "$HOME/docs")
-			 (videos "$HOME/vids")
-			 (pictures "$HOME/pics")
-			 (music "$HOME/music")))
+            (home-xdg-user-directories-configuration
+             (download "$HOME/dlds")
+             (documents "$HOME/docs")
+             (videos "$HOME/vids")
+             (pictures "$HOME/pics")
+             (music "$HOME/music")))
    (simple-service
-	'my-env-vars
-	home-environment-variables-service-type
-	'(("PATH" . "$HOME/.local/programs:$PATH")))
+    'my-env-vars
+    home-environment-variables-service-type
+    '(("PATH" . "$HOME/.local/programs:$PATH")))
    (service
-	home-xdg-mime-applications-service-type
-	(home-xdg-mime-applications-configuration
-	 (default '((application/pdf . org.gnome.Evince.desktop)
-				(application/x-torrent . transmission-gtk.desktop)
-				(x-scheme-handler/magnet . transmission-gtk.desktop)
-				(application/x-bittorrent . transmission-gtk.desktop)
-				(image/jpeg . feh.desktop)
-				(image/png . feh.desktop)
-				(x-scheme-handler/http . org.qutebrowser.desktop)
-				(x-scheme-handler/https . org.qutebrowser.desktop)))))
+    home-xdg-mime-applications-service-type
+    (home-xdg-mime-applications-configuration
+     (default '((application/pdf . org.gnome.Evince.desktop)
+                (application/x-torrent . transmission-gtk.desktop)
+                (x-scheme-handler/magnet . transmission-gtk.desktop)
+                (application/x-bittorrent . transmission-gtk.desktop)
+                (image/jpeg . feh.desktop)
+                (image/png . feh.desktop)
+                (x-scheme-handler/http . org.qutebrowser.desktop)
+                (x-scheme-handler/https . org.qutebrowser.desktop)))))
    (simple-service
-	'my-daemons home-shepherd-service-type
-	(list
-	 (shepherd-service
-	  (provision '(tor-client))
-	  (auto-start? #f)
-	  (respawn? #f)
-	  (requirement '())
-	  (documentation "run tor client")
-	  (start #~(make-forkexec-constructor
-				(list #$(file-append tor-client "/bin/tor"))
-				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/tor.log")))
-	  (stop #~(make-kill-destructor)))
-	 (shepherd-service
-	  (provision '(ssh-agent))
-	  (documentation "run ssh-agent")
-	  (start #~(make-system-constructor
-				"ssh-agent > $XDG_RUNTIME_DIR/ssh-agent.env"
-				" 2> $XDG_CACHE_HOME/ssh-agent.log"))
-	  (stop #~(make-system-destructor "pkill ssh-agent")))
-	 (shepherd-service
-	  (provision '(emacs-server))
-	  (requirement '(ssh-agent))
-	  (documentation "run emacs-server")
-	  (start #~(make-forkexec-constructor
-				(list #$(executable-shell-script
-						 "emacs-daemon-script"
-						 "source $XDG_RUNTIME_DIR/ssh-agent.env"
-						 "emacs --fg-daemon"))
-				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
-	  (stop #~(make-kill-destructor)))
-	 (shepherd-service
-	  (provision '(udiskie))
-	  (documentation "run udiskie")
-	  (start #~(make-forkexec-constructor
-				(list #$(file-append udiskie "/bin/udiskie") "-N")
-				#:log-file (string-append (getenv "XDG_CACHE_HOME") "/udiskie.log")))
-	  (stop #~(make-kill-destructor)))
-	 (shepherd-service
-	  (provision '(global-symlinks))
-	  (documentation "setup symlinks that I want")
-	  (start #~(make-system-constructor
-				#$(lines
-				   "mkdir -p ~/.local/share/Trash/files"
-				   "ln -s ~/.local/share/Trash/files ~/trash"
-				   "mkdir -p /media/jack"
-				   "ln -s /media/jack ~/drives")))
-	  (one-shot? #t))))
+    'my-daemons home-shepherd-service-type
+    (list
+     (shepherd-service
+      (provision '(tor-client))
+      (auto-start? #f)
+      (respawn? #f)
+      (requirement '())
+      (documentation "run tor client")
+      (start #~(make-forkexec-constructor
+                (list nil (file-append tor-client "/bin/tor"))
+                #:log-file (string-append (getenv "XDG_CACHE_HOME") "/tor.log")))
+      (stop #~(make-kill-destructor)))
+     (shepherd-service
+      (provision '(ssh-agent))
+      (documentation "run ssh-agent")
+      (start #~(make-system-constructor
+                "ssh-agent > $XDG_RUNTIME_DIR/ssh-agent.env"
+                " 2> $XDG_CACHE_HOME/ssh-agent.log"))
+      (stop #~(make-system-destructor "pkill ssh-agent")))
+     (shepherd-service
+      (provision '(emacs-server))
+      (requirement '(ssh-agent))
+      (documentation "run emacs-server")
+      (start #~(make-forkexec-constructor
+                (list #$(executable-shell-script
+                         "emacs-daemon-script"
+                         "source $XDG_RUNTIME_DIR/ssh-agent.env"
+                         "emacs --fg-daemon"))
+                #:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
+      (stop #~(make-kill-destructor)))
+     (shepherd-service
+      (provision '(udiskie))
+      (documentation "run udiskie")
+      (start #~(make-forkexec-constructor
+                (list #$(file-append udiskie "/bin/udiskie") "-N")
+                #:log-file (string-append (getenv "XDG_CACHE_HOME") "/udiskie.log")))
+      (stop #~(make-kill-destructor)))
+     (shepherd-service
+      (provision '(global-symlinks))
+      (documentation "setup symlinks that I want")
+      (start #~(make-system-constructor
+                #$(lines
+                   "mkdir -p ~/.local/share/Trash/files"
+                   "ln -s ~/.local/share/Trash/files ~/trash"
+                   "mkdir -p /media/jack"
+                   "ln -s /media/jack ~/drives")))
+      (one-shot? #t))))
    (service
-	config-files-service-type
-	`((".config/tmux/tmux.conf" "tmux.conf")
-	  (".config/kitty/kitty.conf" "kitty.conf")
-	  (".config/rofi" "rofi")
-	  (".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
-	  (".local/programs" "programs")
-	  (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
-	  (".local/programs/tor-qutebrowser"
-	   ,(executable-shell-script
-		 "tor-qutebrowser"
-		 "herd start tor-client"
-		 "qutebrowser --temp-basedir --set content.proxy socks://localhost:9050/ --config-py ~/.config/qutebrowser/config.py"
-		 "herd stop tor-client"))
-	  ;; duplicate to make passmenu work correctly
-	  (".local/programs/dmenu-wl" "programs/dmenu")
-	  (".config/git/config" "gitconfig")
-	  (".config/qutebrowser/config.py" "qutebrowser/config.py")
-	  (".local/share/qutebrowser/userscripts" "qutebrowser/userscripts")
-	  (".config/wal/templates" "wal/templates")
-	  (".gnupg/gpg-agent.conf"
-	   ,(mixed-text-file
-		 "gnupg-agent.conf"
-		 "default-cache-ttl 600" "\n" "max-cache-ttl 7200" "\n"
-		 "use-agent" "\n"
-		 "pinentry-program " pinentry "/bin/pinentry" "\n"))
-	  (".icons/default/index.theme"
-	   ,(plain-file "cursor-theme-index" (lines "[Icon Theme]"
-												"Name=Default"
-												"Comment=Default Cursor Theme"
-												"Inherits=Quintom_Ink")))
-	  (".config/gtk-3.0/settings.ini" "gtk/3-settings.ini")
-	  (".config/gtk-4.0/settings.ini" "gtk/4-settings.ini")))
+    config-files-service-type
+    `((".config/tmux/tmux.conf" "tmux.conf")
+      (".config/kitty/kitty.conf" "kitty.conf")
+      (".config/rofi" "rofi")
+      (".config/miny/default.args" ,(plain-file "miny-default.args" "-d3"))
+      (".local/programs" "programs")
+      (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
+      (".local/programs/tor-qutebrowser"
+       ,(executable-shell-script
+         "tor-qutebrowser"
+         "herd start tor-client"
+         "qutebrowser --temp-basedir --set content.proxy socks://localhost:9050/ --config-py ~/.config/qutebrowser/config.py"
+         "herd stop tor-client"))
+      ;; duplicate to make passmenu work correctly
+      (".local/programs/dmenu-wl" "programs/dmenu")
+      (".config/git/config" "gitconfig")
+      (".config/qutebrowser/config.py" "qutebrowser/config.py")
+      (".local/share/qutebrowser/userscripts" "qutebrowser/userscripts")
+      (".config/wal/templates" "wal/templates")
+      (".gnupg/gpg-agent.conf"
+       ,(mixed-text-file
+         "gnupg-agent.conf"
+         "default-cache-ttl 600" "\n" "max-cache-ttl 7200" "\n"
+         "use-agent" "\n"
+         "pinentry-program " pinentry "/bin/pinentry" "\n"))
+      (".icons/default/index.theme"
+       ,(plain-file "cursor-theme-index" (lines "[Icon Theme]"
+                                                "Name=Default"
+                                                "Comment=Default Cursor Theme"
+                                                "Inherits=Quintom_Ink")))
+      (".config/gtk-3.0/settings.ini" "gtk/3-settings.ini")
+      (".config/gtk-4.0/settings.ini" "gtk/4-settings.ini")))
    (service
-	home-zsh-service-type
-	(home-zsh-configuration
-	 (zprofile
-	  (list
-	   (mixed-text-file
-		"zsh-profile"
-		python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
-		"brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%" "\n"
-		"[ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ] && " sway-desktop-launch-command "\n")))
-	 (zshrc
-	  (list
-	   (f "zshrc.sh")
-	   (mixed-text-file
-		"source-zsh-extensions"
-		"source " zsh-autosuggestions "/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
-		"\n"
-		;; this must be the last item in zshrc for some reason
-		"source " zsh-syntax-highlighting "/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-		"\n")))))
+    home-zsh-service-type
+    (home-zsh-configuration
+     (zprofile
+      (list
+       (mixed-text-file
+        "zsh-profile"
+        python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
+        "brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%" "\n"
+        "[ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ] && " sway-desktop-launch-command "\n")))
+     (zshrc
+      (list
+       (f "zshrc.sh")
+       (mixed-text-file
+        "source-zsh-extensions"
+        "source " zsh-autosuggestions "/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+        "\n"
+        ;; this must be the last item in zshrc for some reason
+        "source " zsh-syntax-highlighting "/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+        "\n")))))
    (service
-	home-emacs-service-type
-	(home-emacs-configuration
-	 (emacs-servers '())
-	 (early-init-el
-	  `((load-file ,(f "emacs/early-init.el"))))
-	 (init-el
-	  `(;; Override later defvar of `using-guix' in init.el.
-		(defvar using-guix t)
-		(load-file ,(f "emacs/init.el"))
-		(load-file ,(computed-file
-					 "settings.el"
-					 #~(system*
-						(string-append #$emacs "/bin/emacs") "--batch" "--eval"
-						(with-output-to-string
-						  (lambda ()
-							(write `(progn (require 'org)
-										   (org-babel-tangle-file
-											,#$(f "emacs/settings.org")
-											,#$output
-											"emacs-lisp"))))))))))))
+    home-emacs-service-type
+    (home-emacs-configuration
+     (emacs-servers '())
+     (early-init-el
+      `((load-file ,(f "emacs/early-init.el"))))
+     (init-el
+      `( ;; Override later defvar of `using-guix' in init.el.
+        (defvar using-guix t)
+        (load-file ,(f "emacs/init.el"))
+        (load-file ,(computed-file
+                     "settings.el"
+                     #~(system*
+                        (string-append #$emacs "/bin/emacs") "--batch" "--eval"
+                        (with-output-to-string
+                          (lambda ()
+                            (write `(progn (require 'org)
+                                           (org-babel-tangle-file
+                                            ,#$(f "emacs/settings.org")
+                                            ,#$output
+                                            "emacs-lisp"))))))))))))
    (service nix-packages-service-type
-			'("teams"))
+            '("teams"))
    (simple-service 'my-fonts
-				   home-fontconfig-service-type
-				   (list
-					'(alias
-					  (family "serif")
-					  (prefer (family "Noto Serif")
-							  (family "Noto Serif CJK SC")
-							  (family "Noto Serif CJK JP")
-							  (family "Noto Serif CJK TC")
-							  (family "Noto Color Emoji")))
-					'(alias
-					  (family "sans-serif")
-					  (prefer (family "Noto Sans")
-							  (family "Noto Sans CJK SC")
-							  (family "Noto Sans CJK JP")
-							  (family "Noto Sans CJK TC")
-							  (family "Noto Color Emoji")))
-					'(alias
-					  (family "monospace")
-					  (prefer (family "Iosevka")
-							  (family "Noto Sans Mono")
-							  (family "Noto Sans Mono CJK SC")
-							  (family "Noto Sans Mono CJK JP")
-							  (family "Noto Sans Mono CJK TC")))
-					'(alias
-					  (family "emoji")
-					  (prefer (family "Noto Color Emoji")))))))
+                   home-fontconfig-service-type
+                   (list
+                    '(alias
+                      (family "serif")
+                      (prefer (family "Noto Serif")
+                              (family "Noto Serif CJK SC")
+                              (family "Noto Serif CJK JP")
+                              (family "Noto Serif CJK TC")
+                              (family "Noto Color Emoji")))
+                    '(alias
+                      (family "sans-serif")
+                      (prefer (family "Noto Sans")
+                              (family "Noto Sans CJK SC")
+                              (family "Noto Sans CJK JP")
+                              (family "Noto Sans CJK TC")
+                              (family "Noto Color Emoji")))
+                    '(alias
+                      (family "monospace")
+                      (prefer (family "Iosevka")
+                              (family "Noto Sans Mono")
+                              (family "Noto Sans Mono CJK SC")
+                              (family "Noto Sans Mono CJK JP")
+                              (family "Noto Sans Mono CJK TC")))
+                    '(alias
+                      (family "emoji")
+                      (prefer (family "Noto Color Emoji")))))))
  (packages
   (specifications->package-list
    ;; basic
@@ -231,7 +231,7 @@
    "gnupg" "pinentry" ;; allows gnupg to prompt for password
    ;; editing
    "emacs" "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
-   "perl"		 ;; needed for magit
+   "perl"          ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars
    ;; for latex previews
    "texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
