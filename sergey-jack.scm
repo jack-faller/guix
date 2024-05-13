@@ -82,7 +82,7 @@
       (requirement '())
       (documentation "run tor client")
       (start #~(make-forkexec-constructor
-                (list nil (file-append tor-client "/bin/tor"))
+                (list #$(file-append tor-client "/bin/tor"))
                 #:log-file (string-append (getenv "XDG_CACHE_HOME") "/tor.log")))
       (stop #~(make-kill-destructor)))
      (shepherd-service
@@ -226,7 +226,7 @@
    "password-store"
    ;; font
    "font-iosevka"
-   font-crimson-pro font-google-material-design-icons-desktop
+   font-google-material-design-icons-desktop font-cochineal
    "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
    quintom-cursor-theme
    ;; cli utilities
