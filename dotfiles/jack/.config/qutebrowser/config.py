@@ -38,6 +38,8 @@ config.bind("k", "cmd-run-with-count 5 scroll up")
 config.bind("*", "search {primary}")
 config.bind("<Alt+Shift+*>", "search --reverse {primary}")
 
+config.set("content.javascript.clipboard", "access", "www.nytimes.com")
+
 c.auto_save.session = True
 c.colors.webpage.preferred_color_scheme = "dark"
 c.fonts.web.family.fixed = "iosevka"
