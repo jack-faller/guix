@@ -207,7 +207,7 @@
 #+end_src
 ** Ligatures
 #+begin_src emacs-lisp
-  (pkg ligature :require t :github "mickeynp/ligature.el")
+  (pkg ligature :require t :host "mickeynp/ligature.el")
   (ligature-set-ligatures 'prog-mode
                           '(("<" (rx (| (: (** 0 2 "<") (| (+ "=") (+ "-")) (** 0 3 ">"))
                                         (: (+ "*")  (\? ">"))
@@ -309,7 +309,7 @@
 #+end_src
 ** Make Cursor Shapes Work in Terminal
 #+begin_src emacs-lisp
-  (pkg term-cursor :github "h0d/term-cursor.el" :require t)
+  (pkg term-cursor :repo "h0d/term-cursor.el" :require t)
   (global-term-cursor-mode)
 #+end_src
 * Count Keys
@@ -400,7 +400,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 #+end_src
 *** Text Objects
 #+begin_src emacs-lisp
-  (pkg targets :require t :github "noctuid/targets.el")
+  (pkg targets :require t :repo "noctuid/targets.el")
   (targets-setup t :last-key "N")
 #+end_src
 *** Swap Text Using =gx=
@@ -1838,7 +1838,7 @@ These variables are recommended by =lsp-mode= to increase performance.
 #+end_src
 * Ebangs
 #+begin_src emacs-lisp
-  (pkg ebangs :github "jack-faller/ebangs" :require t)
+  (pkg ebangs :repo "jack-faller/ebangs" :require t)
   (ebangs-global-minor-mode)
   (evil-define-key 'insert 'global
     (kbd "<global-leader>j") #'ebangs-complete)
@@ -1849,7 +1849,7 @@ These variables are recommended by =lsp-mode= to increase performance.
 #+end_src
 * Indent Guides
 #+begin_src emacs-lisp
-  (pkg show-indent-guides :github "jack-faller/show-indent-guides")
+  (pkg show-indent-guides :repo "jack-faller/show-indent-guides")
   (add-hook 'prog-mode-hook #'show-indent-guides-mode)
 #+end_src
 * Allow things to be deferred to the end of the file through config feature.

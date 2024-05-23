@@ -30,14 +30,14 @@
   body)
 
 (require 'cl-lib)
-(cl-defmacro pkg (name &optional &key require github)
+(cl-defmacro pkg (name &optional &key require host repo)
   (list
    'progn
-   (if github
+   (if repo
        `(straight-use-package '(,name
                                 :type git
-                                :host github
-                                :repo ,github))
+                                :host ,(or host 'github)
+                                :repo ,repo))
      `(straight-use-package ',name))
-   (if require `(require ',name) nil)
+   (when require `(require ',name))
    `',name))
