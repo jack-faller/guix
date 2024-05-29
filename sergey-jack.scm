@@ -24,7 +24,7 @@
              (configuration nix)
              (configuration sway-desktop))
 (use-package-modules
- emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor)
+ base emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor)
 
 (home-environment
  (services
@@ -166,6 +166,7 @@
      (init-el
       `( ;; Override later defvar of `using-guix' in init.el.
         (defvar using-guix t)
+        (setf insert-directory-program ,(file-append coreutils "/bin/ls"))
         (load-file ,(f "emacs/init.el"))
         (load-file ,(computed-file
                      "settings.el"
