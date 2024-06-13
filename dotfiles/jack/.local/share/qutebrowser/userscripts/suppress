@@ -1,0 +1,17 @@
+#!/usr/bin/env raku
+
+sub get ($frag) {
+    my @parts;
+    for %*ENV{$frag}.encode("ascii") -> $i {
+	when chr($i) ~~ /<[0..9 a..z A..Z \- \. _ ~]>/ {
+	    @parts.push(chr($i));
+	}
+	@parts.push("%");
+	@parts.push($i.base(16));
+    }
+    return @parts.join();
+}
+
+%*ENV<QUTE_FIFO>.IO.spurt:
+    "open file://{%*ENV<QUTE_DATA_DIR>}/userscripts/suppress.html"
+	~ "?title={get 'QUTE_TITLE'}&url={get 'QUTE_URL'}\n";
