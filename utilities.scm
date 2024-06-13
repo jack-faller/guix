@@ -1,30 +1,29 @@
 (define-module (utilities)
-  #:export (lines
-	    config-directory executable-shell-script
-	    specifications->package-list f)
   #:use-module (gnu)
   #:use-module (gnu services)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (gnu packages base)
   #:use-module (gnu home services)
+  #:use-module (nongnu packages nvidia)
   #:use-module (guix gexp)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 receive)
+  #:use-module (ice-9 optargs)
   #:use-module (ice-9 string-fun))
 
 ;; make this work with both guix pull and from other commands
-(define config-directory (current-source-directory))
-(define (f . x)
+(define*-public config-directory (current-source-directory))
+(define*-public (f . x)
   (define name (apply string-append config-directory "/files/" x))
   (unless (file-exists? name)
     (error "File doesn't exist:" name))
   (local-file name #:recursive? #t))
-(define (not-dot file) (not (or (string= file ".") (string= file ".."))))
-(define (lines . lines) (string-join lines "\n" 'suffix))
+(define*-public (not-dot file) (not (or (string= file ".") (string= file ".."))))
+(define*-public (lines . lines) (string-join lines "\n" 'suffix))
 
-(define (executable-shell-script name . lines-list)
+(define*-public (executable-shell-script name . lines-list)
   (define script (apply lines (cons "#!/bin/sh" lines-list)))
   (computed-file name #~(begin
 			  (use-modules (ice-9 ports))
@@ -32,7 +31,14 @@
 			    (λ (file) (display #$script file)))
 			  (chmod #$output #o555))))
 
-(define (specifications->package-list . names)
+(define*-public (using-nvidia packages)
+  (map (lambda (a)
+         (if (list? a)
+             (cons (replace-mesa (car a)) (cdr a))
+             (replace-mesa a)))
+       packages))
+
+(define*-public (specifications->package-list . names)
   (map (lambda (i)
 	 (cond
 	  ((string? i)

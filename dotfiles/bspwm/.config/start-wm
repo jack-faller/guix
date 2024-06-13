@@ -1,0 +1,5 @@
+#!/bin/sh
+DIR=$HOME/.guix-home/profile
+dbus-run-session -- xinit -- $DIR/bin/Xorg :0 vt1 \
+	-keeptty -configdir $DIR/share/X11/xorg.conf.d -modulepath $DIR/lib/xorg/modules
+# dbus-run-session -- startx

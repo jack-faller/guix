@@ -1,5 +1,5 @@
 (define-module (configuration sway-desktop)
-  #:export (sway-desktop-system-services sway-desktop-home-services sway-desktop-launch-command)
+  #:export (sway-desktop-system-services sway-desktop-home-services)
 
   #:use-module (utilities)
   #:use-module (gnu home services dotfiles)
@@ -13,8 +13,6 @@
   #:use-module (gnu packages wm)
   #:use-module (gnu packages glib)
   #:use-module (rde home services wm))
-
-(define sway-desktop-launch-command "dbus-run-session sway")
 
 (define sway-desktop-system-services
   (list

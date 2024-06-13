@@ -1,0 +1,3 @@
+#!/bin/sh
+brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%
+dbus-run-session sway

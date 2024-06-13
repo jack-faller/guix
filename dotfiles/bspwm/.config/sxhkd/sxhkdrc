@@ -1,0 +1,178 @@
+# terminal emulator
+
+super + Return
+    kitty || xterm
+
+super + BackSpace
+    emacsclient -c
+
+# program launcher
+super + @space
+	rofi -show run
+
+ctrl + alt + Delete
+    sudo reboot
+
+# appmenu
+super + shift + @space
+    "$HOME/.config/appmenu/$(ls $HOME/.config/appmenu/ | dmenu -p run)"
+
+# make sxhkd reload its configuration files:
+super + Escape
+    pkill -USR1 -x sxhkd
+
+#
+# bspwm hotkeys
+#
+
+# quit/restart bspwm
+super + alt + {q,r}
+    bspc {quit,wm -r}
+
+# close and kill
+super + {_,shift + }w
+    bspc node -{c,k}
+
+# alternate between the tiled and monocle layout
+super + m
+    bspc desktop -l next
+
+#
+# state/flags
+#
+
+# set the window state
+super + {t,shift + t,s,f}
+    bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
+
+#
+# focus/swap
+#
+
+# focus the node in the given direction
+super + {_,shift + }{h,j,k,l}
+    bspc node -{f,s} {west,south,north,east}
+
+# focus the next/previous node in the current desktop
+super + {_,shift + }c
+    bspc node -f {next,prev}.local
+
+# focus the next/previous desktop in the current monitor
+super + bracket{left,right}
+    bspc desktop -f {prev,next}.local
+
+# focus the last node/desktop
+super + {grave,Tab}
+    bspc {node,desktop} -f last
+
+# focus the older or newer node in the focus history
+super + {o,i}
+    bspc wm -h off; \
+    bspc node {older,newer} -f; \
+    bspc wm -h on
+
+# focus or send to the given desktop
+super + {_,shift + }{1-9,0}
+    bspc {desktop -f,node -d} '^{1-9,10}'
+
+#
+# preselect
+#
+
+# preselect the direction
+super + ctrl + {h,j,k,l}
+    bspc node -p {west,south,north,east}
+
+# preselect the ratio
+super + ctrl + {1-9}
+    bspc node -o 0.{1-9}
+
+# cancel the preselection for the focused node
+super + ctrl + space
+    bspc node -p cancel
+
+# cancel the preselection for the focused desktop
+super + ctrl + shift + space
+    bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+
+#
+# move/resize
+#
+
+# expand a window by moving one of its side outward
+super + alt + {h,j,k,l}
+    bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
+
+# contract a window by moving one of its side inward
+super + alt + shift + {h,j,k,l}
+    bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
+
+#record screen
+super + r
+    recordmydesktop --full-shots -o "$HOME/Videos/raw footage/temp.ogv"
+
+super + ctrl + r
+    pkill -x --signal 'SIGINT' recordmydesktop; \
+    name=`Xdialog --stdout --inputbox "Recording name:" 400x150`; \
+        if [ "$name" -eq "" ]; then; \
+        name=`date`; \
+        fi; \
+    rename "temp" $name "$HOME/Videos/raw footage/temp.ogv"
+
+super + shift + r
+    pkill -x --signal 'SIGUSR1' recordmydesktop
+
+#print screen
+{_, shift, ctrl} + Print
+	date=`date`; \
+	maim {_,-s,-i $(xdotool getactivewindow)} > "/tmp/$date.png"; \
+	xclip -selection clipboard -t image/png "/tmp/$date.png"; \
+	echo "/tmp/$date.png" > /tmp/last-screenshot.txt
+
+super + Print; n
+    name=`Xdialog --stdout --inputbox "Screenshot name:" 400x150` && \
+    old_name="$(cat /tmp/last-screenshot.txt)" && \
+	new_name="$(dirname "$old_name")/$name.png" && \
+	mv "$old_name" "$new_name" && \
+	echo "$new_name" > /tmp/last-screenshot.txt
+
+super + Print; s
+    old_name="$(cat /tmp/last-screenshot.txt)" && \
+    new_name="$(xdg-user-dir PICTURES)/screenshots/$(basename "$old_name")" && \
+    mv "$old_name" "$new_name" && \
+	echo "$new_name" > /tmp/last-screenshot.txt
+
+super + Print; v
+	feh "$(cat /tmp/last-screenshot.txt)"
+
+super + Print; r
+	rm "$(cat /tmp/last-screenshot.txt)" /tmp/last-screenshot.txt
+
+#make capslock work
+super + Caps_Lock
+        xdotool key Caps_Lock
+
+#pass
+super + semicolon
+        passmenu
+
+#reload net
+super + n
+        connmanctl disconnect wifi_7c8bca1ddac5_564d36383136323033_managed_psk; \
+        connmanctl connect wifi_7c8bca1ddac5_564d36383136323033_managed_psk
+
+#dunst
+ctrl + @space
+        dunstctl close
+
+ctrl + shift + @space
+        dunstctl close-all
+
+ctrl + shift + period
+        dunstctl context
+
+ctrl + shift + grave
+        dunstctl history-pop
+
+super + u
+	rofi -show unicode

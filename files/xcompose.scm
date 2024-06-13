@@ -1,13 +1,14 @@
 #!/usr/bin/env guile
 !#
 
+(use-modules (scheme base))
 
 (define greek
   '(("a" "α")
     ("b" "β")
     ("g" "γ") ("G" "Γ")
     ("d" "δ") ("D" "Δ")
-    ("e" "ε")
+    ("e" "ε") ("E" "ϵ")
     ("z" "ζ")
     ("n" "η")
     ("o" "θ") ("O" "Θ")
@@ -15,16 +16,16 @@
     ("k" "κ")
     ("l" "λ") ("L" "Λ")
     ("m" "μ")
-    ("n" "ν")
+    ("v" "ν")
     ("x" "ξ") ("X" "Ξ")
     ("p" "π") ("P" "Π")
     ("r" "ρ")
     ("s" "σ") ("S" "Σ")
     ("t" "τ")
     ("u" "υ")
-    ("f" "φ") ("F" "Φ")
+    ("f" "φ") ("|o" "ɸ") ("F" "Φ")
     ("c" "χ")
-    ("p" "ψ") ("P" "Ψ")
+    ("{" "ψ") ("}" "Ψ")
     ("w" "ω") ("W" "Ω")))
 
 (define blackboard
@@ -37,7 +38,7 @@
     ("Z" "ℤ")))
 
 (define math-rules
-  '(("sum" "∏")
+  '(("prod" "∏")
     ("sum" "∑")
     ("all" "∀")
     ("cup" "∪")
@@ -54,12 +55,17 @@
     ("top" "⊤")
     ("tac" "⊥")
     ("from" "↤") ("maps" "↦")
-    ("froom" "⟻") ("maaps" "⟼")))
+    ;; collides with †
+    ;; ("<-|" "↤") ("|->" "↦")
+    ;; ("<--|" "⟻") ("|-->" "⟼")
+    ))
 
-(define math-or-/
+(define math-negatable
   '(("ex" "∃" "∄")
     ("div" "∣" "∤")
-    ("|-" "⊢" "⊬")
+    ;; Collides with †
+    ;; ("|-" "⊢" "⊬")
+    ("turn" "⊢" "⊬")
     ("-|" "⊣" #f)
     ("|=" "⊨" "⊭")
     ("||-" "⊩" "⊮")
@@ -70,13 +76,16 @@
     ("<|" "⊲" "⋪") ("|>" "⊳" "⋫")
     ("_<|" "⊴" "⋬") ("_|>" "⊵" "⋭")
     ("~_" "≃" "≄") ("_~" "≃" "≄")
-    ("~=" "≅" "≆") ("=~" "≅" "≆")
+    ("~=" "≅" "≆")
     ("~~" "≈" "≉")
-    ("=" #f "≠")
-    ("=_" "≡" "≢") ("_=" "≡" "≢")
-    ("le" "≤" "≰") ("=<" "≤" "≰")
-    ("ge" "≥" "≱") (">=" "≥" "≱")
-    ("<" #f "≮") (">" #f "≯")
+    ("eq" "=" "≠") ("=" "=" "≠")
+    ("_=" "≡" "≢")
+    ("le" "≤" "≰") ("<=" "≤" "≰")
+    ;; clashes with greek e
+    ;; ("ge" "≥" "≱")
+    (">=" "≥" "≱")
+    ("lt" #f "≮") ("<" #f "≮")
+    ("gt" #f "≯") (">" #f "≯")
     ("subs" "⊂" "⊄") ("sups" "⊃" "⊅")
     ("sube" "⊆" "⊈") ("supe" "⊇" "⊉")
     ("img" "⊏" #f) ("orig" "⊐" #f)
@@ -100,18 +109,78 @@
     ("<<" "⟪")
     (">>" "⟫")))
 
+;; missing £$%&#@ tab
 (define table
   '(("~" . "asciitilde")
+    (" " . "space")
     ("-" . "dash")
+    ("+" . "plus")
     ("_" . "underscore")
     ("=" . "equal")
     ("/" . "slash")
+    ("\\" . "backslash")
     ("|" . "bar")
     ("[" . "bracketleft")
     ("]" . "bracketright")
+    ("(" . "parenleft")
+    (")" . "parenright")
+    ("{" . "braceleft")
+    ("}" . "braceright")
+    ("'" . "quot")
+    ("\"" . "quotdouble")
+    ("`" . "grave")
     ("<" . "less")
     (">" . "greater")
+    ("*" . "asterisk")
+    ("." . "period")
+    ("." . "comma")
+    ("^" . "asciicircum")
+    ("%" . "percent")
+    (":" . "colon")
+    (";" . "semicolon")
+    ("?" . "question")
     ("!" . "exclam")))
+
+(define (apply-map f list)
+  (map (lambda (args) (apply f args)) list))
+(define (apply-each f list)
+  (for-each (lambda (args) (apply f args)) list))
+
+(define (prefix-rule start)
+  (lambda (code result)
+    (list (string-append start code) result)))
+
+(define all-rules
+  (append
+   (apply-map (prefix-rule "g") greek)
+   math-rules
+   (apply-map (prefix-rule "mb") blackboard)
+   (apply-map (prefix-rule "big") big-math)
+   (apply
+    append!
+    (apply-map
+     (lambda (code result slashed)
+       (define a (if result (list (list code result)) '()))
+       (if slashed
+           (cons (list (string-append "no" code) slashed) a)
+           a))
+     math-negatable))))
+
+(define sorted
+  (sort all-rules (lambda (a b) (string<? (car a) (car b)))))
+
+(for-each (lambda (a)
+            (when (string-contains (car a) " ")
+              (error "Rule has spaces:" (car a))))
+          sorted)
+
+(let loop ((rules sorted))
+  (when (not (null? (cdr rules)))
+    (when (string=? (caar rules) (caadr rules))
+      (error "Duplicate rule:" (caar rules)))
+    (when (string-prefix? (caar rules) (caadr rules))
+      (set-car! (car rules) (string-append (caar rules) " ")))
+    (loop (cdr rules))))
 
 (define (rule code result)
   (format #t "<Multi_key>")
@@ -120,20 +189,9 @@
      (define s (string c))
      (format #t " <~a>" (or (assoc-ref table s) s)))
    code)
-  (format #t " : ~s\n" result))
-(define (apply-each f list)
-  (for-each (lambda (args) (apply f args)) list))
-
-(define (prefix-rule start)
-  (lambda (code result)
-    (rule (string-append start code) result)))
-
+  (display " : \"")
+  (write-bytevector (string->utf8 result))
+  (display "\"\n"))
+;; TODO: read codes from default file and merge duplicates
 (format #t "include \"%L\"\n")
-(apply-each (prefix-rule "g") greek)
-(apply-each rule math-rules)
-(apply-each (prefix-rule "mb") blackboard)
-(apply-each (prefix-rule "!") big-math)
-(apply-each (lambda (code result slashed)
-			  (when result (rule code result))
-			  (when slashed (rule (string-append "/" code) slashed)))
-			math-or-/)
+(apply-each rule sorted)
