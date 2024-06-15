@@ -17,7 +17,7 @@
     <script>
       let a = document.getElementById('link');
       let params = new URLSearchParams(window.location.search);
-      a.innerHTML = params.get('title');
+      document.title = a.innerHTML = params.get('title');
       a.href = params.get('url');
     </script>
   </body>
