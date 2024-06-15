@@ -8,7 +8,6 @@
   #:use-module (guix packages)
   #:use-module (gnu services)
   #:use-module (gnu home services)
-  #:use-module (gnu home services sound)
   #:use-module (gnu home services desktop))
 
 (define disable-mouse-acceleration
@@ -26,7 +25,6 @@
 (define bspwm-desktop-home-services
   (list
    (service home-dbus-service-type)
-   (service home-pipewire-service-type)
    (service
     home-dotfiles-service-type
     (home-dotfiles-configuration (directories (list "../dotfiles/bspwm"))))
@@ -48,7 +46,7 @@
       "xinit" "xorg-server" "xf86-input-libinput" "xf86-video-nouveau" "xf86-video-nv" "xf86-video-fbdev"
       "sxhkd" "bspwm" "redshift" "xclip"
       "python-pywal" "imagemagick" "dunst"
-      "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput"
+      "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo"
       ;; screenshots
       "maim" "xdotool" "xdialog"
       ;; these are started automatically by dbus

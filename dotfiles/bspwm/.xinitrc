@@ -44,6 +44,5 @@ transmission-gtk &
 qutebrowser &
 # Wait for transmission to start.
 (sleep 5 && automatic -c ~/.config/automatic/automatic.conf -l /tmp/automatic.log) &
-~/.config/backgroundScript &
 sxhkd &
 exec bspwm

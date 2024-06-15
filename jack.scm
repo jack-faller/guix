@@ -11,6 +11,7 @@
   #:use-module (gnu home services guix)
   #:use-module (gnu home services shells)
   #:use-module (gnu home services shepherd)
+  #:use-module (gnu home services sound)
   #:use-module (gnu home services fontutils)
   #:use-module (gnu home services xdg)
   #:use-module (nongnu packages fonts)
@@ -23,7 +24,8 @@
   #:use-module (utilities))
 
 (use-package-modules
- base emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor)
+ base emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor
+ libcanberra)
 
 (define jack-services
   (list
@@ -56,7 +58,7 @@
         "257cebd587b66e4d865b3537a9a88cccd7107c95"
         (openpgp-fingerprint
          "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
-   
+   (service home-pipewire-service-type)
    (simple-service
     'my-env-vars
     home-environment-variables-service-type
@@ -128,6 +130,8 @@
     `((".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
       ;; Need this here because dotfiles service removes .html extension.
       (".local/share/qutebrowser/userscripts/suppress.html" ,(f "suppress.html"))
+      (".config/kitty/bell.oga"
+       ,(file-append sound-theme-freedesktop "/share/sounds/freedesktop/stereo/bell.oga"))
       (".gnupg/gpg-agent.conf"
        ,(mixed-text-file
          "gnupg-agent.conf"
@@ -239,7 +243,8 @@
    "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
    quintom-cursor-theme
    ;; cli utilities
-   "eza" ;; ls alternative
+   "pipewire" ;; gives pw-play
+   "eza"      ;; ls alternative
    "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
    "rofi"
    "zbar" ;; reads bar/qr codes for qute script

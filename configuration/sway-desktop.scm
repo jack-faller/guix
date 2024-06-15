@@ -6,7 +6,6 @@
 
   #:use-module (guix gexp)
   #:use-module (gnu home services)
-  #:use-module (gnu home services sound)
   #:use-module (gnu home services desktop)
   #:use-module (gnu services)
   #:use-module (gnu services xorg)
@@ -26,7 +25,6 @@
 (define sway-desktop-home-services
   (list
    (service home-dbus-service-type)
-   (service home-pipewire-service-type)
    (service
     home-dotfiles-service-type
 
