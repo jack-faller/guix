@@ -18,6 +18,9 @@
     # Start custom launcher
     bindsym $mod+Shift+Space exec echo "~/.config/appmenu/$(ls ~/.config/appmenu | $menu)" | xargs swaymsg exec --
 
+    # Unicode entry
+    bindsym $mod+u exec rofi -show unicode
+
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
     # Despite the name, also works for non-floating windows.

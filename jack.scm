@@ -25,7 +25,7 @@
 
 (use-package-modules
  base emacs freedesktop gnupg wm python-xyz shellutils bittorrent perl6 tor
- libcanberra)
+ libcanberra unicode)
 
 (define jack-services
   (list
@@ -99,7 +99,7 @@
       (requirement '(ssh-agent))
       (documentation "run emacs-server")
       (start #~(make-forkexec-constructor
-                (list #$(executable-shell-script
+                (list #$(shell-script
                          "emacs-daemon-script"
                          "source $XDG_RUNTIME_DIR/ssh-agent.env"
                          "emacs --fg-daemon"))
@@ -128,6 +128,11 @@
    (service
     home-files-service-type
     `((".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
+      (".config/rofi/unicode.sh"
+       ,(shell-script "rofi-unicode.sh"
+                      #~(string-append "export UNICODE_DATA_TXT='"
+                                       #$ucd "/share/ucd/UnicodeData.txt'")
+                      "~/.config/rofi/unicode-script.sh"))
       ;; Need this here because dotfiles service removes .html extension.
       (".local/share/qutebrowser/userscripts/suppress.html" ,(f "suppress.html"))
       (".config/kitty/bell.oga"

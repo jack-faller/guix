@@ -34,13 +34,13 @@
 			  (unless (= 0 (apply system* args))
 				(error "failed to run nix command" args)))
 			(setenv "NIXPKGS_ALLOW_UNFREE" "1")
-			(invoke #$(executable-shell-script
+			(invoke #$(shell-script
 					   "nix-add-channels"
 					   "if [ \"$(nix-channel --list)\" = \"\" ]; then"
 					   "  nix-channel --add https://nixos.org/channels/nixpkgs-unstable || exit 1"
 					   "  nix-channel --update || exit 1"
-					   "  nix-env -iA nixpkgs.nix nixpkgs.cacert || exit 1"
-					   "fi"))
+					   "  nix-env -iA nixpkgs.nix nixpkgs.cacert || exit 1")
+				"fi")
 			;; Check that all packages are installed and that no additional
 			;; packages are installed.
 			(when (or (not (= 0 (apply system* "nix-env" "--query" "--installed"

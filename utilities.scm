@@ -23,13 +23,19 @@
 (define*-public (not-dot file) (not (or (string= file ".") (string= file ".."))))
 (define*-public (lines . lines) (string-join lines "\n" 'suffix))
 
-(define*-public (executable-shell-script name . lines-list)
-  (define script (apply lines (cons "#!/bin/sh" lines-list)))
-  (computed-file name #~(begin
-			  (use-modules (ice-9 ports))
-			  (call-with-output-file #$output
-			    (λ (file) (display #$script file)))
-			  (chmod #$output #o555))))
+(define*-public (shell-script name . lines)
+  (apply script name "#!/bin/sh" lines))
+(define*-public (script name . lines)
+  (computed-file
+   name
+   #~(begin
+       (use-modules (ice-9 ports))
+       (define lines (list #$@lines))
+       (call-with-output-file #$output
+	 (lambda (file)
+           (for-each (lambda (line) (display line file) (newline file))
+                     lines)))
+       (chmod #$output #o555))))
 
 (define*-public (using-nvidia packages)
   (map (lambda (a)
