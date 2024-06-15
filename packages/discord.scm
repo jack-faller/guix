@@ -68,14 +68,14 @@
 (define-public discord
   (package
    (name "discord")
-   (version "0.0.51")
+   (version "0.0.56")
    (source
     (origin
      (method url-fetch)
      (uri (string-append "https://cdn.discordapp.com/apps/linux/" version
                          "/discord-" version ".tar.gz"))
      (sha256
-      (base32 "12d5hghnn6a30szsdbay5rx5j31da8y51zxmxg4dcpc9m9wwpk63"))))
+      (base32 "0izcxrmiqda4dsy04qpc00wkz797fjsyrpwmm4l801xd6nznr5qy"))))
    ;; Use this build system to set XDG_DATA_DIRS and other variables.
    (build-system chromium-binary-build-system)
    (arguments
@@ -136,3 +136,4 @@
    (description "All-in-one cross-platform voice and text chat for gamers.")
    (license (license:nonfree "https://discord.com/terms"))
    (home-page "https://discordapp.com")))
+discord
