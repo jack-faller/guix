@@ -42,12 +42,13 @@
     (specifications->package-list
      "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
      "python-pywal" "imagemagick" "dunst" "wl-mirror"
+     "wtype"
      ;; Make QT work, but this might not work for QT 5.
      "qtwayland"
      ;; these are for binds
      "brightnessctl" "pulseaudio"
      ;; screenshots
-     "slurp" "grim" "xdg-user-dirs" "zenity"
+     "slurp" "grim" "zenity"
      ;; these are started automatically by dbus
      "xdg-desktop-portal" "xdg-desktop-portal-wlr"))
    (service

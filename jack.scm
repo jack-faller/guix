@@ -157,7 +157,7 @@
       (list
        (mixed-text-file
         "zsh-profile"
-        python-pywal "/bin/wal -i \"$HOME\"/pics/wallpapers &> /dev/null" "\n"
+        python-pywal "/bin/wal -i $(xdg-user-dir PICTURES)/wallpapers &> /dev/null" "\n"
         "[ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ] && ~/.config/start-wm\n")))
      (zshrc
       (list
@@ -250,6 +250,7 @@
    ;; cli utilities
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
+   "xdg-user-dirs"
    "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
    "rofi"
    "zbar" ;; reads bar/qr codes for qute script
