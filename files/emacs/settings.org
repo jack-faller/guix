@@ -110,14 +110,19 @@
 #+end_src
 ** Defhook
 #+begin_src emacs-lisp
+  (defmacro defhook-named (name hook &rest body)
+    "Define (symcat NAME HOOK) as a function that runs BODY and attach it to HOOK.
+    This form can be re-evaluated to redefine the hook."
+    (declare (indent 2))
+    (let ((func (symcat name hook)))
+  	`(progn
+  	   (defun ,func () ,@body)
+  	   (add-hook ',hook #',func))))
   (defmacro defhook (hook &rest body)
-    "Define my/NAME-hook as a function that runs BODY and attach it to NAME-hook.
+    "Define my/HOOK as a function that runs BODY and attach it to HOOK.
   This form can be re-evaluated to redefine the hook."
     (declare (indent 1))
-    (let ((func (symcat "my/" hook)))
-     `(progn
-       (defun ,func () ,@body)
-       (add-hook ',hook #',func))))
+    `(defhook-named "my/" hook ,@body))
 #+end_src
 ** Mode Local
 #+begin_src emacs-lisp
@@ -151,7 +156,7 @@
   (defvar frame-kill-buffers nil
     "Buffers that should kill their frame when killed. Used for emacs server.")
 
-  (defhook kill-buffer-hook
+  (defhook-named "frame-kill-buffers/" kill-buffer-hook
     (when (memq (current-buffer) frame-kill-buffers)
       (setf frame-kill-buffers
             (delete (current-buffer) frame-kill-buffers))
@@ -182,6 +187,19 @@
    kept-old-versions 0 ; don't keep the oldest backups
    version-control t ; use versioned backups
    vc-make-backup-files t)
+
+  (defhook-named "recent-backups/" after-save-hook
+    (let* ((dir (file-name-concat user-emacs-directory "recent-backups"))
+  		 (name (subst-char-in-string
+  				?/ ?! (string-replace "!" "!!" (buffer-file-name))))
+  		 (name-0 (file-name-concat dir (concat name "-0")))
+  		 (name-1 (file-name-concat dir (concat name "-1"))))
+  	(unless (file-exists-p dir) (mkdir dir))
+  	(if (not (file-exists-p name-0))
+  		(copy-file (buffer-file-name) name-0)
+  	  (when (file-exists-p name-1)
+  		(rename-file name-1 name-0 t))
+  	  (copy-file (buffer-file-name) name-1))))
 #+end_src
 * Tab Width
 #+begin_src emacs-lisp
@@ -331,7 +349,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
     (setf undo-tree-history-directory-alist (list (cons "." undo-dir))))
   ;; this is broken, the after save hook below fixes it, but it still needs to be here
-  (defhook after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
+  (defhook "undo-tree-save/" after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
   (global-undo-tree-mode)
 
   (pkg goto-chg :require t)
@@ -581,7 +599,7 @@ align with previews
     (kbd "C-j") #'evil-window-down
     (kbd "C-k") #'evil-window-up
     (kbd "C-l") #'evil-window-right
-    (kbd "C-q") #'image-kill-buffer
+    (kbd "C-q") #'kill-current-buffer
     (kbd "C-S-q") (evil-define-command save-&-kill-buffer () (save-buffer) (kill-buffer))
     (kbd "M-RET") (evil-define-command split-right ()
                     (split-window-horizontally)
