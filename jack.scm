@@ -200,8 +200,7 @@
                                                (org-babel-tangle-file
                                                 ,#$(f "emacs/settings.org")
                                                 ,#$output
-                                                "emacs-lisp"))))))))))
-        (org-babel-load-file ,(f "emacs/settings.org"))))
+                                                "emacs-lisp"))))))))))))
      ;; Don't override Emacs from package list.
      (emacs hello)))
    (simple-service 'my-fonts
