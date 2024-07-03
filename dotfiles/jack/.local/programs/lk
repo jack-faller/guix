@@ -12,4 +12,7 @@ elif [ -d "$input" ]; then
     ls "$input"
 elif [ -f "$input" ]; then
     less --quit-if-one-screen "$input"
+else
+    echo "File not found."
+    exit 1
 fi
