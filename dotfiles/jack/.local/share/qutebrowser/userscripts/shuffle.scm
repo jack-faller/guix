@@ -1,6 +1,8 @@
 #!/usr/bin/env guile
 !#
 
+;; Script is entered with current tab moved to end.
+
 (define url (getenv "QUTE_URL"))
 
 (set! *random-state* (random-state-from-platform))
