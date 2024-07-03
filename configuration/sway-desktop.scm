@@ -41,7 +41,7 @@
     home-profile-service-type
     (specifications->package-list
      "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
-     "python-pywal" "imagemagick" "dunst" "wl-mirror"
+     "imagemagick" "dunst" "wl-mirror"
      "wtype"
      ;; Make QT work, but this might not work for QT 5.
      "qtwayland"

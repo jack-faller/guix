@@ -24,5 +24,5 @@
   (using-nvidia
        (append
         (specifications->package-list
-         (list "lsp-plugins" "lv2") "easyeffects" "ungoogled-chromium" "steam-nvidia")
+         (list "lsp-plugins" "lv2") "easyeffects" "ungoogled-chromium")
         jack-packages))))

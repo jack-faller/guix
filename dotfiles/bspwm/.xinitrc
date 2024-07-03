@@ -34,6 +34,7 @@ fi
 
 setxkbmap gb -option "caps:escape,compose:menu"
 xrdb ~/.config/Xresources
+repaper &
 xcompmgr &
 redshift -l 50.721680:-1.878530 &
 xset -b -dpms s off &

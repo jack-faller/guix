@@ -45,7 +45,7 @@
       ;; Install this through Arch.
       "xinit" "xorg-server" "xf86-input-libinput" "xf86-video-nouveau" "xf86-video-nv" "xf86-video-fbdev"
       "sxhkd" "bspwm" "redshift" "xclip"
-      "python-pywal" "imagemagick" "dunst"
+      "imagemagick" "dunst"
       "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo"
       ;; screenshots
       "maim" "xdotool" "xdialog"
