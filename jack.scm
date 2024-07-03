@@ -128,6 +128,13 @@
    (service
     home-files-service-type
     `((".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
+      (".local/programs/ardour" ,(program-file
+                                  "ardour"
+                                  #~(apply
+                                     system* "pw-jack"
+                                     #$(file-append (@ (gnu packages audio) ardour)
+                                                    "/bin/ardour8")
+                                     (cdr (program-arguments)))))
       (".config/rofi/unicode.sh"
        ,(shell-script "rofi-unicode.sh"
                       #~(string-append "export UNICODE_DATA_TXT='"

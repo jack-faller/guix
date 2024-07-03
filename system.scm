@@ -54,8 +54,12 @@
                    (group "users")
                    (shell (file-append zsh "/bin/zsh"))
                    (home-directory "/home/jack")
-                   (supplementary-groups '("wheel" "netdev" "audio" "video")))
+                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime")))
                   %base-user-accounts))
+    (groups (cons*
+             ;; Realtime audio.
+             (user-group (name "realtime"))
+             %base-groups))
     (sudoers-file
      (computed-file
       "sudoers"
@@ -125,6 +129,10 @@
                         (list (file-append nfs-utils "/sbin/mount.nfs")
                               (file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
    fontconfig-file-system-service
+   (service pam-limits-service-type
+            (list
+             (pam-limits-entry "@realtime" 'both 'rtprio 99)
+             (pam-limits-entry "@realtime" 'both 'memlock 'unlimited)))
    (service iwd-service-type)
    (service connman-service-type
             (connman-configuration
