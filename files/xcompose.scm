@@ -113,8 +113,8 @@
 (define table
   '(("~" . "asciitilde")
     (" " . "space")
-    ("-" . "dash")
     ("+" . "plus")
+    ("-" . "minus")
     ("_" . "underscore")
     ("=" . "equal")
     ("/" . "slash")
