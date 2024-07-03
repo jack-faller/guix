@@ -13,5 +13,5 @@ script='{
 if [ "$ROFI_RETV" = 0 ]; then
     awk -v FS=';' "$script" "$UNICODE_DATA_TXT"
 elif [ "$ROFI_RETV" = 1 ]; then
-    nohup sh -c "wait $(pgrep rofi); keyboard-input $(printf \u$ROFI_INFO)" 0<&- &>/dev/null &
+    nohup sh -c "wait $(pgrep rofi); keyboard-input $(printf "\U$ROFI_INFO")" 0<&- &>/dev/null &
 fi
