@@ -122,7 +122,7 @@
     "Define my/HOOK as a function that runs BODY and attach it to HOOK.
   This form can be re-evaluated to redefine the hook."
     (declare (indent 1))
-    `(defhook-named "my/" hook ,@body))
+    `(defhook-named "my/" ,hook ,@body))
 #+end_src
 ** Mode Local
 #+begin_src emacs-lisp
