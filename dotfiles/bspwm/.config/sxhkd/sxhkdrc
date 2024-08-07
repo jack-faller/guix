@@ -6,6 +6,9 @@ super + Return
 super + BackSpace
     emacsclient -c
 
+super + shift + BackSpace
+    emacsclient -c -s "$(ls "$XDG_RUNTIME_DIR/emacs" | rofi -dmenu -p Server)"
+
 # program launcher
 super + @space
 	rofi -show run
