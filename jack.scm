@@ -268,4 +268,4 @@
    discord "qutebrowser"
    "kitty" "torbrowser" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "gimp"
-   "obs" miny))
+   "kdenlive" "obs" miny))
