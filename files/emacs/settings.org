@@ -349,7 +349,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
     (setf undo-tree-history-directory-alist (list (cons "." undo-dir))))
   ;; this is broken, the after save hook below fixes it, but it still needs to be here
-  (defhook "undo-tree-save/" after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
+  (defhook-named "undo-tree-save/" after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
   (global-undo-tree-mode)
 
   (pkg goto-chg :require t)
