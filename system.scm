@@ -26,7 +26,9 @@
                              #:optional #:key
                              (kernel linux)
                              (kernel-arguments '())
-                             (kernel-loadable-modules '()))
+                             (kernel-loadable-modules '())
+                             (grub-theme (grub-theme))
+                             (grub-entries '()))
   (operating-system
     (kernel kernel)
     (kernel-arguments kernel-arguments)
@@ -42,7 +44,9 @@
     (bootloader (bootloader-configuration
                  (bootloader grub-efi-bootloader)
                  (targets (list "/boot/efi"))
-                 (keyboard-layout keyboard-layout)))
+                 (keyboard-layout keyboard-layout)
+                 (theme grub-theme)
+                 (menu-entries grub-entries)))
     (swap-devices swap-devices)
     (file-systems file-systems)
     (services services)
