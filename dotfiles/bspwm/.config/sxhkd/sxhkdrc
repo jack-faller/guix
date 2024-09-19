@@ -11,7 +11,7 @@ super + shift + BackSpace
 
 # program launcher
 super + @space
-	rofi -show run
+    rofi -modes run -show run
 
 ctrl + alt + Delete
     sudo reboot
@@ -117,9 +117,9 @@ super + r
 super + ctrl + r
     pkill -x --signal 'SIGINT' recordmydesktop; \
     name=`Xdialog --stdout --inputbox "Recording name:" 400x150`; \
-        if [ "$name" -eq "" ]; then; \
-        name=`date`; \
-        fi; \
+    if [ "$name" -eq "" ]; then; \
+    name=`date`; \
+    fi; \
     rename "temp" $name "$HOME/Videos/raw footage/temp.ogv"
 
 super + shift + r
@@ -127,55 +127,55 @@ super + shift + r
 
 #print screen
 {_, shift, ctrl} + Print
-	date=`date`; \
-	maim {_,-s,-i $(xdotool getactivewindow)} > "/tmp/$date.png"; \
-	xclip -selection clipboard -t image/png "/tmp/$date.png"; \
-	echo "/tmp/$date.png" > /tmp/last-screenshot.txt
+    date=`date`; \
+    maim {_,-s,-i $(xdotool getactivewindow)} > "/tmp/$date.png"; \
+    xclip -selection clipboard -t image/png "/tmp/$date.png"; \
+    echo "/tmp/$date.png" > /tmp/last-screenshot.txt
 
 super + Print; n
     name=`Xdialog --stdout --inputbox "Screenshot name:" 400x150` && \
     old_name="$(cat /tmp/last-screenshot.txt)" && \
-	new_name="$(dirname "$old_name")/$name.png" && \
-	mv "$old_name" "$new_name" && \
-	echo "$new_name" > /tmp/last-screenshot.txt
+    new_name="$(dirname "$old_name")/$name.png" && \
+    mv "$old_name" "$new_name" && \
+    echo "$new_name" > /tmp/last-screenshot.txt
 
 super + Print; s
     old_name="$(cat /tmp/last-screenshot.txt)" && \
     new_name="$(xdg-user-dir PICTURES)/screenshots/$(basename "$old_name")" && \
     mv "$old_name" "$new_name" && \
-	echo "$new_name" > /tmp/last-screenshot.txt
+    echo "$new_name" > /tmp/last-screenshot.txt
 
 super + Print; v
-	feh "$(cat /tmp/last-screenshot.txt)"
+    feh "$(cat /tmp/last-screenshot.txt)"
 
 super + Print; r
-	rm "$(cat /tmp/last-screenshot.txt)" /tmp/last-screenshot.txt
+    rm "$(cat /tmp/last-screenshot.txt)" /tmp/last-screenshot.txt
 
 #make capslock work
 super + Caps_Lock
-        xdotool key Caps_Lock
+    xdotool key Caps_Lock
 
 #pass
 super + semicolon
-        passmenu
+    passmenu
 
 #reload net
 super + n
-        connmanctl disconnect wifi_7c8bca1ddac5_564d36383136323033_managed_psk; \
-        connmanctl connect wifi_7c8bca1ddac5_564d36383136323033_managed_psk
+    connmanctl disconnect wifi_7c8bca1ddac5_564d36383136323033_managed_psk; \
+    connmanctl connect wifi_7c8bca1ddac5_564d36383136323033_managed_psk
 
 #dunst
 ctrl + @space
-        dunstctl close
+    dunstctl close
 
 ctrl + shift + @space
-        dunstctl close-all
+    dunstctl close-all
 
 ctrl + shift + period
-        dunstctl context
+    dunstctl context
 
 ctrl + shift + grave
-        dunstctl history-pop
+    dunstctl history-pop
 
 super + u
-	rofi -show unicode
+    rofi -show unicode
