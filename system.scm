@@ -59,7 +59,7 @@
                    (group "users")
                    (shell (file-append zsh "/bin/zsh"))
                    (home-directory "/home/jack")
-                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime")))
+                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "lp")))
                   (append
                    extra-users
                    %base-user-accounts)))
@@ -157,7 +157,7 @@
               (let ((my-key (f "myKey.pub")))
                 `(("root" ,my-key)
                   ("jack" ,my-key))))))
-   (service cups-service-type)
+   (service cups-service-type (cups-configuration (web-interface? #t)))
    (service tlp-service-type)
    (simple-service 'my-udev-rules udev-service-type (list libmtp brightnessctl))
 

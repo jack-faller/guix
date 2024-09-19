@@ -253,6 +253,7 @@
    ;; cli utilities
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
+   "cups"
    "python-pywal"
    "xdg-user-dirs"
    "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
