@@ -162,9 +162,7 @@
     (home-zsh-configuration
      (zprofile
       (list
-       (mixed-text-file
-        "zsh-profile"
-        "[ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ] && ~/.config/start-wm\n")))
+       (f "zprofile.sh")))
      (zshrc
       (list
        (f "zshrc.sh")
