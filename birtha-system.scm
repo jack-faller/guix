@@ -1,6 +1,7 @@
 (add-to-load-path (dirname (current-filename)))
 (use-modules (gnu)
              (gnu services)
+             (gnu packages shells)
              (utilities)
              (system)
              (gnu services xorg)
@@ -44,6 +45,15 @@
 	   %base-file-systems)))
  (cons* (service nvidia-service-type) system-services)
  (using-nvidia system-packages)
+ #:extra-users
+ (list
+  (user-account
+   (name "steam")
+   (comment "Steam")
+   (group "users")
+   (shell (file-append zsh "/bin/zsh"))
+   (home-directory "/home/steam")
+   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime"))))
  #:grub-theme (grub-theme
                (inherit (grub-theme))
                (gfxmode '("1920x1080x32" "1024x786x32" "auto")))
@@ -59,5 +69,8 @@
  (list
   (menu-entry
    (label "Arch")
+   ;; I think there is a bug that stops this from working, so must qualify (hd0,4) below.
    (device "SSDARCHEFI")
-   (chain-loader "(hd1,4)/EFI/GRUB/grubx64.efi"))))
+   ;; Could have put these both in the same partition with a different label.
+   ;; I think I did this by accident anyway at some point.
+   (chain-loader "(hd0,4)/EFI/GRUB/grubx64.efi"))))

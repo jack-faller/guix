@@ -28,7 +28,8 @@
                              (kernel-arguments '())
                              (kernel-loadable-modules '())
                              (grub-theme (grub-theme))
-                             (grub-entries '()))
+                             (grub-entries '())
+                             (extra-users '()))
   (operating-system
     (kernel kernel)
     (kernel-arguments kernel-arguments)
@@ -59,7 +60,9 @@
                    (shell (file-append zsh "/bin/zsh"))
                    (home-directory "/home/jack")
                    (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime")))
-                  %base-user-accounts))
+                  (append
+                   extra-users
+                   %base-user-accounts)))
     (groups (cons*
              ;; Realtime audio.
              (user-group (name "realtime"))
