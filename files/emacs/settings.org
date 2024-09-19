@@ -513,8 +513,8 @@ align with previews
            (let ((func (cdr-safe (assoc major-mode evil-extra-operator-eval-modes-alist))))
              (if func
                  (save-mark-and-excursion
-                   (setf (point) beg)
-                   (setf (mark) end)
+                   (goto-char beg)
+                   (set-mark end)
                    (call-interactively func))
                (eval-region beg end t))))
     "gE" (evil-define-operator evil-eval-elisp-replace (beg end)
