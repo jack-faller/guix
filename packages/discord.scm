@@ -30,12 +30,14 @@
   #:use-module ((nonguix licenses) :prefix license:)
   #:use-module (ice-9 match))
 
+;; Discord will lock users out of the app when they try to use an out-of-date
+;; client. To fix this, run a script before start up that disables updates in
+;; the settings file.
 (define discord-disable-breaking-updates
   (with-extensions
    (list (@ (gnu packages guile) guile-json-4))
    (program-file
     "disable-breaking-updates"
-    ;; Based on Python script of the same name from Nix.
     #~(begin
         (use-modules (json))
         (let* ((config-home (or (getenv "XDG_CONFIG_HOME")
@@ -55,12 +57,12 @@
                       #:unwind-for-type 'json-invalid)
                     (list)))
                (skip (assoc-ref settings "SKIP_HOST_UPDATE")))
+          ;; Enable updates when environment variable is set.
           (unless (eq? skip (not (getenv "DISCORD_ENABLE_UPDATES")))
             (set! skip (not skip))
             (with-output-to-file settings-tmp
               (lambda ()
-                (scm->json
-                 (assoc-set! settings "SKIP_HOST_UPDATE" skip))))
+                (scm->json (assoc-set! settings "SKIP_HOST_UPDATE" skip))))
             (rename-file settings-tmp settings-path)
             (display (if skip "Disabled updates" "Enabled updates"))
             (newline)))))))
