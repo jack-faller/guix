@@ -53,17 +53,17 @@
                       (lambda () (with-input-from-file settings-path json->scm))
                       #:unwind? #t
                       #:unwind-for-type 'json-invalid)
-                    (list))))
-          (if (assoc-ref settings "SKIP_HOST_UPDATE")
-              (begin (display "Updates already disabled")
-                     (newline))
-              (begin
-                (with-output-to-file settings-tmp
-                  (lambda ()
-                    (scm->json (assoc-set! settings "SKIP_HOST_UPDATE" #t))))
-                (rename-file settings-tmp settings-path)
-                (display "Disabled updates")
-                (newline))))))))
+                    (list)))
+               (skip (assoc-ref settings "SKIP_HOST_UPDATE")))
+          (unless (eq? skip (not (getenv "DISCORD_ENABLE_UPDATES")))
+            (set! skip (not skip))
+            (with-output-to-file settings-tmp
+              (lambda ()
+                (scm->json
+                 (assoc-set! settings "SKIP_HOST_UPDATE" skip))))
+            (rename-file settings-tmp settings-path)
+            (display (if skip "Disabled updates" "Enabled updates"))
+            (newline)))))))
 
 (define-public discord
   (package
@@ -105,7 +105,7 @@
                    (define (line . args)
                      (display (apply string-append args)) (newline))
                    (line "#!/bin/sh")
-                   (line "[ -z ${DISCORD_KEEP_UPDATES+.} ] && " #$discord-disable-breaking-updates)
+                   (line #$discord-disable-breaking-updates)
                    (line "cd " output "/opt/discord")
                    (line "./Discord"
                          ;; Always use Ozone on Wayland, not sure if this is a good idea.

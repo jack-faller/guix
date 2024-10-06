@@ -63,7 +63,7 @@
     'my-env-vars
     home-environment-variables-service-type
     '(("PATH" . "$HOME/.local/programs:$PATH")
-      ("DISCORD_KEEP_UPDATES" . "true")))
+      ("DISCORD_ENABLE_UPDATES" . "true")))
    (service
     home-xdg-mime-applications-service-type
     (home-xdg-mime-applications-configuration
