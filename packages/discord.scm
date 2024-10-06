@@ -68,14 +68,14 @@
 (define-public discord
   (package
    (name "discord")
-   (version "0.0.63")
+   (version "0.0.70")
    (source
     (origin
      (method url-fetch)
      (uri (string-append "https://cdn.discordapp.com/apps/linux/" version
                          "/discord-" version ".tar.gz"))
      (sha256
-      (base32 "1an0si1dmyxh1scw4sg3n2626vqdvmgpk6yx871nqqjg8bs5gm9a"))))
+      (base32 "0zskm1wzi2vpchx8dzj9csssgspq5vifp1hhxryskaavp315wfaj"))))
    ;; Use this build system to set XDG_DATA_DIRS and other variables.
    (build-system chromium-binary-build-system)
    (arguments
@@ -105,7 +105,7 @@
                    (define (line . args)
                      (display (apply string-append args)) (newline))
                    (line "#!/bin/sh")
-                   (line #$discord-disable-breaking-updates)
+                   (line "[ -z ${DISCORD_KEEP_UPDATES+.} ] && " #$discord-disable-breaking-updates)
                    (line "cd " output "/opt/discord")
                    (line "./Discord"
                          ;; Always use Ozone on Wayland, not sure if this is a good idea.
