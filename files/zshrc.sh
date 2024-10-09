@@ -62,6 +62,8 @@ alias please="sudo"
 alias tm="mv --verbose --backup --target-directory ~/trash"
 alias pass="EDITOR='vim' pass"
 
+ed () { emacs --fg-daemon="$1" & }
+
 cd-then () {
   cd $2 && eval $1
 }
