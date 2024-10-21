@@ -19,9 +19,9 @@
              (videos "$HOME/vids")
              (pictures "$HOME/pics")
              (music "$HOME/music")))
-   (append sway-desktop-home-services jack-services)
-   (packages
-    (append
-     (specifications->package-list
-      "lsp-plugins" "steam" "ungoogled-chromium-wayland" "obs-wlrobs")
-     jack-packages)))))
+   (append sway-desktop-home-services jack-services)))
+ (packages
+  (append
+   (specifications->package-list
+    "lsp-plugins" "steam" "ungoogled-chromium-wayland" "obs-wlrobs")
+   jack-packages)))
