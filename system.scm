@@ -2,7 +2,7 @@
   #:use-module (ice-9 textual-ports)
   #:use-module (gnu)
   #:use-module (gnu services)
-  #:use-module (gnu system setuid)
+  #:use-module (gnu system privilege)
   #:use-module (guix gexp)
   #:use-module (guix channels)
   #:use-module (gnu system nss)
@@ -81,6 +81,14 @@
             (nopass "halt")
             (nopass "reboot")))))
 
+    (privileged-programs
+     ;; Allow desktop users to also mount NTFS and NFS file systems
+     ;; without root.
+     (append (map (lambda (program)
+                    (privileged-program (program program) (setuid? #t)))
+                  (list (file-append nfs-utils "/sbin/mount.nfs")
+                        (file-append ntfs-3g "/sbin/mount.ntfs-3g")))
+             %default-privileged-programs))
     (name-service-switch %mdns-host-lookup-nss)))
 
 (define-public system-packages (cons* vim git zsh %base-packages))
@@ -127,14 +135,6 @@
           (settings (append '(("kernel.sysrq" . "1"))
                             %default-sysctl-settings)))))))
 
-   ;; Allow desktop users to also mount NTFS and NFS file systems
-   ;; without root.
-   (simple-service 'mount-setuid-helpers setuid-program-service-type
-                   (map (lambda (program)
-                          (setuid-program
-                           (program program)))
-                        (list (file-append nfs-utils "/sbin/mount.nfs")
-                              (file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
    fontconfig-file-system-service
    (service pam-limits-service-type
             (list
