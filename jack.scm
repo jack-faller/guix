@@ -250,7 +250,7 @@
    "perl"        ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars
    ;; for latex previews
-   "texlive-scheme-basic" "texlive-ulem" "texlive-amsfonts"
+   "texlive-scheme-basic" "texlive-dvipng-bin" "texlive-ulem" "texlive-amsfonts" "texlive-rsfs" "texlive-jknapltx"
    "cloc"
    ;; zsh
    "zsh-syntax-highlighting" "zsh-autosuggestions"
@@ -276,6 +276,6 @@
    guix-dev
    ;; applications
    discord "qutebrowser"
-   "kitty" "torbrowser" "gucharmap" "transmission:gui"
+   "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "gimp"
    "kdenlive" "obs" miny))
