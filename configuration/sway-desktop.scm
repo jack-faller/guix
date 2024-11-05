@@ -58,7 +58,6 @@
       `((exec --no-startup-id
               ,(file-append dbus "/bin/dbus-update-activation-environment") --all)
         (bar swaybar_command ,(file-append waybar "/bin/waybar"))
-        ;; resolves files/programs/dmenu
         (set $menu dmenu)
         (set $menu_run rofi -show run)
         (set $volume "~/.config/sway/scripts/vol")
