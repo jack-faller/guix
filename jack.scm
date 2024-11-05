@@ -254,6 +254,7 @@
    ;; cli utilities
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
+   "hyperfine"
    "cups"
    "python-pywal"
    "xdg-user-dirs"
