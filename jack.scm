@@ -129,13 +129,22 @@
    (service
     home-files-service-type
     `((".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
-      (".local/programs/ardour" ,(program-file
-                                  "ardour"
-                                  #~(apply
-                                     system* "pw-jack"
-                                     #$(file-append (@ (gnu packages audio) ardour)
-                                                    "/bin/ardour8")
-                                     (cdr (program-arguments)))))
+      (".local/programs/ardour"
+       ,(program-file
+         "ardour"
+         #~(apply
+            system* "pw-jack" #$(file-append (@ (gnu packages audio) ardour)
+                                             "/bin/ardour8")
+            (cdr (program-arguments)))))
+      (".local/programs/percent"
+       ,(computed-file
+         "percent"
+         (with-imported-modules '((guix build utils))
+           #~(let ((gcc #$(@ (gnu packages commencement) gcc-toolchain)))
+               (use-modules (guix build utils))
+               (setenv "PATH" (string-append gcc "/bin:" (getenv "PATH")))
+               (setenv "LIBRARY_PATH" (string-append gcc "/lib"))
+               (invoke "gcc" #$(f "percent.c") "-o" #$output)))))
       (".config/rofi/unicode.sh"
        ,(shell-script "rofi-unicode.sh"
                       #~(string-append "export UNICODE_DATA_TXT='"
