@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
         }
       }
     } else {
-      fprintf(stderr, "Incorrect arguments.\n");
+      fprintf(stderr, "Usage: percent [encode/decode] <string>.\n");
       return 1;
     }
   }
