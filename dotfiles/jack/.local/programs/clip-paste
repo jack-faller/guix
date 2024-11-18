@@ -1,0 +1,2 @@
+#!/bin/sh
+if which wl-copy > /dev/null 2>&1; then wl-paste; else xclip -out -selection clipboard; fi

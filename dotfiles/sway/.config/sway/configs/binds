@@ -19,7 +19,10 @@
     bindsym $mod+Shift+Space exec echo "~/.config/appmenu/$(ls ~/.config/appmenu | $menu)" | xargs swaymsg exec --
 
     # Unicode entry
-    bindsym $mod+u exec rofi -show unicode
+    bindsym $mod+u exec rofi -show unicode ; keyboard-input "$(clip-paste)"
+
+    # Pkill
+    bindsym $mod+Shift+minus exec rofi -show pkill
 
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.

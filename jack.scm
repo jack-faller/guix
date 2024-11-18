@@ -62,8 +62,10 @@
    (simple-service
     'my-env-vars
     home-environment-variables-service-type
-    '(("PATH" . "$HOME/.local/programs:$PATH")
-      ("DISCORD_ENABLE_UPDATES" . "true")))
+    `(("PATH" . "$HOME/.local/programs:$PATH")
+      ("DISCORD_ENABLE_UPDATES" . "true")
+      ("UNICODE_DATA_TXT" .
+       ,(file-append ucd "/share/ucd/UnicodeData.txt'"))))
    (service
     home-xdg-mime-applications-service-type
     (home-xdg-mime-applications-configuration
@@ -145,11 +147,6 @@
                (setenv "PATH" (string-append gcc "/bin:" (getenv "PATH")))
                (setenv "LIBRARY_PATH" (string-append gcc "/lib"))
                (invoke "gcc" #$(f "percent.c") "-o" #$output)))))
-      (".config/rofi/unicode.sh"
-       ,(shell-script "rofi-unicode.sh"
-                      #~(string-append "export UNICODE_DATA_TXT='"
-                                       #$ucd "/share/ucd/UnicodeData.txt'")
-                      "~/.config/rofi/unicode-script.sh"))
       ;; Need this here because dotfiles service removes .html extension.
       (".local/share/qutebrowser/userscripts/suppress.html" ,(f "suppress.html"))
       (".config/kitty/bell.oga"

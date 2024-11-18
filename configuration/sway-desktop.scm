@@ -27,7 +27,6 @@
    (service home-dbus-service-type)
    (service
     home-dotfiles-service-type
-
     (home-dotfiles-configuration (directories (list "../dotfiles/sway"))))
    (simple-service 'sway-environment-variables
                    home-environment-variables-service-type

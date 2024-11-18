@@ -178,4 +178,7 @@ ctrl + shift + grave
     dunstctl history-pop
 
 super + u
-    rofi -show unicode
+    rofi -show unicode ; keyboard-input "$(clip-paste)"
+
+super + shift + minus
+    rofi -show pkill
