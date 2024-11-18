@@ -25,7 +25,6 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module ((guix licenses) :prefix license:)
-  #:use-module (nonguix build-system binary)
   #:use-module (nonguix build-system chromium-binary)
   #:use-module ((nonguix licenses) :prefix license:)
   #:use-module (ice-9 match))
@@ -70,14 +69,14 @@
 (define-public discord
   (package
    (name "discord")
-   (version "0.0.73")
+   (version "0.0.74")
    (source
     (origin
      (method url-fetch)
      (uri (string-append "https://cdn.discordapp.com/apps/linux/" version
                          "/discord-" version ".tar.gz"))
      (sha256
-      (base32 "0fspcyx3lgm4cszaw6ybw4w7hjcnwnaln619dxb87xxbs61ci79d"))))
+      (base32 "1xv6iigd9jvy8y0973bvx93iarhwh8l1cjhaf9vmvk70y0pa1zf9"))))
    ;; Use this build system to set XDG_DATA_DIRS and other variables.
    (build-system chromium-binary-build-system)
    (arguments
