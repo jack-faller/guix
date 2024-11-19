@@ -44,6 +44,27 @@
              (replace-mesa a)))
        packages))
 
+(define*-public (rust-script name file)
+  (computed-file
+   name
+   (with-imported-modules '((guix build utils))
+     #~(let ((gcc #$(@ (gnu packages commencement) gcc-toolchain))
+             (rust #$(@ (gnu packages rust) rust)))
+         (use-modules (guix build utils))
+         (setenv "PATH" (string-append rust "/bin:" gcc "/bin:" (getenv "PATH")))
+         (setenv "LIBRARY_PATH" (string-append gcc "/lib:" rust "/lib"))
+         (invoke "rustc" "-O" #$file "-o" #$output)))))
+
+(define*-public (c-script name file)
+  (computed-file
+   name
+   (with-imported-modules '((guix build utils))
+     #~(let ((gcc #$(@ (gnu packages commencement) gcc-toolchain)))
+         (use-modules (guix build utils))
+         (setenv "PATH" (string-append gcc "/bin:" (getenv "PATH")))
+         (setenv "LIBRARY_PATH" (string-append gcc "/lib"))
+         (invoke "gcc" "-O2" #$file "-o" #$output)))))
+
 (define*-public (specifications->package-list . names)
   (map (lambda (i)
 	 (cond

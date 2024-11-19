@@ -138,15 +138,7 @@
             system* "pw-jack" #$(file-append (@ (gnu packages audio) ardour)
                                              "/bin/ardour8")
             (cdr (program-arguments)))))
-      (".local/programs/percent"
-       ,(computed-file
-         "percent"
-         (with-imported-modules '((guix build utils))
-           #~(let ((gcc #$(@ (gnu packages commencement) gcc-toolchain)))
-               (use-modules (guix build utils))
-               (setenv "PATH" (string-append gcc "/bin:" (getenv "PATH")))
-               (setenv "LIBRARY_PATH" (string-append gcc "/lib"))
-               (invoke "gcc" #$(f "percent.c") "-o" #$output)))))
+      (".local/programs/percent" ,(rust-script "percent" (f "percent.rs")))
       ;; Need this here because dotfiles service removes .html extension.
       (".local/share/qutebrowser/userscripts/suppress.html" ,(f "suppress.html"))
       (".config/kitty/bell.oga"
