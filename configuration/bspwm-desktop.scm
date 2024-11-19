@@ -10,15 +10,15 @@
   #:use-module (gnu home services)
   #:use-module (gnu home services desktop))
 
-(define disable-mouse-acceleration
+(define xorg-input-config
   (package
-    (name "xorg-disable-mouse-acceleration")
+    (name "xorg-input-config")
     (version "0.0.0")
     (source (f "99-libinput-custom-config.conf"))
     (build-system (@ (guix build-system copy) copy-build-system))
     (arguments '(#:install-plan '(("." "share/X11/xorg.conf.d"))))
     (home-page "")
-    (synopsis "Disable mouse acceleration")
+    (synopsis "Apply custom input configuration")
     (description synopsis)
     (license (@ (guix licenses) cc0))))
 
@@ -40,7 +40,7 @@
     home-profile-service-type
     (using-nvidia
      (specifications->package-list
-      disable-mouse-acceleration
+      xorg-input-config
       ;; Would probably need some kind of system service use nvidia modules.
       ;; Install this through Arch.
       "xinit" "xorg-server" "xf86-input-libinput" "xf86-video-nouveau" "xf86-video-nv" "xf86-video-fbdev"

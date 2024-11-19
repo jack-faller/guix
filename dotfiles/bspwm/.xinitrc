@@ -32,7 +32,6 @@ if [ -d /etc/X11/xinit/xinitrc.d ] ; then
     unset f
 fi
 
-setxkbmap gb -option "caps:escape,compose:menu"
 xrdb ~/.config/Xresources
 repaper &
 xcompmgr &
