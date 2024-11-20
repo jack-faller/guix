@@ -118,26 +118,26 @@ void handle_event(input_event *input) {
 		write_event(input);
 		return;
 	}
-	switch (input->code) {
-	case KEY_LEFTSHIFT: input->code = KEY_CAPSLOCK; break;
-	case KEY_CAPSLOCK: input->code = KEY_ESC; break;
-	case KEY_PAUSE:
-		if (key_status[KEY_RIGHTSHIFT].event.value != 0) {
-			if (input->value == 1) {
-				disabled = !disabled;
-				mod.state = INACTIVE;
-				while (back_node != NULL)
-					back_node = advance(back_node);
-			}
-			return;
+	if (input->code == KEY_NUMLOCK
+	    && key_status[KEY_RIGHTSHIFT].event.value != 0) {
+		if (input->value == 1) {
+			disabled = !disabled;
+			mod.state = INACTIVE;
+			while (back_node != NULL)
+				back_node = advance(back_node);
 		}
-		break;
+		return;
 	}
 
 	if (disabled) {
 		key_status[input->code].event = *input;
 		write_event(input);
 		return;
+	}
+
+	switch (input->code) {
+	case KEY_LEFTSHIFT: input->code = KEY_CAPSLOCK; break;
+	case KEY_CAPSLOCK: input->code = KEY_ESC; break;
 	}
 
 	switch (mod.state) {
@@ -248,7 +248,7 @@ int main(void) {
 	printf("\n");
 	for (int i = 0; i < 2; ++i) {
 		key(KEY_RIGHTSHIFT, 1);
-		tap(KEY_PAUSE);
+		tap(KEY_NUMLOCK);
 		key(KEY_RIGHTSHIFT, 0);
 	}
 	key(KEY_J, 1);
