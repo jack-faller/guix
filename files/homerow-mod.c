@@ -34,10 +34,6 @@ void write_event(input_event *event) {
 	fwrite(event, sizeof(*event), 1, stdout);
 #endif
 }
-int keyboard_shift_held() {
-	return key_status[KEY_LEFTSHIFT].event.value
-	       || key_status[KEY_RIGHTSHIFT].event.value;
-}
 
 code translate_left(code code) {
 	switch (code) {
@@ -123,19 +119,18 @@ void handle_event(input_event *input) {
 		return;
 	}
 	switch (input->code) {
-	case KEY_CAPSLOCK:
-		if (!keyboard_shift_held())
-			input->code = KEY_ESC;
-		break;
-	case KEY_ESC:
-		if (keyboard_shift_held() && input->value == 1) {
-			disabled = !disabled;
-			mod.state = INACTIVE;
-			while (front_node != NULL)
-				front_node = advance(front_node);
+	case KEY_LEFTSHIFT: input->code = KEY_CAPSLOCK; break;
+	case KEY_CAPSLOCK: input->code = KEY_ESC; break;
+	case KEY_PAUSE:
+		if (key_status[KEY_RIGHTSHIFT].event.value != 0) {
+			if (input->value == 1) {
+				disabled = !disabled;
+				mod.state = INACTIVE;
+				while (back_node != NULL)
+					back_node = advance(back_node);
+			}
 			return;
 		}
-		input->code = KEY_CAPSLOCK;
 		break;
 	}
 
@@ -144,6 +139,7 @@ void handle_event(input_event *input) {
 		write_event(input);
 		return;
 	}
+
 	switch (mod.state) {
 	case INACTIVE:
 		key_status[input->code].event = *input;
@@ -248,6 +244,15 @@ int main(void) {
 	key(KEY_D, 1);
 	key(KEY_J, 1);
 	key(KEY_D, 0);
+	key(KEY_J, 0);
+	printf("\n");
+	for (int i = 0; i < 2; ++i) {
+		key(KEY_RIGHTSHIFT, 1);
+		tap(KEY_PAUSE);
+		key(KEY_RIGHTSHIFT, 0);
+	}
+	key(KEY_J, 1);
+	tap(KEY_D);
 	key(KEY_J, 0);
 }
 #else
