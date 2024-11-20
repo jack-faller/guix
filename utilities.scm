@@ -63,6 +63,9 @@
          (use-modules (guix build utils))
          (setenv "PATH" (string-append gcc "/bin:" (getenv "PATH")))
          (setenv "LIBRARY_PATH" (string-append gcc "/lib"))
+         (setenv "C_INCLUDE_PATH"
+                 (string-append
+                  #$(@ (gnu packages linux) linux-libre-headers) "/include"))
          (invoke "gcc" "-O2" #$file "-o" #$output)))))
 
 (define*-public (specifications->package-list . names)

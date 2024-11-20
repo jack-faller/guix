@@ -18,7 +18,8 @@
   #:use-module ((gnu services networking)
                 #:select (ntp-service-type)))
 
-(use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl)
+(use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
+                     admin)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
                      package-management)
 
@@ -135,6 +136,36 @@
                             %default-sysctl-settings)))))))
 
    fontconfig-file-system-service
+   (simple-service
+    'udevmon-rotlog rottlog-service-type
+    (list (log-rotation (files '("/var/log/udevmon.log")))))
+   (simple-service
+    'udevmon shepherd-root-service-type
+    (list
+     (shepherd-service
+      (documentation "Run udevmon")
+      (provision '(udevmon))
+      (requirement '(user-processes udev))
+      (start #~(make-forkexec-constructor
+                (list
+                 #$(file-append coreutils "/bin/nice")
+                 "-n" "-20"
+                 #$(file-append interception-tools "/bin/udevmon")
+                 "-c"
+                 #$(computed-file
+                    "udevmon.yaml"
+                    (with-imported-modules '((guix build utils))
+                      #~(begin
+                          (use-modules (guix build utils))
+                          (copy-file #$(f "udevmon.yaml") #$output)
+                          (chmod #$output #o555)
+                          (substitute* #$output
+                            (("HOMEROW_MOD")
+                             #$(c-script "homerow-mod" (f "homerow-mod.c")))
+                            (("INTERCEPTION_BIN")
+                             #$(file-append interception-tools "/bin")))))))
+                #:log-file "/var/log/udevmon.log"))
+      (stop #~(make-kill-destructor)))))
    (service pam-limits-service-type
             (list
              (pam-limits-entry "@realtime" 'both 'rtprio 99)

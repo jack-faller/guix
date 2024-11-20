@@ -1,0 +1,3 @@
+- JOB: INTERCEPTION_BIN/intercept -g $DEVNODE | HOMEROW_MOD | INTERCEPTION_BIN/uinput -d $DEVNODE
+  DEVICE:
+    LINK: .*-event-kbd
