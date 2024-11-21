@@ -65,7 +65,7 @@
     `(("PATH" . "$HOME/.local/programs:$PATH")
       ("DISCORD_ENABLE_UPDATES" . "true")
       ("UNICODE_DATA_TXT" .
-       ,(file-append ucd "/share/ucd/UnicodeData.txt'"))))
+       ,(file-append ucd "/share/ucd/UnicodeData.txt"))))
    (service
     home-xdg-mime-applications-service-type
     (home-xdg-mime-applications-configuration
