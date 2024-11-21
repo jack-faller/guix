@@ -41,8 +41,7 @@
            hdd
 	   arch
 	   (bind "/ssd" "/arch/ssd" arch)
-	   (bind "/home" "/hdd/home" hdd)
-	   %base-file-systems)))
+	   (bind "/home" "/hdd/home" hdd))))
  (cons* (service nvidia-service-type) system-services)
  (using-nvidia system-packages)
  #:extra-users

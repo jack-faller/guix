@@ -50,7 +50,8 @@
                  (theme grub-theme)
                  (menu-entries grub-entries)))
     (swap-devices swap-devices)
-    (file-systems file-systems)
+    (file-systems (cons %fuse-control-file-system
+                        (append file-systems %base-file-systems)))
     (services services)
     (packages packages)
 
