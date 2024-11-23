@@ -37,7 +37,7 @@
 		        (type "none")
 		        (flags '(bind-mount))
 		        (dependencies (list in))))))
-          (cons*
+          (list
            hdd
 	   arch
 	   (bind "/ssd" "/arch/ssd" arch)
