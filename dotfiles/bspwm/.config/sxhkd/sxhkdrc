@@ -180,5 +180,5 @@ ctrl + shift + grave
 super + u
     rofi -show unicode ; keyboard-input "$(clip-paste)"
 
-super + shift + minus
+super + x
     rofi -show pkill

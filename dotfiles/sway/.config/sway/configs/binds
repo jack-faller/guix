@@ -22,7 +22,7 @@
     bindsym $mod+u exec rofi -show unicode ; keyboard-input "$(clip-paste)"
 
     # Pkill
-    bindsym $mod+Shift+minus exec rofi -show pkill
+    bindsym $mod+x exec rofi -show pkill
 
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
