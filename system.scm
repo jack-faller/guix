@@ -19,7 +19,7 @@
                 #:select (ntp-service-type)))
 
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
-                     admin)
+                     admin linux)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
                      package-management)
 
@@ -27,14 +27,12 @@
                              #:optional #:key
                              (kernel linux)
                              (kernel-arguments '())
-                             (kernel-loadable-modules '())
                              (grub-theme (grub-theme))
                              (grub-entries '())
                              (extra-users '()))
   (operating-system
     (kernel kernel)
     (kernel-arguments kernel-arguments)
-    (kernel-loadable-modules kernel-loadable-modules)
     (initrd microcode-initrd)
     (firmware (list linux-firmware))
     (host-name name)
@@ -135,8 +133,8 @@
          (sysctl-configuration
           (settings (append '(("kernel.sysrq" . "1"))
                             %default-sysctl-settings)))))))
-
    fontconfig-file-system-service
+   (service kernel-module-loader-service-type '("fuse"))
    (simple-service
     'udevmon-rotlog rottlog-service-type
     (list (log-rotation (files '("/var/log/udevmon.log")))))
