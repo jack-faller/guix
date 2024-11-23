@@ -17,8 +17,17 @@ typedef struct node {
 	struct node *prev, *next;
 } node;
 node key_status[KEY_MAX];
-// Note: front_node may point to junk when back_node is NULL.
-node *front_node, *back_node;
+// Note: latest_node may point to junk when oldest_node is NULL.
+node *latest_node, *oldest_node;
+
+enum key_code { UP = 0, DOWN = 1, REPEAT = 2 };
+enum mod_state { INACTIVE, QUEUEING, ACTIVE };
+// TODO: maybe the algorithm shouldn't use groups.
+enum mod_group { LEFT, RIGHT };
+typedef struct {
+	enum mod_state state;
+	enum mod_group group;
+} modifier_info;
 
 void write_event(input_event *event) {
 #if defined(DEBUG) || defined(LOG)
@@ -35,38 +44,50 @@ void write_event(input_event *event) {
 #endif
 }
 
+#define LEFT_CASES(SHIFT, CTRL, META, ALT) \
+	case KEY_F: SHIFT \
+	case KEY_D: \
+	CTRL case KEY_S: \
+	META case KEY_A: \
+		ALT
+#define RIGHT_CASES(SHIFT, CTRL, META, ALT) \
+	case KEY_J: SHIFT \
+	case KEY_K: \
+	CTRL case KEY_L: \
+	META case KEY_SEMICOLON: \
+		ALT
+
 code translate_left(code code) {
 	switch (code) {
-	case KEY_F: return KEY_LEFTSHIFT;
-	case KEY_D: return KEY_LEFTCTRL;
-	case KEY_S: return KEY_LEFTMETA;
-	case KEY_A: return KEY_LEFTALT;
+		LEFT_CASES(return KEY_LEFTSHIFT;, return KEY_LEFTCTRL;
+		           , return KEY_LEFTMETA;
+		           , return KEY_LEFTALT;)
 	default: return code;
 	}
 }
 code translate_right(code code) {
 	switch (code) {
-	case KEY_J: return KEY_RIGHTSHIFT;
-	case KEY_K: return KEY_RIGHTCTRL;
-	case KEY_L: return KEY_RIGHTMETA;
-	// Avoid Alt Gr keys.
-	case KEY_SEMICOLON: return KEY_LEFTALT;
+		// Return left alt to avoid Alt Gr keys.
+		RIGHT_CASES(return KEY_RIGHTSHIFT;, return KEY_RIGHTCTRL;
+		            , return KEY_RIGHTMETA;
+		            , return KEY_LEFTALT;)
 	default: return code;
 	}
 }
-bool left_code(code code) { return translate_left(code) != code; }
-bool right_code(code code) { return translate_right(code) != code; }
-// Use bitwise & to check any are non zero.
-bool in_left() {
-	return 0
-	       != (key_status[KEY_F].event.value | key_status[KEY_D].event.value
-	           | key_status[KEY_S].event.value | key_status[KEY_A].event.value);
-}
-bool in_right() {
-	return 0
-	       != (key_status[KEY_J].event.value | key_status[KEY_K].event.value
-	           | key_status[KEY_L].event.value
-	           | key_status[KEY_SEMICOLON].event.value);
+// Use bitwise | to check any are non zero.
+bool in_mod(enum mod_group group) {
+	switch (group) {
+	case LEFT:
+		return 0
+		       != (key_status[KEY_F].event.value | key_status[KEY_D].event.value
+		           | key_status[KEY_S].event.value
+		           | key_status[KEY_A].event.value);
+	case RIGHT:
+		return 0
+		       != (key_status[KEY_J].event.value | key_status[KEY_K].event.value
+		           | key_status[KEY_L].event.value
+		           | key_status[KEY_SEMICOLON].event.value);
+	}
 }
 
 // Advance the start of the list by one, removing the first element.
@@ -79,52 +100,67 @@ node *advance(node *n) {
 }
 bool in_queue(code code) {
 	return key_status[code].next != NULL || key_status[code].prev != NULL
-	       || back_node == &key_status[code];
+	       || oldest_node == &key_status[code];
 }
 
-enum mod_state { INACTIVE, QUEUEING, ACTIVE };
-enum mod_side { LEFT, RIGHT };
-typedef struct {
-	enum mod_state state;
-	enum mod_side side;
-} mod;
-
-code translate_generic(code code, enum mod_side side) {
+bool set_group(code code, enum mod_group *out) {
+	switch (code) {
+		LEFT_CASES(, , , )
+		*out = LEFT;
+		return true;
+		RIGHT_CASES(, , , )
+		*out = RIGHT;
+		return true;
+	default: return false;
+	}
+}
+code translate_code(code code, enum mod_group side) {
 	switch (side) {
 	case LEFT: return translate_left(code);
 	case RIGHT: return translate_right(code);
+	default: return code;
 	}
-	return code;
 }
 
 // Code should not already be in the queue.
 void enqueue(code code) {
 	node *this = &key_status[code];
-	if (back_node == NULL) {
-		back_node = this;
-		front_node = this;
+	if (oldest_node == NULL) {
+		oldest_node = this;
+		latest_node = this;
 	} else {
-		front_node->next = this;
-		this->prev = front_node;
-		front_node = this;
+		latest_node->next = this;
+		this->prev = latest_node;
+		latest_node = this;
 	}
+}
+void dequeue(code code) {
+	node *this = &key_status[code];
+	if (this->next != NULL)
+		this->next->prev = this->prev;
+	if (this->prev != NULL)
+		this->prev->next = this->next;
+	if (oldest_node == this)
+		oldest_node = this->next;
+	if (latest_node == this)
+		latest_node = this->prev;
 }
 
 void handle_event(input_event *input) {
 	static bool disabled;
-	static mod mod;
+	static modifier_info mod;
 
 	if (input->type != EV_KEY) {
 		write_event(input);
 		return;
 	}
 	if (input->code == KEY_NUMLOCK
-	    && key_status[KEY_RIGHTSHIFT].event.value != 0) {
-		if (input->value == 1) {
+	    && key_status[KEY_RIGHTSHIFT].event.value != UP) {
+		if (input->value == DOWN) {
 			disabled = !disabled;
 			mod.state = INACTIVE;
-			while (back_node != NULL)
-				back_node = advance(back_node);
+			while (oldest_node != NULL)
+				oldest_node = advance(oldest_node);
 		}
 		return;
 	}
@@ -143,69 +179,44 @@ void handle_event(input_event *input) {
 	switch (mod.state) {
 	case INACTIVE:
 		key_status[input->code].event = *input;
-		if (input->value == 1 && left_code(input->code)) {
-			mod.side = LEFT;
-			goto start_queuing;
+		if (input->value == DOWN && set_group(input->code, &mod.group)) {
+			mod.state = QUEUEING;
+			enqueue(input->code);
+		} else {
+			write_event(input);
 		}
-		if (input->value == 1 && right_code(input->code)) {
-			mod.side = RIGHT;
-			goto start_queuing;
-		}
-		write_event(input);
-		break;
-	start_queuing:
-		mod.state = QUEUEING;
-		// TODO: add to queue
-		enqueue(input->code);
 		break;
 	case QUEUEING:
-		if (input->value == 1) {
+		bool in_q = in_queue(input->code);
+		if (input->value == DOWN || !in_q) {
 			// Only an unmatched key up event can precede a down event in the
-			// queue. Combine them into a 2.
-			if (in_queue(input->code)) {
-				input->value = 2;
-
-				node *this = &key_status[input->code];
-				if (this->next != NULL)
-					this->next->prev = this->prev;
-				if (this->prev != NULL)
-					this->prev->next = this->next;
-				if (back_node == this)
-					back_node = this->next;
-				if (front_node == this)
-					front_node = this->prev;
+			// queue. Combine them into a repeat event. This slightly alters
+			// order.
+			if (in_q) {
+				input->value = REPEAT;
+				dequeue(input->code);
 			}
 			enqueue(input->code);
 		} else {
-			if (in_queue(input->code)) {
-				if (input->code == back_node->event.code)
-					mod.state = INACTIVE;
-				else
-					mod.state = ACTIVE;
-				node this
-					= { .event = *input, .prev = front_node, .next = NULL };
-				front_node->next = &this;
-				front_node = &this;
-				for (; back_node != NULL; back_node = advance(back_node)) {
-					if (mod.state == ACTIVE) {
-						back_node->event.code = translate_generic(
-							back_node->event.code, mod.side
-						);
-					}
-					write_event(&back_node->event);
-				}
-			} else {
-				enqueue(input->code);
+			mod.state
+				= input->code == oldest_node->event.code ? INACTIVE : ACTIVE;
+			node this = { .event = *input, .prev = latest_node, .next = NULL };
+			latest_node->next = &this;
+			latest_node = &this;
+			for (; oldest_node != NULL; oldest_node = advance(oldest_node)) {
+				if (mod.state == ACTIVE)
+					oldest_node->event.code
+						= translate_code(oldest_node->event.code, mod.group);
+				write_event(&oldest_node->event);
 			}
 		}
 		key_status[input->code].event = *input;
 		break;
 	case ACTIVE:
 		key_status[input->code].event = *input;
-		input->code = translate_generic(input->code, mod.side);
+		input->code = translate_code(input->code, mod.group);
 		write_event(input);
-		bool still_in_mod = mod.side == LEFT ? in_left() : in_right();
-		if (!still_in_mod)
+		if (!in_mod(mod.group))
 			mod.state = INACTIVE;
 		break;
 	}
