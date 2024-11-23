@@ -1420,6 +1420,7 @@ align with previews
   (add-to-list 'major-mode-remap-alist (cons 'c-or-c++-mode 'c-or-c++-ts-mode))
   (defhook c-ts-mode-hook
     (indent-tabs-mode -1)
+    (setf tab-width 2)
     (eglot-ensure))
   (evil-define-key '(normal insert) c-ts-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
@@ -1429,6 +1430,7 @@ align with previews
   (ts-install 'c++ :language 'cpp)
   (defhook c++-ts-mode-hook
     (indent-tabs-mode -1)
+    (setf tab-width 2)
     (eglot-ensure))
   (after-load eglot
     (push
