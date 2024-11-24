@@ -38,15 +38,12 @@ void write_event(input_event *event) {
 #endif
 #ifndef DEBUG
 	static value raise_active = UP;
-	if (event->code == KEY_RAISE)
+	if (event->code == KEY_RAISE) {
 		raise_active = event->value;
+		return;
+	}
 	code old = event->code;
-	if (raise_active == UP) {
-		switch (event->code) {
-		case KEY_LEFTSHIFT: event->code = KEY_CAPSLOCK; break;
-		case KEY_CAPSLOCK: event->code = KEY_ESC; break;
-		}
-	} else {
+	if (raise_active != UP) {
 		switch (event->code) {
 		case KEY_Q: event->code = KEY_F1; break;
 		case KEY_W: event->code = KEY_F2; break;
@@ -67,7 +64,7 @@ void write_event(input_event *event) {
 		case KEY_J: event->code = KEY_7; break;
 		case KEY_K: event->code = KEY_8; break;
 		case KEY_L: event->code = KEY_9; break;
-    case KEY_SEMICOLON: event->code = KEY_0; break;
+		case KEY_SEMICOLON: event->code = KEY_0; break;
 		}
 	}
 	fwrite(event, sizeof(*event), 1, stdout);
@@ -144,6 +141,11 @@ void handle_event(input_event *input) {
 		return;
 	}
 
+	switch (input->code) {
+	case KEY_LEFTSHIFT: input->code = KEY_CAPSLOCK; break;
+	case KEY_CAPSLOCK: input->code = KEY_ESC; break;
+	}
+
 retry_event:
 	if (queue_empty()) {
 		if (is_modifier(input->code)) {
@@ -177,6 +179,8 @@ retry_event:
 					oldest_node->event.code
 						= translate_code(real_code(oldest_node));
 				write_event(&oldest_node->event);
+				if (oldest_node->event.value == UP)
+					oldest_node->event.value = real_code(oldest_node);
 			}
 		}
 		goto retry_event;
