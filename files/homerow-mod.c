@@ -170,17 +170,15 @@ retry_event:
 			dequeue(input->code);
 			input->value = REPEAT;
 		} else {
-			for (; oldest_node != NULL
+			while (oldest_node != NULL
 			       && (in_queue(input->code) || oldest_node->event.value == UP
-			           || !is_modifier(real_code(oldest_node)));
-			     pop_queue()) {
+			           || !is_modifier(real_code(oldest_node)))) {
 				if (oldest_node->event.value != UP
 				    && real_code(oldest_node) != input->code)
 					oldest_node->event.code
 						= translate_code(real_code(oldest_node));
 				write_event(&oldest_node->event);
-				if (oldest_node->event.value == UP)
-					oldest_node->event.value = real_code(oldest_node);
+				pop_queue();
 			}
 		}
 		goto retry_event;
