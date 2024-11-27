@@ -26,6 +26,12 @@ bool queue_empty() { return oldest_node == NULL; }
 
 enum key_code { UP = 0, DOWN = 1, REPEAT = 2 };
 
+#ifdef DEBUG
+input_event fuzz_buff[20];
+int fuzz_head;
+bool fuzzing;
+#endif
+
 void write_event(input_event *event) {
 #if defined(DEBUG) || defined(LOG)
 	if (event->type == EV_KEY)
@@ -35,6 +41,10 @@ void write_event(input_event *event) {
 			(int)event->code,
 			(int)event->value
 		);
+#endif
+#ifdef DEBUG
+	if (fuzzing)
+		fuzz_buff[fuzz_head++] = *event;
 #endif
 #ifndef DEBUG
 	static value raise_active = UP;
@@ -199,7 +209,13 @@ void tap(code code) {
 	key(code, 1);
 	key(code, 0);
 }
-int main(void) {
+bool all_keys_up() {
+	for (int i = 0; i < LENGTH(key_status); ++i)
+		if (key_status[i].event.value != UP)
+			return false;
+	return true;
+}
+int main(int argc, char **argv) {
 	key(KEY_J, 1);
 	tap(KEY_K);
 	tap(KEY_K);
@@ -232,6 +248,45 @@ int main(void) {
 	key(KEY_J, 1);
 	tap(KEY_D);
 	key(KEY_J, 0);
+	printf("\n");
+	key(KEY_H, 1);
+	key(KEY_I, 1);
+	key(KEY_S, 1);
+	key(KEY_I, 0);
+	key(KEY_H, 0);
+	key(KEY_SPACE, 1);
+	key(KEY_S, 0);
+	key(KEY_SPACE, 0);
+	if (argc != 2)
+		return 0;
+	// Use od -vAn -td4 -N4 /dev/urandom for random seed.
+	const int seed = atoi(argv[1]);
+	srandom(seed);
+	printf("seed %d\n", seed);
+	fuzzing = true;
+	const static code codes[]
+		= { KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I,
+		    KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R,
+		    KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_SPACE };
+	for (;;) {
+		printf("\n");
+		fuzz_head = 0;
+		for (int i = 0; i < LENGTH(fuzz_buff) / 2; ++i) {
+			code code = codes[random() % LENGTH(codes)];
+			key(code, key_status[code].event.value == UP ? DOWN : UP);
+		}
+		for (int i = 0; i < LENGTH(codes); ++i)
+			if (key_status[codes[i]].event.value == DOWN)
+				key(codes[i], UP);
+		if (!all_keys_up())
+			break;
+		for (int i = 0; i < LENGTH(fuzz_buff); ++i)
+			key_status[fuzz_buff[i].code].event = fuzz_buff[i];
+		if (!all_keys_up())
+			break;
+	}
+	printf("seed %d\n", seed);
+	return 1;
 }
 #else
 int main(int argc, char **argv) {
