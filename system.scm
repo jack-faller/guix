@@ -59,13 +59,14 @@
                    (group "users")
                    (shell (file-append zsh "/bin/zsh"))
                    (home-directory "/home/jack")
-                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "lp")))
+                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "lp" "docker")))
                   (append
                    extra-users
                    %base-user-accounts)))
     (groups (cons*
              ;; Realtime audio.
              (user-group (name "realtime"))
+             (user-group (name "docker"))
              %base-groups))
     (sudoers-file
      (computed-file
