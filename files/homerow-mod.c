@@ -7,6 +7,7 @@
 #include <time.h>
 
 #define LENGTH(A) (sizeof(A) / sizeof(A[0]))
+#define eprintf(...) fprintf(stderr, __VA_ARGS__)
 
 typedef struct input_event input_event;
 typedef typeof(((input_event) {}).code) code;
@@ -27,24 +28,23 @@ bool queue_empty() { return oldest_node == NULL; }
 enum key_code { UP = 0, DOWN = 1, REPEAT = 2 };
 
 #ifdef DEBUG
-input_event fuzz_buff[20];
-int fuzz_head;
-bool fuzzing;
+input_event output[1024];
+int output_head;
 #endif
 
 void write_event(input_event *event) {
-#if defined(DEBUG) || defined(LOG)
+#ifdef LOG
+	void print_key(code code, value value);
 	if (event->type == EV_KEY)
-		fprintf(
-			stderr,
-			"{.code = %d, .value = %d}\n",
-			(int)event->code,
-			(int)event->value
-		);
+		eprintf("// "), print_key(event->code, event->value);
 #endif
 #ifdef DEBUG
-	if (fuzzing)
-		fuzz_buff[fuzz_head++] = *event;
+	if (output_head >= LENGTH(output)) {
+		eprintf("Bug: output too long.\n");
+		exit(1);
+	}
+	if (event->type == EV_KEY)
+		output[output_head++] = *event;
 #endif
 #ifndef DEBUG
 	static value raise_active = UP;
@@ -156,6 +156,7 @@ void handle_event(input_event *input) {
 	case KEY_CAPSLOCK: input->code = KEY_ESC; break;
 	}
 
+	const code input_code = input->code;
 retry_event:
 	if (queue_empty()) {
 		if (is_modifier(input->code)) {
@@ -167,9 +168,8 @@ retry_event:
 				}
 				break;
 			case UP: {
-				input_event modified = *input;
-				modified.code = key_status[input->code].event.code;
-				write_event(&modified);
+				input->code = key_status[input->code].event.code;
+				write_event(input);
 			} break;
 			}
 		} else {
@@ -193,16 +193,68 @@ retry_event:
 		}
 		goto retry_event;
 	} else {
-		enqueue(input->code);
+		if (key_status[input->code].event.value != UP)
+			input->code = key_status[input->code].event.code;
+		enqueue(input_code);
 	}
 
-	key_status[input->code].event = *input;
+	key_status[input_code].event = *input;
 }
 
+#if defined(DEBUG) || defined(LOG)
+const char *keyname(code code) {
+	switch (code) {
+	case KEY_A: return "KEY_A";
+	case KEY_B: return "KEY_B";
+	case KEY_C: return "KEY_C";
+	case KEY_D: return "KEY_D";
+	case KEY_E: return "KEY_E";
+	case KEY_F: return "KEY_F";
+	case KEY_G: return "KEY_G";
+	case KEY_H: return "KEY_H";
+	case KEY_I: return "KEY_I";
+	case KEY_J: return "KEY_J";
+	case KEY_K: return "KEY_K";
+	case KEY_L: return "KEY_L";
+	case KEY_M: return "KEY_M";
+	case KEY_N: return "KEY_N";
+	case KEY_O: return "KEY_O";
+	case KEY_P: return "KEY_P";
+	case KEY_Q: return "KEY_Q";
+	case KEY_R: return "KEY_R";
+	case KEY_S: return "KEY_S";
+	case KEY_T: return "KEY_T";
+	case KEY_U: return "KEY_U";
+	case KEY_V: return "KEY_V";
+	case KEY_W: return "KEY_W";
+	case KEY_X: return "KEY_X";
+	case KEY_Y: return "KEY_Y";
+	case KEY_Z: return "KEY_Z";
+	case KEY_SPACE: return "KEY_SPACE";
+	case KEY_LEFTSHIFT: return "KEY_LEFTSHIFT";
+	case KEY_LEFTCTRL: return "KEY_LEFTCTRL";
+	case KEY_LEFTMETA: return "KEY_LEFTMETA";
+	case KEY_LEFTALT: return "KEY_LEFTALT";
+	case KEY_RIGHTSHIFT: return "KEY_RIGHTSHIFT";
+	case KEY_RIGHTCTRL: return "KEY_RIGHTCTRL";
+	case KEY_RIGHTMETA: return "KEY_RIGHTMETA";
+	case KEY_RAISE: return "KEY_RAISE";
+	default: return NULL;
+	}
+}
+void print_key(code code, value value) {
+	const char *name = keyname(code);
+	if (name != NULL)
+		eprintf("key(%s, %d);\n", name, (int)value);
+	else
+		eprintf("key(%d, %d);\n", (int)code, (int)value);
+}
+#endif
 #ifdef DEBUG
 void key(code code, value value) {
 	input_event input
 		= (input_event) { .code = code, .type = EV_KEY, .value = value };
+	print_key(code, value);
 	handle_event(&input);
 }
 void tap(code code) {
@@ -215,31 +267,54 @@ bool all_keys_up() {
 			return false;
 	return true;
 }
+const static code codes[]
+	= { KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I,
+	    KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R,
+	    KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_SPACE };
+bool finish_test() {
+	eprintf("translated:\n");
+	for (int i = 0; i < output_head; ++i)
+		eprintf(" "), print_key(output[i].code, output[i].value);
+	if (!all_keys_up())
+		return true;
+	for (int i = 0; i < output_head; ++i)
+		key_status[output[i].code].event = output[i];
+	if (!all_keys_up())
+		return true;
+	output_head = 0;
+	eprintf("\n");
+	return false;
+}
+#define FINISH_TEST \
+	if (finish_test()) { \
+		eprintf("failed\n"); \
+		return 1; \
+	}
 int main(int argc, char **argv) {
 	key(KEY_J, 1);
 	tap(KEY_K);
 	tap(KEY_K);
 	key(KEY_J, 0);
-	printf("\n");
+	FINISH_TEST;
 	for (int i = 0; i < 2; ++i) {
 		key(KEY_J, 1);
 		key(KEY_T, 1);
 		key(KEY_J, 0);
 		key(KEY_T, 0);
 	}
-	printf("\n");
+	FINISH_TEST;
 	for (int i = 0; i < 2; ++i) {
 		key(KEY_T, 1);
 		key(KEY_J, 1);
 		key(KEY_T, 0);
 		key(KEY_J, 0);
 	}
-	printf("\n");
+	FINISH_TEST;
 	key(KEY_D, 1);
 	key(KEY_J, 1);
 	key(KEY_D, 0);
 	key(KEY_J, 0);
-	printf("\n");
+	FINISH_TEST;
 	for (int i = 0; i < 2; ++i) {
 		key(KEY_RIGHTSHIFT, 1);
 		tap(KEY_NUMLOCK);
@@ -248,7 +323,7 @@ int main(int argc, char **argv) {
 	key(KEY_J, 1);
 	tap(KEY_D);
 	key(KEY_J, 0);
-	printf("\n");
+	FINISH_TEST;
 	key(KEY_H, 1);
 	key(KEY_I, 1);
 	key(KEY_S, 1);
@@ -257,35 +332,40 @@ int main(int argc, char **argv) {
 	key(KEY_SPACE, 1);
 	key(KEY_S, 0);
 	key(KEY_SPACE, 0);
+	FINISH_TEST;
+	key(KEY_F, 1);
+	key(KEY_A, 1);
+	key(KEY_K, 1);
+	key(KEY_A, 0);
+	key(KEY_F, 0);
+	key(KEY_K, 0);
+	FINISH_TEST;
 	if (argc != 2)
 		return 0;
 	// Use od -vAn -td4 -N4 /dev/urandom for random seed.
 	const int seed = atoi(argv[1]);
 	srandom(seed);
-	printf("seed %d\n", seed);
-	fuzzing = true;
-	const static code codes[]
-		= { KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I,
-		    KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R,
-		    KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_SPACE };
+	// I was considering writing an algorithm to reduce the flagged results, but
+	// you can just brute force it by reducing the FUZZ_LEN.
+#ifndef FUZZ_LEN
+#define FUZZ_LEN 10
+#endif
+	// Technique is not very good because it usually selects 10 different keys.
 	for (;;) {
-		printf("\n");
-		fuzz_head = 0;
-		for (int i = 0; i < LENGTH(fuzz_buff) / 2; ++i) {
+		output_head = 0;
+		for (int i = 0; i < FUZZ_LEN; ++i) {
 			code code = codes[random() % LENGTH(codes)];
 			key(code, key_status[code].event.value == UP ? DOWN : UP);
 		}
 		for (int i = 0; i < LENGTH(codes); ++i)
-			if (key_status[codes[i]].event.value == DOWN)
+			if (key_status[codes[i]].event.value != UP)
 				key(codes[i], UP);
-		if (!all_keys_up())
-			break;
-		for (int i = 0; i < LENGTH(fuzz_buff); ++i)
-			key_status[fuzz_buff[i].code].event = fuzz_buff[i];
-		if (!all_keys_up())
+		if (finish_test())
 			break;
 	}
-	printf("seed %d\n", seed);
+	eprintf("\nseed %d\n", seed);
+	bool code_set = false;
+	static bool ignore_map[LENGTH(output)];
 	return 1;
 }
 #else
