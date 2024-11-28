@@ -63,14 +63,14 @@
   (package
    (inherit font-crimson)
    (name "font-cochineal")
-   (version "1.061")
+   (version "1.085")
    (source
 	(origin
 	 (method url-fetch)
 	 (uri "https://mirrors.ctan.org/fonts/cochineal.zip")
 	 (sha256
 	  (base32
-	   "16nrxn5kvy9v6qya018ihx4vwv3lway198yxgcrsfhcf6zbm0fpq"))))
+	   "1fpqamrn233j2bgrdvvzm17scqyds11icyc2s6664mxcwza167jg"))))
    (synopsis "Cochineal is a fork from the Crimson fonts (Roman, Italic, Bold, BoldItalic only) released under the OFL by Sebastian Kosch.")
    (description "These remarkable fonts are inspired by the famous oldstyle fonts in the garalde family (Garamond, Bembo) but, in the end, look more similar to Minion, though with smaller xheight and less plain in detail. The Crimson fonts on which these were based had roughly 4200 glyphs in the four styles mentioned above. Cochineal adds more than 1500 glyphs in those styles so that it is possible to make a TEX support collection that contains essentially all glyphs in all styles. Bringing the Semibold styles up the same level would have required adding about 2000 additional glyphs, which I could not even contemplate.")
    (home-page "https://www.ctan.org/tex-archive/fonts/cochineal/")))
