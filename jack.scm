@@ -239,7 +239,8 @@
    "perl"        ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars
    ;; for latex previews
-   "texlive-scheme-basic" "texlive-dvipng-bin" "texlive-ulem" "texlive-amsfonts" "texlive-rsfs" "texlive-jknapltx"
+   "texlive-scheme-basic" "texlive-fontsrecommended" "texlive-dvipng-bin"
+   "texlive-ulem" "texlive-amsfonts" "texlive-rsfs" "texlive-jknapltx"
    "cloc"
    ;; zsh
    "zsh-syntax-highlighting" "zsh-autosuggestions"
