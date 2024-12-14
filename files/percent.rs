@@ -7,6 +7,10 @@ fn hex(c: u8) -> Option<u8> {
 		_ => None,
 	}
 }
+enum Direction {
+	Encode,
+	Decode,
+}
 fn encode<S>(s: S) -> Result<()>
 where
 	S: Iterator<Item = Result<u8>>,
@@ -50,6 +54,15 @@ where
 	}
 	Ok(())
 }
+fn code<S>(direction: Direction, iter: S) -> Result<()>
+where
+	S: Iterator<Item = Result<u8>>,
+{
+	match direction {
+		Direction::Encode => encode(iter),
+		Direction::Decode => decode(iter),
+	}
+}
 struct ByteIterator<T>(T);
 impl<T> Iterator for ByteIterator<T>
 where
@@ -68,24 +81,19 @@ where
 fn main() -> Result<()> {
 	let mut args = std::env::args();
 	let _ = args.next();
-	let action = args.next();
-	let string = args.next();
-	match (action.as_deref(), string.as_deref()) {
-		(Some("encode"), Some(s)) => {
-			encode(s.bytes().map(|x| Ok(x)))?;
-			print!("\n");
-			Ok(())
-		}
-		(Some("decode"), Some(s)) => {
-			decode(s.bytes().map(|x| Ok(x)))?;
-			print!("\n");
-			Ok(())
-		}
-		(Some("encode"), None) => encode(ByteIterator(BufReader::new(stdin()))),
-		(Some("decode"), None) => decode(ByteIterator(BufReader::new(stdin()))),
-		(_, _) => {
+	let direction = match args.next().as_deref() {
+		Some("encode") => Direction::Encode,
+		Some("decode") => Direction::Decode,
+		_ => {
 			eprintln!("Usage: percent [encode/decode] <string>.");
-			Err(Error::from(ErrorKind::InvalidInput))
+			return Err(Error::from(ErrorKind::InvalidInput));
 		}
+	};
+	if let Some(s) = args.next() {
+		code(direction, s.bytes().map(|x| Ok(x)))?;
+		print!("\n");
+		Ok(())
+	} else {
+		code(direction, ByteIterator(BufReader::new(stdin())))
 	}
 }
