@@ -340,6 +340,15 @@ int main(int argc, char **argv) {
 	key(KEY_F, 0);
 	key(KEY_K, 0);
 	FINISH_TEST;
+	key(KEY_S, 1);
+	key(KEY_K, 1);
+	key(KEY_S, 0);
+	key(KEY_R, 1);
+	key(KEY_S, 1);
+	key(KEY_K, 0);
+	key(KEY_R, 0);
+	key(KEY_S, 0);
+	FINISH_TEST;
 	if (argc != 2)
 		return 0;
 	// Use od -vAn -td4 -N4 /dev/urandom for random seed.
