@@ -239,9 +239,8 @@
    "perl"        ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars
    ;; for latex previews
-   "texlive-scheme-basic" "texlive-fontsrecommended" "texlive-dvipng-bin"
-   "texlive-ulem" "texlive-amsfonts" "texlive-rsfs" "texlive-jknapltx"
-   "cloc"
+   "texlive-scheme-basic" "texlive-collection-fontsrecommended"
+   "texlive-dvipng-bin" "texlive-ulem" "texlive-amsfonts"
    ;; zsh
    "zsh-syntax-highlighting" "zsh-autosuggestions"
    "password-store"
@@ -251,6 +250,7 @@
    "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
    quintom-cursor-theme
    ;; cli utilities
+   "cloc"
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
    "hyperfine"
