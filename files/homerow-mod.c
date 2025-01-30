@@ -75,6 +75,19 @@ void write_event(input_event *event) {
 		case KEY_K: event->code = KEY_8; break;
 		case KEY_L: event->code = KEY_9; break;
 		case KEY_SEMICOLON: event->code = KEY_0; break;
+		case KEY_Z: event->code = KEY_ANGLE; break;
+		case KEY_X: event->code = KEY_PRINT; break;
+		case KEY_C: event->code = KEY_MENU; break;
+		case KEY_V: event->code = KEY_GRAVE; break;
+		/* case KEY_B: event->code = KEY_0; break; */
+		case KEY_N: event->code = KEY_BACKSLASH; break;
+		case KEY_M: event->code = KEY_LEFTBRACE; break;
+		/* case KEY_DOT: event->code = KEY_RIGHTBRACE; break; */
+		/* case KEY_COMMA: event->code = KEY_EQUAL; break; */
+		case KEY_SLASH: event->code = KEY_RIGHTBRACE; break;
+		case KEY_ENTER: event->code = KEY_DELETE; break;
+		case KEY_BACK: event->code = KEY_MINUS; break;
+		case KEY_APOSTROPHE: event->code = KEY_EQUAL; break;
 		}
 	}
 	fwrite(event, sizeof(*event), 1, stdout);
