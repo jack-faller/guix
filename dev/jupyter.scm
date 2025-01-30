@@ -4,4 +4,4 @@
 			 (gnu packages python-science)
 			 (gnu packages machine-learning))
 (list python python-lsp-server
-	  jupyter python-matplotlib python-numpy python-pandas python-scikit-learn)
+	  jupyter python-matplotlib python-seaborn python-numpy python-pandas python-scikit-learn)
