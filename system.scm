@@ -21,7 +21,7 @@
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
                      admin linux)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
-                     package-management)
+                     package-management firmware)
 
 (define*-public (make-system name swap-devices file-systems services packages
                              #:optional #:key
@@ -189,7 +189,8 @@
                   ("jack" ,my-key))))))
    (service cups-service-type (cups-configuration (web-interface? #t)))
    (service tlp-service-type)
-   (simple-service 'my-udev-rules udev-service-type (list libmtp brightnessctl))
+   (simple-service 'my-udev-rules udev-service-type
+                   (list libmtp brightnessctl qmk-udev-rules))
 
    ;; The D-Bus clique.
    (service avahi-service-type)
