@@ -34,6 +34,8 @@ config.bind("et", "open -t youtube.com/feed/subscriptions")
 config.bind("en", "open -t news.ycombinator.com")
 config.bind("el", "open -t https://www.livechart.me/users/xeere/library?layout=regular&page=1&sort=next_episode_countdown&statuses%5B%5D=rewatching&statuses%5B%5D=watching&statuses%5B%5D=planning&statuses%5B%5D=considering&titles=romaji")
 config.bind("eL", "open -t https://www.livechart.me/users/xeere/library?layout=regular&page=1&sort=next_episode_countdown&statuses%5B%5D=rewatching&statuses%5B%5D=watching&statuses%5B%5D=planning&statuses%5B%5D=considering&titles=romaji")
+config.bind("el", "open -t https://www.livechart.me/users/xeere/library?layout=regular&page=1&sort=next_release_countdown&statuses%5B%5D=rewatching&statuses%5B%5D=watching&statuses%5B%5D=planning&statuses%5B%5D=considering&titles=romaji")
+config.bind("eL", "open -t https://www.livechart.me/users/xeere/library?layout=regular&page=1&sort=next_release_countdown&statuses%5B%5D=rewatching&statuses%5B%5D=watching&statuses%5B%5D=planning&statuses%5B%5D=considering&titles=romaji")
 config.bind("j", "cmd-run-with-count 5 scroll down")
 config.bind("k", "cmd-run-with-count 5 scroll up")
 
