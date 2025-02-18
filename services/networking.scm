@@ -85,8 +85,7 @@
                "main.conf"
                (serialize-ini-config config))))))
 
-(define iwd-log-rotation
-  (list (log-rotation (files '("/var/log/iwd.log")))))
+(define iwd-log-rotation '("/var/log/iwd.log"))
 
 (define add-iwd-package (compose list iwd-configuration-package))
 
@@ -106,9 +105,9 @@
           (service-extension
            profile-service-type
            add-iwd-package)
-		  (service-extension
-		   rottlog-service-type
-		   (const iwd-log-rotation))))
+	  (service-extension
+	   log-rotation-service-type
+	   (const iwd-log-rotation))))
    (default-value (iwd-configuration))
    (description "")))
 
@@ -177,7 +176,7 @@
       (stop #~(make-kill-destructor))))))
 
 (define connman-log-rotation
-  (list (log-rotation (files '("/var/log/connman.log" "/var/log/connman-vpn.log")))))
+  '("/var/log/connman.log" "/var/log/connman-vpn.log"))
 
 (define add-connman-package (compose list connman-configuration-package))
 
@@ -212,9 +211,9 @@
           (service-extension
            system-service-type
            add-vpn-provisioning-files)
-		  (service-extension
-		   rottlog-service-type
-		   (const connman-log-rotation))))
+	  (service-extension
+	   log-rotation-service-type
+	   (const connman-log-rotation))))
    (default-value (connman-configuration))
    (description
     "Run @url{https://01.org/connman,Connman},

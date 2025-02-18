@@ -137,8 +137,8 @@
    fontconfig-file-system-service
    (service kernel-module-loader-service-type '("fuse"))
    (simple-service
-    'udevmon-rotlog rottlog-service-type
-    (list (log-rotation (files '("/var/log/udevmon.log")))))
+    'udevmon-rotlog log-rotation-service-type
+    '("/var/log/udevmon.log"))
    (simple-service
     'udevmon shepherd-root-service-type
     (list
