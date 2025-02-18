@@ -1424,17 +1424,9 @@ align with previews
     (eglot-ensure))
   (evil-define-key '(normal insert) c-ts-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
-#+end_src
-** C++
-#+begin_src emacs-lisp
-  (ts-install 'c++ :language 'cpp)
-  (defhook c++-ts-mode-hook
-    (indent-tabs-mode -1)
-    (setf tab-width 2)
-    (eglot-ensure))
   (after-load eglot
     (push
-     '((c++-mode)
+     '((c++-mode c++-ts-mode c-mode c-ts-mode)
        "clangd"
        "--malloc-trim"
        "--background-index"
@@ -1452,6 +1444,14 @@ align with previews
        "--header-insertion=never"
        "--header-insertion-decorators=0")
      eglot-server-programs))
+#+end_src
+*** C++
+#+begin_src emacs-lisp
+  (ts-install 'c++ :language 'cpp)
+  (defhook c++-ts-mode-hook
+    (indent-tabs-mode -1)
+    (setf tab-width 2)
+    (eglot-ensure))
   (evil-define-key '(normal insert) c++-ts-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
 #+end_src
