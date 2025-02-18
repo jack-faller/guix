@@ -28,7 +28,7 @@
  libcanberra unicode)
 
 (define jack-services
-  (list
+  (cons*
    (simple-service
     'my-channels
     home-channels-service-type
@@ -226,7 +226,8 @@
                               (family "Noto Sans Mono CJK TC")))
                     '(alias
                       (family "emoji")
-                      (prefer (family "Noto Color Emoji")))))))
+                      (prefer (family "Noto Color Emoji")))))
+   %base-home-services))
 (define jack-packages
   (specifications->package-list
    ;; basic
