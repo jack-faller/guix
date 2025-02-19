@@ -1,5 +1,6 @@
 #include <linux/input.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -7,211 +8,17 @@
 
 #define LENGTH(A) (sizeof(A) / sizeof(A[0]))
 #define eprintf(...) fprintf(stderr, __VA_ARGS__)
+#ifdef LOG
+#define log eprintf
+#else
+#define log(...)
+#endif
 
+// Reuse a key not present on most keyboards for raise.
+#define KEY_RAISE KEY_KATAKANAHIRAGANA
 typedef struct input_event input_event;
 typedef typeof(((input_event) {}).code) code;
 typedef typeof(((input_event) {}).value) value;
-
-typedef struct node {
-	input_event event;
-	struct node *next;
-} node;
-// Reuse a key not present on most keyboards for raise.
-#define KEY_RAISE KEY_KATAKANAHIRAGANA
-node key_status[KEY_MAX];
-code real_code(node *n) { return n - key_status; }
-// Note: latest_node may point to junk when oldest_node is NULL.
-node *latest_node, *oldest_node;
-bool queue_empty() { return oldest_node == NULL; }
-
-enum key_code { UP = 0, DOWN = 1, REPEAT = 2 };
-
-#ifdef DEBUG
-input_event output[1024];
-int output_head;
-#endif
-
-void write_event(input_event *event) {
-#ifdef LOG
-	void print_key(code code, value value);
-	if (event->type == EV_KEY)
-		eprintf("// "), print_key(event->code, event->value);
-#endif
-#ifdef DEBUG
-	if (output_head >= LENGTH(output)) {
-		eprintf("Bug: output too long.\n");
-		exit(1);
-	}
-	if (event->type == EV_KEY)
-		output[output_head++] = *event;
-#endif
-#ifndef DEBUG
-	static value raise_active = UP;
-	if (event->code == KEY_RAISE) {
-		raise_active = event->value;
-		return;
-	}
-	code old = event->code;
-	if (raise_active != UP) {
-		switch (event->code) {
-		case KEY_Q: event->code = KEY_F1; break;
-		case KEY_W: event->code = KEY_F2; break;
-		case KEY_E: event->code = KEY_F3; break;
-		case KEY_R: event->code = KEY_F4; break;
-		case KEY_T: event->code = KEY_F5; break;
-		case KEY_Y: event->code = KEY_F6; break;
-		case KEY_U: event->code = KEY_F7; break;
-		case KEY_I: event->code = KEY_F8; break;
-		case KEY_O: event->code = KEY_F9; break;
-		case KEY_P: event->code = KEY_F10; break;
-		case KEY_A: event->code = KEY_1; break;
-		case KEY_S: event->code = KEY_2; break;
-		case KEY_D: event->code = KEY_3; break;
-		case KEY_F: event->code = KEY_4; break;
-		case KEY_G: event->code = KEY_5; break;
-		case KEY_H: event->code = KEY_6; break;
-		case KEY_J: event->code = KEY_7; break;
-		case KEY_K: event->code = KEY_8; break;
-		case KEY_L: event->code = KEY_9; break;
-		case KEY_SEMICOLON: event->code = KEY_0; break;
-                case KEY_Z: event->code = KEY_102ND; break;
-		case KEY_X: event->code = KEY_SYSRQ; break;
-		case KEY_C: event->code = KEY_COMPOSE; break;
-		case KEY_V: event->code = KEY_GRAVE; break;
-		/* case KEY_B: event->code = KEY_0; break; */
-		case KEY_N: event->code = KEY_BACKSLASH; break;
-		case KEY_M: event->code = KEY_LEFTBRACE; break;
-		/* case KEY_DOT: event->code = KEY_RIGHTBRACE; break; */
-		/* case KEY_COMMA: event->code = KEY_EQUAL; break; */
-		case KEY_SLASH: event->code = KEY_RIGHTBRACE; break;
-		case KEY_ENTER: event->code = KEY_DELETE; break;
-		case KEY_BACKSPACE: event->code = KEY_MINUS; break;
-		case KEY_APOSTROPHE: event->code = KEY_EQUAL; break;
-		}
-	}
-	fwrite(event, sizeof(*event), 1, stdout);
-	event->code = old;
-#endif
-}
-
-code translate_code(code code) {
-	switch (code) {
-	case KEY_F: return KEY_LEFTSHIFT;
-	case KEY_D: return KEY_LEFTCTRL;
-	case KEY_S: return KEY_LEFTMETA;
-	case KEY_A: return KEY_LEFTALT;
-	case KEY_J: return KEY_RIGHTSHIFT;
-	case KEY_K: return KEY_RIGHTCTRL;
-	case KEY_L: return KEY_RIGHTMETA;
-	case KEY_SEMICOLON: return KEY_LEFTALT; // Use left alt to avoid AltGr.
-	case KEY_SPACE: return KEY_RAISE;
-	default: return code;
-	}
-}
-bool is_modifier(code code) { return code != translate_code(code); }
-bool modifier_active(code code) { return code == key_status[code].event.value; }
-
-// Advance the start of the list by one, removing the first element.
-// Do not pop an empty queue.
-void pop_queue() {
-	node *n = oldest_node;
-	oldest_node = oldest_node->next;
-	n->next = NULL;
-}
-bool in_queue(code code) {
-	return key_status[code].next != NULL || latest_node == &key_status[code];
-}
-
-// Code should not already be in the queue.
-void enqueue(code code) {
-	node *this = &key_status[code];
-	if (oldest_node == NULL) {
-		oldest_node = this;
-		latest_node = this;
-	} else {
-		latest_node->next = this;
-		latest_node = this;
-	}
-}
-void dequeue(code code) {
-	node *this = &key_status[code];
-	if (oldest_node == this)
-		oldest_node = this->next;
-	this->next = NULL;
-}
-
-void handle_event(input_event *input) {
-	static bool disabled;
-
-	if (input->type != EV_KEY) {
-		write_event(input);
-		return;
-	}
-	if (input->code == KEY_NUMLOCK
-	    && key_status[KEY_RIGHTSHIFT].event.value != UP) {
-		if (input->value == DOWN) {
-			disabled = !disabled;
-			while (oldest_node != NULL)
-				pop_queue();
-		}
-		return;
-	}
-
-	if (disabled) {
-		key_status[input->code].event = *input;
-		write_event(input);
-		return;
-	}
-
-	switch (input->code) {
-	case KEY_LEFTSHIFT: input->code = KEY_CAPSLOCK; break;
-	case KEY_CAPSLOCK: input->code = KEY_ESC; break;
-	}
-
-	const code input_code = input->code;
-retry_event:
-	if (queue_empty()) {
-		if (is_modifier(input->code)) {
-			switch (input->value) {
-			case DOWN: enqueue(input->code); break;
-			case REPEAT:
-				if (!modifier_active(input->code)) {
-					write_event(input);
-				}
-				break;
-			case UP: {
-				input->code = key_status[input->code].event.code;
-				write_event(input);
-			} break;
-			}
-		} else {
-			write_event(input);
-		}
-	} else if (in_queue(input->code)) {
-		if (input->value == DOWN) {
-			dequeue(input->code);
-			input->value = REPEAT;
-		} else {
-			while (oldest_node != NULL
-			       && (in_queue(input->code) || oldest_node->event.value == UP
-			           || !is_modifier(real_code(oldest_node)))) {
-				if (oldest_node->event.value != UP
-				    && real_code(oldest_node) != input->code)
-					oldest_node->event.code
-						= translate_code(real_code(oldest_node));
-				write_event(&oldest_node->event);
-				pop_queue();
-			}
-		}
-		goto retry_event;
-	} else {
-		if (key_status[input->code].event.value != UP)
-			input->code = key_status[input->code].event.code;
-		enqueue(input_code);
-	}
-
-	key_status[input_code].event = *input;
-}
 
 #if defined(DEBUG) || defined(LOG)
 const char *keyname(code code) {
@@ -262,6 +69,188 @@ void print_key(code code, value value) {
 		eprintf("key(%d, %d);\n", (int)code, (int)value);
 }
 #endif
+
+#define BITSET(name, len) uint8_t name[((len) + 7) / 8]
+bool bitset_get(uint8_t *bitset, int i) {
+	return (bitset[i / 8] & (1 << (i % 8))) != 0;
+}
+void bitset_set(uint8_t *bitset, int i, bool value) {
+	int index = i / 8, subindex = i % 8;
+	uint8_t old_val = bitset[index];
+	bool old = old_val & 1 << subindex;
+	bitset[index] = old_val ^ ((old == 0) != (value == 0)) << subindex;
+}
+// Count of times each key appears in queue.
+uint8_t key_queue_count[KEY_MAX];
+// If the key was modified (turned to modifier) on it's last press.
+BITSET(key_modified, KEY_MAX);
+BITSET(key_raised, KEY_MAX);
+
+input_event queue[1024];
+bool queue_full = false;
+int queue_front, queue_back;
+bool queue_empty() { return queue_front == queue_back && !queue_full; }
+input_event *queue_peek() { return &queue[queue_front]; }
+
+enum key_code { UP = 0, DOWN = 1, REPEAT = 2 };
+
+#ifdef DEBUG
+input_event output[1024];
+int output_head;
+#endif
+
+code translate_code(code code) {
+	switch (code) {
+	case KEY_F: return KEY_LEFTSHIFT;
+	case KEY_D: return KEY_LEFTCTRL;
+	case KEY_S: return KEY_LEFTMETA;
+	case KEY_A: return KEY_LEFTALT;
+	case KEY_J: return KEY_RIGHTSHIFT;
+	case KEY_K: return KEY_RIGHTCTRL;
+	case KEY_L: return KEY_RIGHTMETA;
+	case KEY_SEMICOLON: return KEY_LEFTALT; // Use left alt to avoid AltGr.
+	case KEY_SPACE: return KEY_RAISE;
+	default: return code;
+	}
+}
+bool is_modifier(code code) { return translate_code(code) != code; }
+bool modifier_active(code code) { return bitset_get(key_modified, code); }
+
+void write_event(input_event *event, bool modify) {
+	const code base_code = event->code;
+	code translated = translate_code(event->code);
+	if (modify && event->code != translated) {
+		if (event->code == REPEAT)
+			return;
+		log("  modified\n");
+		bitset_set(key_modified, base_code, event->value == DOWN);
+		event->code = translated;
+	}
+#ifdef LOG
+	if (event->type == EV_KEY)
+		eprintf("-> "), print_key(event->code, event->value);
+#endif
+	static bool raise_active = false;
+	if (event->code == KEY_RAISE) {
+		raise_active = event->value != UP;
+		goto end;
+	}
+	if (event->value == DOWN) {
+		bitset_set(key_raised, base_code, raise_active);
+	}
+	if (event->value == DOWN ? raise_active
+	                         : bitset_get(key_raised, base_code)) {
+		switch (event->code) {
+		case KEY_Q: event->code = KEY_F1; break;
+		case KEY_W: event->code = KEY_F2; break;
+		case KEY_E: event->code = KEY_F3; break;
+		case KEY_R: event->code = KEY_F4; break;
+		case KEY_T: event->code = KEY_F5; break;
+		case KEY_Y: event->code = KEY_F6; break;
+		case KEY_U: event->code = KEY_F7; break;
+		case KEY_I: event->code = KEY_F8; break;
+		case KEY_O: event->code = KEY_F9; break;
+		case KEY_P: event->code = KEY_F10; break;
+		case KEY_A: event->code = KEY_1; break;
+		case KEY_S: event->code = KEY_2; break;
+		case KEY_D: event->code = KEY_3; break;
+		case KEY_F: event->code = KEY_4; break;
+		case KEY_G: event->code = KEY_5; break;
+		case KEY_H: event->code = KEY_6; break;
+		case KEY_J: event->code = KEY_7; break;
+		case KEY_K: event->code = KEY_8; break;
+		case KEY_L: event->code = KEY_9; break;
+		case KEY_SEMICOLON: event->code = KEY_0; break;
+		case KEY_Z: event->code = KEY_102ND; break;
+		case KEY_X: event->code = KEY_SYSRQ; break;
+		case KEY_C: event->code = KEY_CAPSLOCK; break;
+		case KEY_V: event->code = KEY_GRAVE; break;
+		case KEY_B: event->code = KEY_COMPOSE; break;
+		case KEY_N: event->code = KEY_BACKSLASH; break;
+		case KEY_M: event->code = KEY_LEFTBRACE; break;
+		/* case KEY_DOT: event->code = KEY_DOT; break; */
+		/* case KEY_COMMA: event->code = KEY_COMMA; break; */
+		case KEY_SLASH: event->code = KEY_RIGHTBRACE; break;
+		case KEY_ENTER: event->code = KEY_DELETE; break;
+		case KEY_BACKSPACE: event->code = KEY_MINUS; break;
+		case KEY_APOSTROPHE: event->code = KEY_EQUAL; break;
+		}
+	}
+#ifdef DEBUG
+end:
+	if (output_head >= LENGTH(output)) {
+		eprintf("Bug: output too long.\n");
+		exit(1);
+	}
+	output[output_head++] = *event;
+#else
+	fwrite(event, sizeof(*event), 1, stdout);
+end:
+#endif
+	event->code = base_code;
+}
+
+// Advance the start of the list by one, removing the first element.
+// Do not pop an empty queue.
+void dequeue() {
+	--key_queue_count[queue_peek()->code];
+	queue_front = (queue_front + 1) % LENGTH(queue);
+	queue_full = false;
+}
+void enqueue(input_event *event) {
+	if (queue_full)
+		return;
+	queue[queue_back++] = *event;
+	queue_back %= LENGTH(queue);
+	++key_queue_count[event->code];
+	if (queue_front == queue_back)
+		queue_full = true;
+}
+bool in_queue(code code) { return key_queue_count[code] != 0; }
+
+void handle_event(input_event *input) {
+	if (input->type != EV_KEY) {
+		write_event(input, false);
+		return;
+	}
+
+	switch (input->code) {
+	case KEY_CAPSLOCK: input->code = KEY_ESC; break;
+	case KEY_LEFTSHIFT: input->code = KEY_CAPSLOCK; break;
+	}
+
+	if (queue_empty()) {
+		if (input->value == DOWN && is_modifier(input->code)) {
+			log("add to empty queue\n");
+			enqueue(input);
+		} else {
+			log("write\n");
+			write_event(input, modifier_active(input->code));
+		}
+	} else if (input->value == DOWN || !in_queue(input->code)) {
+		log("add to queue\n");
+		enqueue(input);
+	} else {
+		log("clear modify\n");
+		for (; !queue_empty() && in_queue(input->code); dequeue()) {
+			write_event(
+				queue_peek(),
+				(queue_peek()->value == DOWN
+			     && queue_peek()->code != input->code)
+					|| modifier_active(queue_peek()->code)
+			);
+		}
+		enqueue(input);
+		log("clear\n");
+		for (; !queue_empty()
+		       && (queue_peek()->value != DOWN
+		           || !is_modifier(queue_peek()->code));
+		     dequeue()) {
+			write_event(queue_peek(), modifier_active(queue_peek()->code));
+		}
+	}
+}
+
 #ifdef DEBUG
 void key(code code, value value) {
 	input_event input
@@ -273,9 +262,10 @@ void tap(code code) {
 	key(code, 1);
 	key(code, 0);
 }
+value key_status[KEY_MAX];
 bool all_keys_up() {
 	for (int i = 0; i < LENGTH(key_status); ++i)
-		if (key_status[i].event.value != UP)
+		if (key_status[i] != UP)
 			return false;
 	return true;
 }
@@ -285,106 +275,45 @@ const static code codes[]
 	    KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_SPACE };
 bool finish_test() {
 	eprintf("translated:\n");
-	for (int i = 0; i < output_head; ++i)
-		eprintf(" "), print_key(output[i].code, output[i].value);
-	if (!all_keys_up())
-		return true;
-	for (int i = 0; i < output_head; ++i)
-		key_status[output[i].code].event = output[i];
+	for (int i = 0; i < output_head; ++i) {
+		eprintf(" ");
+		print_key(output[i].code, output[i].value);
+		key_status[output[i].code] = output[i].value;
+	}
 	if (!all_keys_up())
 		return true;
 	output_head = 0;
 	eprintf("\n");
 	return false;
 }
-#define FINISH_TEST \
-	if (finish_test()) { \
-		eprintf("failed\n"); \
-		return 1; \
-	}
 int main(int argc, char **argv) {
-	key(KEY_J, 1);
-	tap(KEY_K);
-	tap(KEY_K);
-	key(KEY_J, 0);
-	FINISH_TEST;
-	for (int i = 0; i < 2; ++i) {
-		key(KEY_J, 1);
-		key(KEY_T, 1);
-		key(KEY_J, 0);
-		key(KEY_T, 0);
-	}
-	FINISH_TEST;
-	for (int i = 0; i < 2; ++i) {
-		key(KEY_T, 1);
-		key(KEY_J, 1);
-		key(KEY_T, 0);
-		key(KEY_J, 0);
-	}
-	FINISH_TEST;
-	key(KEY_D, 1);
-	key(KEY_J, 1);
-	key(KEY_D, 0);
-	key(KEY_J, 0);
-	FINISH_TEST;
-	for (int i = 0; i < 2; ++i) {
-		key(KEY_RIGHTSHIFT, 1);
-		tap(KEY_NUMLOCK);
-		key(KEY_RIGHTSHIFT, 0);
-	}
-	key(KEY_J, 1);
-	tap(KEY_D);
-	key(KEY_J, 0);
-	FINISH_TEST;
-	key(KEY_H, 1);
-	key(KEY_I, 1);
-	key(KEY_S, 1);
-	key(KEY_I, 0);
-	key(KEY_H, 0);
-	key(KEY_SPACE, 1);
-	key(KEY_S, 0);
-	key(KEY_SPACE, 0);
-	FINISH_TEST;
-	key(KEY_F, 1);
-	key(KEY_A, 1);
-	key(KEY_K, 1);
-	key(KEY_A, 0);
-	key(KEY_F, 0);
-	key(KEY_K, 0);
-	FINISH_TEST;
-	key(KEY_S, 1);
-	key(KEY_K, 1);
-	key(KEY_S, 0);
-	key(KEY_R, 1);
-	key(KEY_S, 1);
-	key(KEY_K, 0);
-	key(KEY_R, 0);
-	key(KEY_S, 0);
-	FINISH_TEST;
-	if (argc != 2)
-		return 0;
+	if (argc != 3)
+		return 1;
 	// Use od -vAn -td4 -N4 /dev/urandom for random seed.
 	const int seed = atoi(argv[1]);
+	const int fuzz_len = atoi(argv[2]);
+	if (fuzz_len == 0)
+		return 0;
 	srandom(seed);
+	static value press_state[LENGTH(codes)];
 	// I was considering writing an algorithm to reduce the flagged results, but
 	// you can just brute force it by reducing the FUZZ_LEN.
-#ifndef FUZZ_LEN
-#define FUZZ_LEN 10
-#endif
 	// Technique is not very good because it usually selects 10 different keys.
 	for (;;) {
 		output_head = 0;
-		for (int i = 0; i < FUZZ_LEN; ++i) {
-			code code = codes[random() % LENGTH(codes)];
-			key(code, key_status[code].event.value == UP ? DOWN : UP);
+		for (int i = 0; i < fuzz_len; ++i) {
+			int code = random() % LENGTH(codes);
+			value value = press_state[code] == UP ? DOWN : UP;
+			key(codes[code], value);
+			press_state[code] = value;
 		}
 		for (int i = 0; i < LENGTH(codes); ++i)
-			if (key_status[codes[i]].event.value != UP)
-				key(codes[i], UP);
+			if (press_state[i] != UP)
+				key(codes[i], UP), press_state[i] = UP;
 		if (finish_test())
 			break;
 	}
-	eprintf("\nseed %d\n", seed);
+	eprintf("\nfailed with seed %d, length %d\n", seed, fuzz_len);
 	bool code_set = false;
 	static bool ignore_map[LENGTH(output)];
 	return 1;
