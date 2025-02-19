@@ -113,6 +113,44 @@ code translate_code(code code) {
 	default: return code;
 	}
 }
+code raise_code(code code) {
+	switch (code) {
+	case KEY_Q: return KEY_F1;
+	case KEY_W: return KEY_F2;
+	case KEY_E: return KEY_F3;
+	case KEY_R: return KEY_F4;
+	case KEY_T: return KEY_F5;
+	case KEY_Y: return KEY_F6;
+	case KEY_U: return KEY_F7;
+	case KEY_I: return KEY_F8;
+	case KEY_O: return KEY_F9;
+	case KEY_P: return KEY_F10;
+	case KEY_A: return KEY_1;
+	case KEY_S: return KEY_2;
+	case KEY_D: return KEY_3;
+	case KEY_F: return KEY_4;
+	case KEY_G: return KEY_5;
+	case KEY_H: return KEY_6;
+	case KEY_J: return KEY_7;
+	case KEY_K: return KEY_8;
+	case KEY_L: return KEY_9;
+	case KEY_SEMICOLON: return KEY_0;
+	case KEY_Z: return KEY_102ND;
+	case KEY_X: return KEY_SYSRQ;
+	case KEY_C: return KEY_CAPSLOCK;
+	case KEY_V: return KEY_GRAVE;
+	case KEY_B: return KEY_COMPOSE;
+	case KEY_N: return KEY_BACKSLASH;
+	case KEY_M: return KEY_LEFTBRACE;
+	/* case KEY_DOT: return KEY_DOT;  */
+	/* case KEY_COMMA: return KEY_COMMA;  */
+	case KEY_SLASH: return KEY_RIGHTBRACE;
+	case KEY_ENTER: return KEY_DELETE;
+	case KEY_BACKSPACE: return KEY_MINUS;
+	case KEY_APOSTROPHE: return KEY_EQUAL;
+	default: return code;
+	}
+}
 bool is_modifier(code code) { return translate_code(code) != code; }
 bool modifier_active(code code) { return bitset_get(key_modified, code); }
 
@@ -138,44 +176,8 @@ void write_event(input_event *event, bool modify) {
 	if (event->value == DOWN) {
 		bitset_set(key_raised, base_code, raise_active);
 	}
-	if (event->value == DOWN ? raise_active
-	                         : bitset_get(key_raised, base_code)) {
-		switch (event->code) {
-		case KEY_Q: event->code = KEY_F1; break;
-		case KEY_W: event->code = KEY_F2; break;
-		case KEY_E: event->code = KEY_F3; break;
-		case KEY_R: event->code = KEY_F4; break;
-		case KEY_T: event->code = KEY_F5; break;
-		case KEY_Y: event->code = KEY_F6; break;
-		case KEY_U: event->code = KEY_F7; break;
-		case KEY_I: event->code = KEY_F8; break;
-		case KEY_O: event->code = KEY_F9; break;
-		case KEY_P: event->code = KEY_F10; break;
-		case KEY_A: event->code = KEY_1; break;
-		case KEY_S: event->code = KEY_2; break;
-		case KEY_D: event->code = KEY_3; break;
-		case KEY_F: event->code = KEY_4; break;
-		case KEY_G: event->code = KEY_5; break;
-		case KEY_H: event->code = KEY_6; break;
-		case KEY_J: event->code = KEY_7; break;
-		case KEY_K: event->code = KEY_8; break;
-		case KEY_L: event->code = KEY_9; break;
-		case KEY_SEMICOLON: event->code = KEY_0; break;
-		case KEY_Z: event->code = KEY_102ND; break;
-		case KEY_X: event->code = KEY_SYSRQ; break;
-		case KEY_C: event->code = KEY_CAPSLOCK; break;
-		case KEY_V: event->code = KEY_GRAVE; break;
-		case KEY_B: event->code = KEY_COMPOSE; break;
-		case KEY_N: event->code = KEY_BACKSLASH; break;
-		case KEY_M: event->code = KEY_LEFTBRACE; break;
-		/* case KEY_DOT: event->code = KEY_DOT; break; */
-		/* case KEY_COMMA: event->code = KEY_COMMA; break; */
-		case KEY_SLASH: event->code = KEY_RIGHTBRACE; break;
-		case KEY_ENTER: event->code = KEY_DELETE; break;
-		case KEY_BACKSPACE: event->code = KEY_MINUS; break;
-		case KEY_APOSTROPHE: event->code = KEY_EQUAL; break;
-		}
-	}
+	if (event->value == DOWN ? raise_active : bitset_get(key_raised, base_code))
+		event->code = raise_code(event->code);
 #ifdef DEBUG
 end:
 	if (output_head >= LENGTH(output)) {
