@@ -10,7 +10,6 @@
   #:use-module (nongnu packages linux)
 
   #:use-module (services networking)
-  #:use-module (configuration nix)
   #:use-module (utilities)
 
   #:use-module (ice-9 optargs)
@@ -98,7 +97,6 @@
   ((λ args
      (append
       args
-      nix-system-services
       (modify-services
           %base-services
         (guix-service-type

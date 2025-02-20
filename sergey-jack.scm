@@ -4,14 +4,12 @@
              (gnu home services)
              (gnu home services xdg)
              (utilities)
-             (configuration nix)
              (configuration sway-desktop)
              (jack))
 
 (home-environment
  (services
   (cons*
-   (service nix-packages-service-type '("teams"))
    (service home-xdg-user-directories-service-type
             (home-xdg-user-directories-configuration
              (download "$HOME/dlds")

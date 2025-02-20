@@ -330,13 +330,6 @@
   (pkg term-cursor :repo "h0d/term-cursor.el" :require t)
   (global-term-cursor-mode)
 #+end_src
-* Count Keys
-#+begin_src emacs-lisp
-  (pkg keyfreq :require t)
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1)
-  (setf keyfreq-excluded-commands '(self-insert-command))
-#+end_src
 * Editing
 ** Evil Requirements
 Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
