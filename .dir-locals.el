@@ -4,7 +4,6 @@
 
 ((nil
   . ((fill-column . 78)
-     (tab-width   .  8)
      (sentence-end-double-space . t)
 
      ;; For use with 'bug-reference-prog-mode'.
@@ -13,7 +12,6 @@
       . "\\(#\\([0-9]+\\)\\)")
 
      (geiser-insert-actual-lambda . nil)))
- (c-mode          . ((c-file-style . "gnu")))
  (scheme-mode
   .
   ;; Note this next setting will use the current guix as the geiser binary;
@@ -101,7 +99,4 @@
    ;; preceding symbol is one of these.
    (eval . (modify-syntax-entry ?~ "'"))
    (eval . (modify-syntax-entry ?$ "'"))
-   (eval . (modify-syntax-entry ?+ "'"))))
- (emacs-lisp-mode . ((indent-tabs-mode . nil)))
- (texinfo-mode    . ((indent-tabs-mode . nil)
-                     (fill-column . 72))))
+   (eval . (modify-syntax-entry ?+ "'")))))
