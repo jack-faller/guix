@@ -147,7 +147,6 @@
        ,(mixed-text-file
          "gnupg-agent.conf"
          "default-cache-ttl 600" "\n" "max-cache-ttl 7200" "\n"
-         "use-agent" "\n"
          "pinentry-program " pinentry "/bin/pinentry" "\n"))
       (".local/share/icons/default/index.theme"
        ,(plain-file "cursor-theme-index" (lines "[Icon Theme]"
