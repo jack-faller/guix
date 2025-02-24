@@ -21,6 +21,7 @@
   #:use-module (packages discord)
   #:use-module (packages guix-dev)
   #:use-module (packages icons)
+  #:use-module (packages pulseshitter)
   #:use-module (utilities))
 
 (use-package-modules
@@ -265,7 +266,7 @@
    "yt-dlp" "rakudo" "android-file-transfer" "xdg-utils"
    guix-dev
    ;; applications
-   discord "qutebrowser"
+   discord pulseshitter "qutebrowser"
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "gimp"
    "kdenlive" "obs" miny))

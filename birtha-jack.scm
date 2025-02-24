@@ -7,6 +7,8 @@
              (gnu home services xdg)
              (utilities)
              (configuration bspwm-desktop)
+             (nonguix multiarch-container)
+             (nongnu packages game-client)
              (jack))
 
 (home-environment
@@ -22,7 +24,11 @@
    (append bspwm-desktop-home-services jack-services)))
  (packages
   (using-nvidia
-       (append
-        (specifications->package-list
-         (list "lsp-plugins" "lv2") "easyeffects" "ungoogled-chromium")
-        jack-packages))))
+   (append
+    (specifications->package-list
+     (list "lsp-plugins" "lv2") "easyeffects" "ungoogled-chromium"
+     (nonguix-container->package
+      (nonguix-container
+       (inherit steam-nvidia-container)
+       (shared (cons* "/hdd" "/ssd" (ngc-shared steam-nvidia-container))))))
+    jack-packages))))
