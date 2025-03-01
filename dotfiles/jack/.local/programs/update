@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+guix pull
+echo "Pulled."
+if [ "$(whoami)" = "root" ]; then
+	guix system reconfigure /config/"$(cat /etc/hostname)"-system.scm
+else
+	guix home reconfigure /config/"$(cat /etc/hostname)"-jack.scm
+fi
