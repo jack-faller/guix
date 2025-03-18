@@ -39,9 +39,10 @@
     'sway-desktop-profile
     home-profile-service-type
     (specifications->package-list
-     "sway" "waybar" "swaylock-effects" "gammastep" "wl-clipboard" "xorg-server-xwayland"
+     "sway" "xorg-server-xwayland"
+     "waybar" "swaylock-effects" "gammastep"
      "imagemagick" "dunst" "wl-mirror"
-     "wtype"
+     "wtype" "wl-clipboard-x11" "wl-clipboard"
      ;; Make QT work, but this might not work for QT 5.
      "qtwayland"
      ;; these are for binds
