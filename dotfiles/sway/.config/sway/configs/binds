@@ -19,7 +19,7 @@
     bindsym $mod+Shift+Space exec echo "~/.config/appmenu/$(ls ~/.config/appmenu | $menu)" | xargs swaymsg exec --
 
     # Unicode entry
-    bindsym $mod+u exec rofi -show unicode ; keyboard-input "$(clip-paste)"
+    bindsym $mod+u exec rofi -show unicode ; wtype "$(clip -o)"
 
     # Pkill
     bindsym $mod+x exec rofi -show pkill

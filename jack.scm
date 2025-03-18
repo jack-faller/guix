@@ -132,6 +132,7 @@
    (service
     home-files-service-type
     `((".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
+      (".local/programs/clip" ,(c-script "clip" (f "clip.c")))
       (".local/programs/ardour"
        ,(program-file
          "ardour"
