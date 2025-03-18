@@ -269,4 +269,7 @@
    discord pulseshitter "qutebrowser"
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "gimp"
-   "kdenlive" "obs" miny))
+   "kdenlive" "obs" miny
+   "rhythmbox" "gst-libav" "gst-plugins-bad" "gst-plugins-ugly"
+   "libreoffice"
+   ))
