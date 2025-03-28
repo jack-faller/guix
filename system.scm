@@ -15,12 +15,13 @@
   #:use-module (ice-9 optargs)
 
   #:use-module ((gnu services networking)
-                #:select (ntp-service-type)))
+                #:select (ntp-service-type
+                          nftables-service-type nftables-configuration)))
 
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
                      admin linux)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
-                     package-management firmware)
+                     package-management firmware dns)
 
 (define*-public (make-system name swap-devices file-systems services packages
                              #:optional #:key
@@ -91,7 +92,9 @@
              %default-privileged-programs))
     (name-service-switch %mdns-host-lookup-nss)))
 
-(define-public system-packages (cons* vim git zsh %base-packages))
+(define-public system-packages
+  ;; Bind utils needed for dig in add-blocklists.sh
+  (cons* vim git zsh (list isc-bind "utils") %base-packages))
 
 (define-public system-services
   ((λ args
@@ -164,10 +167,18 @@
                              #$(file-append interception-tools "/bin")))))))
                 #:log-file "/var/log/udevmon.log"))
       (stop #~(make-kill-destructor)))))
-   (service pam-limits-service-type
-            (list
-             (pam-limits-entry "@realtime" 'both 'rtprio 99)
-             (pam-limits-entry "@realtime" 'both 'memlock 'unlimited)))
+   (simple-service
+    'populate-blocklist shepherd-root-service-type
+    (list
+     (shepherd-service
+      (documentation "Add IPs to blocklists")
+      (provision '(populate-blocklist))
+      (requirement '(nftables))
+      (one-shot? #t)
+      (start #~(make-forkexec-constructor (list #$(f "add-blocksites.sh"))))
+      (stop #~(make-kill-destructor)))))
+   (service nftables-service-type
+            (nftables-configuration (ruleset (f "nftables.conf"))))
    (service iwd-service-type)
    (service connman-service-type
             (connman-configuration
