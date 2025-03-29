@@ -12,7 +12,10 @@
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 receive)
   #:use-module (ice-9 optargs)
-  #:use-module (ice-9 string-fun))
+  #:use-module (ice-9 string-fun)
+  #:use-module (gnu services)
+  #:use-module (gnu services admin)
+  #:use-module (gnu services shepherd))
 
 ;; make this work with both guix pull and from other commands
 (define*-public config-directory (current-source-directory))
@@ -37,6 +40,17 @@
            (for-each (lambda (line) (display line file) (newline file))
                      lines)))
        (chmod #$output #o555))))
+
+(define*-public (simple-shepherd-service name shepherd-service #:optional log-files)
+  (define shepherd-extension
+    (service-extension shepherd-root-service-type
+                       (const (list shepherd-service))))
+  (define extensions
+    (if log-files
+        (list shepherd-extension
+              (service-extension log-rotation-service-type (const log-files)))
+        (list shepherd-extension)))
+  (service (service-type (name name) (extensions extensions) (description "Run a shepherd service and rotate its logs")) #f))
 
 (define*-public (script-with-path packages name file)
   (use-modules (gnu packages base))
