@@ -1,6 +1,7 @@
 (define-module (utilities)
   #:use-module (gnu)
   #:use-module (gnu services)
+  #:use-module (srfi srfi-26)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (gnu packages base)
@@ -36,6 +37,16 @@
            (for-each (lambda (line) (display line file) (newline file))
                      lines)))
        (chmod #$output #o555))))
+
+(define*-public (script-with-path packages name file)
+  (use-modules (gnu packages base))
+  (define ps (cons* coreutils grep sed packages))
+  (program-file
+   name
+   #~(let ((bins '(#$@(map (cut file-append <> "/bin") ps)
+                   #$@(map (cut file-append <> "/sbin") ps))))
+       (setenv "PATH" (string-join bins ":"))
+       (apply system* #$file (cdr (program-arguments))))))
 
 (define*-public (using-nvidia packages)
   (map (lambda (a)

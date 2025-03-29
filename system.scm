@@ -94,7 +94,7 @@
 
 (define-public system-packages
   ;; Bind utils needed for dig in add-blocklists.sh
-  (cons* vim git zsh (list isc-bind "utils") %base-packages))
+  (cons* vim git zsh %base-packages))
 
 (define-public system-services
   ((λ args
@@ -175,7 +175,12 @@
       (provision '(populate-blocklist))
       (requirement '(nftables))
       (one-shot? #t)
-      (start #~(make-forkexec-constructor (list #$(f "add-blocksites.sh"))))
+      (start
+       #~(make-forkexec-constructor
+          (list #$(script-with-path
+                   (list (gexp-input isc-bind "utils") nftables)
+                   "add-blocksites" (f "add-blocksites.sh")))
+          #:log-file "/var/log/add-blocklists.log"))
       (stop #~(make-kill-destructor)))))
    (service nftables-service-type
             (nftables-configuration (ruleset (f "nftables.conf"))))
