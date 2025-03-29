@@ -138,9 +138,6 @@
    fontconfig-file-system-service
    (service kernel-module-loader-service-type '("fuse"))
    (simple-service
-    'udevmon-rotlog log-rotation-service-type
-    '("/var/log/udevmon.log"))
-   (simple-service
     'udevmon shepherd-root-service-type
     (list
      (shepherd-service
@@ -168,6 +165,9 @@
                 #:log-file "/var/log/udevmon.log"))
       (stop #~(make-kill-destructor)))))
    (simple-service
+    'udevmon-rotlog log-rotation-service-type
+    '("/var/log/udevmon.log"))
+   (simple-service
     'populate-blocklist shepherd-root-service-type
     (list
      (shepherd-service
@@ -182,6 +182,9 @@
                    "add-blocksites" (f "add-blocksites.sh")))
           #:log-file "/var/log/add-blocklists.log"))
       (stop #~(make-kill-destructor)))))
+   (simple-service
+    'populate-blocklist-rotlog log-rotation-service-type
+    '("/var/log/add-blocklists.log"))
    (service nftables-service-type
             (nftables-configuration (ruleset (f "nftables.conf"))))
    (service iwd-service-type)
