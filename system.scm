@@ -93,7 +93,6 @@
     (name-service-switch %mdns-host-lookup-nss)))
 
 (define-public system-packages
-  ;; Bind utils needed for dig in add-blocklists.sh
   (cons* vim git zsh %base-packages))
 
 (define-public system-services
@@ -168,23 +167,23 @@
     'udevmon-rotlog log-rotation-service-type
     '("/var/log/udevmon.log"))
    (simple-service
-    'populate-blocklist shepherd-root-service-type
+    'populate-blocklists shepherd-root-service-type
     (list
      (shepherd-service
       (documentation "Add IPs to blocklists")
-      (provision '(populate-blocklist))
+      (provision '(populate-blocklists))
       (requirement '(nftables))
       (one-shot? #t)
       (start
        #~(make-forkexec-constructor
           (list #$(script-with-path
                    (list (gexp-input isc-bind "utils") nftables)
-                   "add-blocksites" (f "add-blocksites.sh")))
-          #:log-file "/var/log/add-blocklists.log"))
+                   "populat-blocklists.real" (f "populate-blocklists.sh")))
+          #:log-file "/var/log/populate-bocklists.log"))
       (stop #~(make-kill-destructor)))))
    (simple-service
     'populate-blocklist-rotlog log-rotation-service-type
-    '("/var/log/add-blocklists.log"))
+    '("/var/log/populate-bocklists.log"))
    (service nftables-service-type
             (nftables-configuration (ruleset (f "nftables.conf"))))
    (service iwd-service-type)
