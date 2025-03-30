@@ -22,7 +22,6 @@ bspc config gapless_monocle    true
 bspc config ignore_ewmh_focus  true
 
 bspc rule -a Gimp      state=floating
-bspc rule -a Xdialog   state=floating
 bspc rule -a kmines    state=floating
 # bspc rule -a Chromium  desktop='^2'
 bspc rule -a mplayer2  state=floating

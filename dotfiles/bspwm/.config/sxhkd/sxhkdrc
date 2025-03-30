@@ -116,7 +116,7 @@ super + r
 
 super + ctrl + r
     pkill -x --signal 'SIGINT' recordmydesktop; \
-    name=`Xdialog --stdout --inputbox "Recording name:" 400x150`; \
+    name=`zenity --entry --text "Recording name:"`; \
     if [ "$name" -eq "" ]; then; \
     name=`date`; \
     fi; \
@@ -133,7 +133,7 @@ super + shift + r
     echo "/tmp/$date.png" > /tmp/last-screenshot.txt
 
 super + Print; n
-    name=`Xdialog --stdout --inputbox "Screenshot name:" 400x150` && \
+    name=`zenity --entry --text "Screenshot name:"` && \
     old_name="$(cat /tmp/last-screenshot.txt)" && \
     new_name="$(dirname "$old_name")/$name.png" && \
     mv "$old_name" "$new_name" && \

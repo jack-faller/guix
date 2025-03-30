@@ -48,6 +48,6 @@
       "imagemagick" "dunst"
       "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo"
       ;; screenshots
-      "maim" "xdotool" "xdialog"
+      "maim" "xdotool"
       ;; these are started automatically by dbus
       "xdg-desktop-portal")))))

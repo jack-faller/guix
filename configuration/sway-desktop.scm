@@ -48,7 +48,7 @@
      ;; these are for binds
      "brightnessctl" "pulseaudio"
      ;; screenshots
-     "slurp" "grim" "zenity"
+     "slurp" "grim"
      ;; these are started automatically by dbus
      "xdg-desktop-portal" "xdg-desktop-portal-wlr"))
    (service

@@ -252,6 +252,7 @@
    "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
    quintom-cursor-theme
    ;; cli utilities
+   "zenity"
    "cloc"
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
