@@ -60,7 +60,7 @@
    #~(let ((bins '(#$@(map (cut file-append <> "/bin") ps)
                    #$@(map (cut file-append <> "/sbin") ps))))
        (setenv "PATH" (string-join bins ":"))
-       (apply system* #$file (cdr (program-arguments))))))
+       (apply execlp #$file (cdr (program-arguments))))))
 
 (define*-public (using-nvidia packages)
   (map (lambda (a)
