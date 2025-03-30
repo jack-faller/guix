@@ -9,17 +9,12 @@
   #:use-module (nongnu system linux-initrd)
   #:use-module (nongnu packages linux)
 
-  #:use-module (services networking)
+  #:use-module (services iwd)
   #:use-module (utilities)
 
-  #:use-module (ice-9 optargs)
-
-  #:use-module ((gnu services networking)
-                #:select (ntp-service-type
-                          nftables-service-type nftables-configuration)))
-
+  #:use-module (ice-9 optargs))
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
-                     admin linux)
+                     admin linux networking)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
                      package-management firmware dns)
 
@@ -168,7 +163,7 @@
     (shepherd-service
      (documentation "Add IPs to blocklists")
      (provision '(populate-blocklists))
-     (requirement '(nftables))
+     (requirement '(nftables networking))
      (one-shot? #t)
      (start
       #~(make-forkexec-constructor
@@ -183,12 +178,15 @@
    (service iwd-service-type)
    (service connman-service-type
             (connman-configuration
-             (main
-              '((General
-                 ((PreferredTechnologies
-                   ethernet wifi)
-                  (NetworkInterfacesBlacklist
-                   vmnet vboxnet virbr ifb docker veth eth wlan)))))))
+             (shepherd-requirement '(iwd))
+             (disable-vpn? #t)
+             (general-configuration
+              (connman-general-configuration
+               (preferred-technologies '("ethernet" "wifi"))
+               (network-interface-blacklist
+                '("vmnet" "vboxnet" "virbr" "ifb" "docker" "veth" "eth" "wlan"))))))
+   (simple-service 'connman-rotlog log-rotation-service-type
+                   '("/var/log/connman.log"))
    (service ntp-service-type)
    (service openssh-service-type
             (openssh-configuration
