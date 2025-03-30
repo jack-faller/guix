@@ -116,7 +116,7 @@ super + r
 
 super + ctrl + r
     pkill -x --signal 'SIGINT' recordmydesktop; \
-    name=`zenity --entry --text "Recording name:"`; \
+    name=`zenity --entry --text "Recording name:" --width 400 --height 150`; \
     if [ "$name" -eq "" ]; then; \
     name=`date`; \
     fi; \
@@ -133,7 +133,7 @@ super + shift + r
     echo "/tmp/$date.png" > /tmp/last-screenshot.txt
 
 super + Print; n
-    name=`zenity --entry --text "Screenshot name:"` && \
+    name=`zenity --entry --text "Screenshot name:" --width 400 --height 150` && \
     old_name="$(cat /tmp/last-screenshot.txt)" && \
     new_name="$(dirname "$old_name")/$name.png" && \
     mv "$old_name" "$new_name" && \
