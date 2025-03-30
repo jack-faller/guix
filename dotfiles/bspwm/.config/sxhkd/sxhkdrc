@@ -159,10 +159,8 @@ super + Caps_Lock
 super + semicolon
     passmenu
 
-#reload net
 super + n
-    connmanctl disconnect wifi_7c8bca1ddac5_564d36383136323033_managed_psk; \
-    connmanctl connect wifi_7c8bca1ddac5_564d36383136323033_managed_psk
+    sudo --askpass cmst --disable-tray-icon
 
 #dunst
 ctrl + @space

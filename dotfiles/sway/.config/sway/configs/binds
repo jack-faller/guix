@@ -172,6 +172,9 @@
 # Passwords:
     bindsym $mod+SemiColon exec passmenu
 
+# Network:
+    bindsym $mod+n exec sudo --askpass cmst --disable-tray-icon
+
 # Notifications:
     bindsym Ctrl+Space exec dunstctl close
     bindsym Ctrl+Shift+Space exec dunstctl history-pop

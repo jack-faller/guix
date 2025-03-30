@@ -65,6 +65,8 @@
     home-environment-variables-service-type
     `(("PATH" . "$HOME/.local/programs:$PATH")
       ("DISCORD_ENABLE_UPDATES" . "true")
+      ("SUDO_ASKPASS" .
+       ,(program-file "sudo-askpass" #~(system* "zenity" "--password")))
       ("UNICODE_DATA_TXT" .
        ,(file-append ucd "/share/ucd/UnicodeData.txt"))))
    (service
@@ -268,6 +270,7 @@
    "yt-dlp" "rakudo" "android-file-transfer" "xdg-utils"
    guix-dev
    ;; applications
+   "cmst"
    discord pulseshitter "qutebrowser"
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "gimp"
