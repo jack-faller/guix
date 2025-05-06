@@ -16,7 +16,7 @@
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
                      admin linux networking)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
-                     package-management firmware dns)
+                     package-management firmware dns admin)
 
 (define*-public (make-system name swap-devices file-systems services packages
                              #:optional #:key
@@ -168,7 +168,7 @@
      (start
       #~(make-forkexec-constructor
          (list #$(script-with-path
-                  (list (gexp-input isc-bind "utils") nftables)
+                  (list inetutils (gexp-input isc-bind "utils") nftables)
                   "populat-blocklists.real" (f "populate-blocklists.sh")))
          #:log-file "/var/log/populate-bocklists.log"))
      (stop #~(make-kill-destructor)))
