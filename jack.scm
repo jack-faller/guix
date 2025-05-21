@@ -258,6 +258,7 @@
    "cloc"
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
+   "socat" "curl"
    "hyperfine"
    "cups"
    "python-pywal"
