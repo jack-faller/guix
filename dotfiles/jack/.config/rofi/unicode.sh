@@ -14,5 +14,5 @@ script='{
 if [ "$ROFI_RETV" = 0 ]; then
     awk -v FS=';' "$script" "$UNICODE_DATA_TXT"
 elif [ "$ROFI_RETV" = 1 ]; then
-    printf "\U$ROFI_INFO" | clip-copy > /dev/null 2>&1
+    printf "\U$ROFI_INFO" | clip > /dev/null 2>&1
 fi
