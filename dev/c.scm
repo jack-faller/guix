@@ -2,4 +2,4 @@
 (use-modules (utilities))
 (specifications->package-list
  "gcc-toolchain" "glibc:debug" "binutils" "clang" "automake" "autoconf" "bear"
- "valgrind" "make" "gdb" "cgdb")
+ "valgrind" "make" "gdb" "cgdb" "pkg-config")
