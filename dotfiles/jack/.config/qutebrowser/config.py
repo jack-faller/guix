@@ -46,17 +46,17 @@ config.set("content.javascript.clipboard", "access", "www.nytimes.com")
 
 c.auto_save.session = True
 c.colors.webpage.preferred_color_scheme = "dark"
-c.fonts.web.family.fixed = "iosevka"
+c.downloads.open_dispatcher="xdg-open"
+c.editor.remove_file = False
 c.fonts.default_family = "iosevka"
 c.fonts.default_size = "10pt"
+c.fonts.web.family.fixed = "iosevka"
 c.hints.auto_follow = "always"
 c.hints.chars = "abcdefghijklmnopqrstuvwxyz"
-c.scrolling.bar = "always"
+c.scrolling.smooth = True
 c.statusbar.show = "in-mode"
 c.tabs.last_close = "close"
 c.tabs.new_position.unrelated = "next"
 c.tabs.show = "multiple"
-c.editor.remove_file = False
-c.downloads.open_dispatcher="xdg-open"
 
 c.spellcheck.languages = ["en-GB"]
