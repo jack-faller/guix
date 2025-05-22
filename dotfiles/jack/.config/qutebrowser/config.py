@@ -46,7 +46,8 @@ config.set("content.javascript.clipboard", "access", "www.nytimes.com")
 
 c.auto_save.session = True
 c.colors.webpage.preferred_color_scheme = "dark"
-c.downloads.open_dispatcher="xdg-open"
+c.downloads.open_dispatcher = "xdg-open"
+c.downloads.remove_finished = 0
 c.editor.remove_file = False
 c.fonts.default_family = "iosevka"
 c.fonts.default_size = "10pt"
