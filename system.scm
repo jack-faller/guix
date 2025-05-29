@@ -14,7 +14,7 @@
 
   #:use-module (ice-9 optargs))
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
-                     admin linux networking)
+                     admin linux networking docker)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
                      package-management firmware dns admin admin)
 
@@ -61,7 +61,6 @@
     (groups (cons*
              ;; Realtime audio.
              (user-group (name "realtime"))
-             (user-group (name "docker"))
              %base-groups))
     (sudoers-file
      (computed-file
@@ -131,6 +130,10 @@
                             %default-sysctl-settings)))))))
    fontconfig-file-system-service
    (service kernel-module-loader-service-type '("fuse"))
+   (service containerd-service-type)
+   (service docker-service-type)
+   (simple-service 'docker-rotlog log-rotation-service-type
+                   '("/var/log/docker.log" "/var/log/containerd.log"))
    (simple-shepherd-service
     'udevmon
     (shepherd-service
