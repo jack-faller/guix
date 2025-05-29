@@ -16,7 +16,7 @@
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
                      admin linux networking)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
-                     package-management firmware dns admin)
+                     package-management firmware dns admin admin)
 
 (define*-public (make-system name swap-devices file-systems services packages
                              #:optional #:key
@@ -72,10 +72,10 @@
             (display (call-with-input-file #$%sudoers-specification
                        get-string-all))
             (newline)
-            (define str "%wheel ALL=(ALL) NOPASSWD: /home/jack/.guix-home/profile/sbin/")
-            (define (nopass prog) (display str) (display prog) (newline))
-            (nopass "halt")
-            (nopass "reboot")))))
+            (display "%wheel ALL=(ALL) NOPASSWD: ")
+            (display #$shepherd) (display "/bin/halt, ")
+            (display #$shepherd) (display "/bin/reboot")
+            (newline)))))
 
     (privileged-programs
      ;; Allow desktop users to also mount NTFS and NFS file systems
