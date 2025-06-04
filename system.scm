@@ -72,8 +72,13 @@
                        get-string-all))
             (newline)
             (display "%wheel ALL=(ALL) NOPASSWD: ")
-            (display #$shepherd) (display "/bin/halt, ")
-            (display #$shepherd) (display "/bin/reboot")
+            (display
+             (string-join
+              (map
+               (lambda (shepherd)
+                 (string-append shepherd "/sbin/halt, " shepherd "/sbin/reboot"))
+               '(#$shepherd #$(specification->package "shepherd")))
+              ", "))
             (newline)))))
 
     (privileged-programs
