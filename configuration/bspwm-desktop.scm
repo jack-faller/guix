@@ -46,7 +46,7 @@
       "xinit" "xorg-server" "xf86-input-libinput" "xf86-video-nouveau" "xf86-video-nv" "xf86-video-fbdev"
       "sxhkd" "bspwm" "redshift" "xclip"
       "imagemagick" "dunst"
-      "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo"
+      "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo" "xrandr"
       ;; screenshots
       "maim" "xdotool"
       ;; these are started automatically by dbus
