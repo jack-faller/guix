@@ -5,8 +5,19 @@ if xrandr -q | grep 'DP-0 connected'; then
 		   --output HDMI-0 --mode 1920x1080 --pos 320x1440 --rotate normal
 	bspc monitor DP-0 -d I II III IV V
 	bspc monitor HDMI-0 -d VI VII VIII IX X
+	bspc desktop --focus I
+
+	bspc rule -a Steam               desktop='^4' follow=off
+	bspc rule -a easyeffects         desktop='^5' follow=off
+	bspc rule -a discord             desktop='^6' follow=off
+	bspc rule -a transmission-gtk    desktop='^10' follow=off
 else
 	bspc monitor -d I II III IV V VI VII VIII IX X
+
+	bspc rule -a Steam               desktop='^3' follow=off
+	bspc rule -a discord             desktop='^4' follow=off
+	bspc rule -a easyeffects         desktop='^5' follow=off
+	bspc rule -a transmission-gtk    desktop='^6' follow=off
 fi
 
 bspc config border_width   4
@@ -43,12 +54,3 @@ bspc rule -a "*:*:Miny"          state=floating
 bspc rule -a Gnome-mines         state=floating
 bspc rule -a Emacs               state=tiled
 bspc rule -a Evince              state=tiled
-bspc rule -a Steam               desktop='^3' follow=off
-bspc rule -a discord             desktop='^4' follow=off
-bspc rule -a Pulseeffects        desktop='^5' follow=off
-bspc rule -a easyeffects         desktop='^5' follow=off
-bspc rule -a Carla2              desktop='^5' follow=off
-bspc rule -a 'qBittorrentv4.2.5' desktop='^6' follow=off
-bspc rule -a 'qBittorrent'       desktop='^6' follow=off
-bspc rule -a 'qbittorrent'       desktop='^6' follow=off
-bspc rule -a transmission-gtk    desktop='^6' follow=off
