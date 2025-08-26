@@ -9,6 +9,7 @@
              (configuration bspwm-desktop)
              (nonguix multiarch-container)
              (nongnu packages game-client)
+             (nongnu packages nvidia)
              (jack))
 
 (home-environment
@@ -27,8 +28,11 @@
    (append
     (specifications->package-list
      (list "lsp-plugins" "lv2") "easyeffects" "ungoogled-chromium"
+     "prismlauncher"
+     "openjdk@21"
      (nonguix-container->package
-      (nonguix-container
-       (inherit steam-nvidia-container)
-       (shared (cons* "/hdd" "/ssd" (ngc-shared steam-nvidia-container))))))
+      (let ((container (steam-container-for nvda)))
+        (nonguix-container
+         (inherit container)
+         (shared (cons* "/hdd" "/ssd" (ngc-shared container)))))))
     jack-packages))))
