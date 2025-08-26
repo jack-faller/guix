@@ -26,12 +26,12 @@
   (require 'treesit)
   (defun ts-url (url-name)
   	(concat "https://github.com/tree-sitter/tree-sitter-" url-name))
-  (cl-defun ts-install (mode &optional &key (remap t) language url-name url)
+  (cl-defun ts-install (mode &optional &key (remap t) language url-name url from-mode)
     (setf language (or language mode))
     (setf url-name (or url-name (symbol-name language)))
     (setf url (or url (ts-url url-name)))
     (push (list language url) treesit-language-source-alist)
-    (let ((orig-mode (symcat mode "-mode"))
+    (let ((orig-mode (or from-mode (symcat mode "-mode")))
   		(ts-mode (symcat mode "-ts-mode")))
   	(when remap
   	  (add-to-list 'major-mode-remap-alist (cons orig-mode ts-mode)))
@@ -992,6 +992,10 @@ align with previews
   (setq-mode-local rustic-mode mode-print-formatter
                    (lambda (text)
                      (concat "println!(\"{:#?}\", (" text "));")))
+#+end_src
+** JSON
+#+begin_src emacs-lisp
+  (ts-install 'json :from-mode 'js-json-mode)
 #+end_src
 ** C#
 #+begin_src emacs-lisp
