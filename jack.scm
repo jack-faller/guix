@@ -69,8 +69,8 @@
        ,(file-append ucd "/share/ucd/UnicodeData.txt"))
       ,@(let ((askpass (program-file "askpass"
                                      #~(system* "zenity" "--password"))))
-          ("SUDO_ASKPASS" . ,askpass)
-          ("SSH_ASKPASS" . ,askpass))))
+          `(("SUDO_ASKPASS" . ,askpass)
+            ("SSH_ASKPASS" . ,askpass)))))
    (service
     home-xdg-mime-applications-service-type
     (home-xdg-mime-applications-configuration
