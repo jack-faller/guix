@@ -13,9 +13,6 @@ super + shift + BackSpace
 super + @space
     rofi -modes run -show run
 
-ctrl + alt + Delete
-    sudo reboot
-
 # appmenu
 super + shift + @space
     "$HOME/.config/appmenu/$(ls $HOME/.config/appmenu/ | dmenu -p run)"
@@ -163,16 +160,16 @@ super + n
     sudo --askpass cmst --disable-tray-icon
 
 #dunst
-ctrl + @space
+super + Delete
     dunstctl close
 
-ctrl + shift + @space
+super + shift + Delete
     dunstctl close-all
 
-ctrl + shift + period
+super + shift + period
     dunstctl context
 
-ctrl + shift + grave
+super + shift + grave
     dunstctl history-pop
 
 super + u

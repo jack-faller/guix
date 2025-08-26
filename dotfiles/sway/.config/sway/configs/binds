@@ -176,10 +176,11 @@
     bindsym $mod+n exec sudo --askpass cmst --disable-tray-icon
 
 # Notifications:
-    bindsym Ctrl+Space exec dunstctl close
-    bindsym Ctrl+Shift+Space exec dunstctl history-pop
-    bindsym Ctrl+Alt+Space exec dunstctl action 0 && dunstctl close
-    bindsym Ctrl+Alt+Shift+Space exec dunstctl context
+    bindsym $mod+Delete exec dunstctl close
+    bindsym $mod+Shift+Delete exec dunstctl history-pop
+    bindsym $mod+Alt+Delete exec dunstctl action 0 && dunstctl close
+    bindsym $mod+Alt+Shift+Delete exec dunstctl context
+    bindsym $mod+Shift+Grave exec dunstctl history-pop
 
 # Lock:
     bindsym $mod+F2 $lock
