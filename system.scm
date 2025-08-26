@@ -140,33 +140,6 @@
    (simple-service 'docker-rotlog log-rotation-service-type
                    '("/var/log/docker.log" "/var/log/containerd.log"))
    (simple-shepherd-service
-    'udevmon
-    (shepherd-service
-     (documentation "Run udevmon")
-     (provision '(udevmon))
-     (requirement '(user-processes udev))
-     (start #~(make-forkexec-constructor
-               (list
-                #$(file-append coreutils "/bin/nice")
-                "-n" "-20"
-                #$(file-append interception-tools "/bin/udevmon")
-                "-c"
-                #$(computed-file
-                   "udevmon.yaml"
-                   (with-imported-modules '((guix build utils))
-                     #~(begin
-                         (use-modules (guix build utils))
-                         (copy-file #$(f "udevmon.yaml") #$output)
-                         (chmod #$output #o555)
-                         (substitute* #$output
-                           (("HOMEROW_MOD")
-                            #$(c-script "homerow-mod" (f "homerow-mod.c")))
-                           (("INTERCEPTION_BIN")
-                            #$(file-append interception-tools "/bin")))))))
-               #:log-file "/var/log/udevmon.log"))
-     (stop #~(make-kill-destructor)))
-    '("/var/log/udevmon.log"))
-   (simple-shepherd-service
     'populate-blocklists
     (shepherd-service
      (documentation "Add IPs to blocklists")
