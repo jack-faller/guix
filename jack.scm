@@ -65,10 +65,12 @@
     home-environment-variables-service-type
     `(("PATH" . "$HOME/.local/programs:$PATH")
       ("DISCORD_ENABLE_UPDATES" . "true")
-      ("SUDO_ASKPASS" .
-       ,(program-file "sudo-askpass" #~(system* "zenity" "--password")))
       ("UNICODE_DATA_TXT" .
-       ,(file-append ucd "/share/ucd/UnicodeData.txt"))))
+       ,(file-append ucd "/share/ucd/UnicodeData.txt"))
+      ,@(let ((askpass (program-file "askpass"
+                                     #~(system* "zenity" "--password"))))
+          ("SUDO_ASKPASS" . ,askpass)
+          ("SSH_ASKPASS" . ,askpass))))
    (service
     home-xdg-mime-applications-service-type
     (home-xdg-mime-applications-configuration
