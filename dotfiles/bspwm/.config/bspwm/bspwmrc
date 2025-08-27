@@ -1,10 +1,10 @@
 #!/bin/sh
-if xrandr -q | grep 'DP-0 connected'; then
+if xrandr -q | grep 'DP-1 connected'; then
 	# Obtained this command through arandr.
-	xrandr --output DP-0 --mode 2560x1440 --pos 0x0 --rotate normal \
-		   --output HDMI-0 --mode 1920x1080 --pos 320x1440 --rotate normal
-	bspc monitor DP-0 -d I II III IV V
-	bspc monitor HDMI-0 -d VI VII VIII IX X
+	xrandr --output DP-1 --mode 2560x1440 --pos 0x0 --rotate normal \
+		   --output HDMI-1 --mode 1920x1080 --pos 320x1440 --rotate normal
+	bspc monitor DP-1 -d I II III IV V
+	bspc monitor HDMI-1 -d VI VII VIII IX X
 	bspc desktop --focus I
 
 	bspc rule -a Steam               desktop='^4' follow=off
