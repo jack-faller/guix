@@ -78,7 +78,6 @@ bindkey "^?" backward-delete-char
 bindkey "^W" backward-kill-word
 bindkey "^U" backward-kill-line
 
-source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 if [[ -v DISPLAY ]]; then
 	cat ~/.cache/wal/sequences
     if [[ $(pgrep tmux:\ client) != "" ]]; then

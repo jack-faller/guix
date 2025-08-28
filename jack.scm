@@ -12,6 +12,7 @@
   #:use-module (gnu home services shells)
   #:use-module (gnu home services shepherd)
   #:use-module (gnu home services sound)
+  #:use-module (gnu home services ssh)
   #:use-module (gnu home services fontutils)
   #:use-module (gnu home services xdg)
   #:use-module (nongnu packages fonts)
@@ -82,6 +83,7 @@
                 (image/png . feh.desktop)
                 (x-scheme-handler/http . org.qutebrowser.desktop)
                 (x-scheme-handler/https . org.qutebrowser.desktop)))))
+   (service home-ssh-agent-service-type)
    (simple-service
     'my-daemons home-shepherd-service-type
     (list
@@ -96,21 +98,10 @@
                 #:log-file (string-append (getenv "XDG_CACHE_HOME") "/tor.log")))
       (stop #~(make-kill-destructor)))
      (shepherd-service
-      (provision '(ssh-agent))
-      (documentation "run ssh-agent")
-      (start #~(make-system-constructor
-                "ssh-agent > $XDG_RUNTIME_DIR/ssh-agent.env"
-                " 2> $XDG_CACHE_HOME/ssh-agent.log"))
-      (stop #~(make-system-destructor "pkill ssh-agent")))
-     (shepherd-service
       (provision '(emacs-server))
-      (requirement '(ssh-agent))
       (documentation "run emacs-server")
       (start #~(make-forkexec-constructor
-                (list #$(shell-script
-                         "emacs-daemon-script"
-                         "source $XDG_RUNTIME_DIR/ssh-agent.env"
-                         "emacs --fg-daemon"))
+                (list "emacs" "--fg-daemon")
                 #:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
       (stop #~(make-kill-destructor)))
      (shepherd-service
