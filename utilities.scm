@@ -62,12 +62,20 @@
        (setenv "PATH" (string-join bins ":"))
        (apply execlp #$file (cdr (program-arguments))))))
 
-(define*-public (using-nvidia packages)
-  (map (lambda (a)
-         (if (list? a)
-             (cons (replace-mesa (car a)) (cdr a))
-             (replace-mesa a)))
-       packages))
+(use-modules (gnu packages wm)
+						 (gnu packages gl)
+						 (gnu packages video)
+						 (nonguix utils)
+						 (nongnu packages video)
+						 (nongnu packages nvidia))
+
+(define*-public (my/replace-mesa obj #:key (driver nvda))
+  (with-transformation
+      (package-input-grafting
+       `((,mesa . ,driver)
+         (,nvidia-driver . ,driver)
+         (,ffmpeg . ,ffmpeg-nvenc)))
+    obj))
 
 (define*-public (rust-script name file)
   (computed-file

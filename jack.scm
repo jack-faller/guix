@@ -257,7 +257,6 @@
    "python-pywal"
    "xdg-user-dirs"
    "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
-   "rofi"
    "zbar" ;; reads bar/qr codes for qute script
    "sbcl"
    "man-pages"

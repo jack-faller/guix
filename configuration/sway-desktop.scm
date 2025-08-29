@@ -32,8 +32,8 @@
                    home-environment-variables-service-type
                    '(("QT_QPA_PLATFORM" . "wayland;xcb")
                      ;; Not sure if these should be set.
-                     ;; ("XDG_SESSION_DESKTOP" . "sway")
-                     ;; ("XDG_CURRENT_DESKTOP" . "sway")
+                     ("XDG_SESSION_DESKTOP" . "sway")
+                     ("XDG_CURRENT_DESKTOP" . "sway")
                      ))
    (simple-service
     'sway-desktop-profile
@@ -50,7 +50,7 @@
      ;; screenshots
      "slurp" "grim"
      ;; these are started automatically by dbus
-     "xdg-desktop-portal" "xdg-desktop-portal-wlr"))
+     "xdg-desktop-portal" "xdg-desktop-portal-gtk"  "xdg-desktop-portal-wlr"))
    (service
     home-sway-service-type
     (home-sway-configuration

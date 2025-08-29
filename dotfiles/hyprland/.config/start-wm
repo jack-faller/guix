@@ -1,0 +1,3 @@
+#!/bin/sh
+repaper
+dbus-run-session Hyprland
