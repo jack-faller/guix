@@ -98,13 +98,6 @@
                 #:log-file (string-append (getenv "XDG_CACHE_HOME") "/tor.log")))
       (stop #~(make-kill-destructor)))
      (shepherd-service
-      (provision '(emacs-server))
-      (documentation "run emacs-server")
-      (start #~(make-forkexec-constructor
-                (list "emacs" "--fg-daemon")
-                #:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
-      (stop #~(make-kill-destructor)))
-     (shepherd-service
       (provision '(udiskie))
       (documentation "run udiskie")
       (start #~(make-forkexec-constructor
@@ -171,7 +164,7 @@
    (service
     home-emacs-service-type
     (home-emacs-configuration
-     (emacs-servers '())
+     (emacs (@ (gnu packages emacs) emacs-pgtk))
      (early-init-el
       `((load-file ,(f "emacs/early-init.el"))))
      (init-el
@@ -193,9 +186,7 @@
                                                (org-babel-tangle-file
                                                 ,#$(f "emacs/settings.org")
                                                 ,#$output
-                                                "emacs-lisp"))))))))))))
-     ;; Don't override Emacs from package list.
-     (emacs hello)))
+                                                "emacs-lisp"))))))))))))))
    (simple-service 'my-fonts
                    home-fontconfig-service-type
                    (list
@@ -232,7 +223,7 @@
    "udiskie"
    "gnupg" "pinentry" ;; allows gnupg to prompt for password
    ;; editing
-   "emacs" "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
+   "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
    "perl"        ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars
    ;; for latex previews
@@ -264,7 +255,7 @@
    guix-dev
    ;; applications
    "cmst"
-   discord pulseshitter "qutebrowser"
+   discord pulseshitter #;"qutebrowser" "torbrowser"
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "gimp"
    "kdenlive" "obs" miny
