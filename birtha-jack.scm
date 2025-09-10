@@ -6,13 +6,13 @@
              (gnu home services)
              (gnu home services xdg)
              (utilities)
-             (configuration hyprland-desktop)
+             (configuration sway-desktop)
              (nonguix multiarch-container)
              (nongnu packages game-client)
              (nongnu packages nvidia)
              (jack))
 
-(my/replace-mesa
+(replace-mesa
  (home-environment
    (services
     (cons*
@@ -23,7 +23,7 @@
                 (videos "$HOME/Videos")
                 (pictures "$HOME/Pictures")
                 (music "$HOME/Music")))
-     (append hyprland-desktop-home-services jack-services)))
+     (append sway-desktop-home-services jack-services)))
    (packages
     (append
      (specifications->package-list

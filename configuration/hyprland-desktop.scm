@@ -39,7 +39,8 @@
     home-profile-service-type
     (specifications->package-list
      "hyprland" "xorg-server-xwayland"
-     "waybar" "swaylock-effects" "swaybg" "hyprsunset"
+     "waybar" "swaylock-effects" "swaybg"
+     "hyprsunset"
      "imagemagick" "dunst" "wl-mirror"
      "wtype" "wl-clipboard-x11" "wl-clipboard"
      ;; Make QT work, but this might not work for QT 5.

@@ -40,6 +40,7 @@
     home-profile-service-type
     (specifications->package-list
      "sway" "xorg-server-xwayland"
+     "rofi-wayland"
      "waybar" "swaylock-effects" "gammastep"
      "imagemagick" "dunst" "wl-mirror"
      "wtype" "wl-clipboard-x11" "wl-clipboard"
@@ -73,4 +74,5 @@
         (exec dunst &)
         (exec gammastep -l 50.721680:-1.878530 &)
         (include "~/.config/sway/configs/base-config")
-        (exec "~/.config/sway/startup-programs.sh")))))))
+        (exec "~/.guix-home/profile/libexec/xdg-desktop-portal-wlr")
+        (exec "~/.config/startup-programs.sh")))))))

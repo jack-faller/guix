@@ -3,14 +3,14 @@
              (gnu services)
              (gnu packages shells)
              (utilities)
-             (configuration hyprland-desktop)
+             (configuration sway-desktop)
              (system)
              (gnu services xorg)
              (nongnu packages linux)
              (nongnu packages nvidia)
              (nongnu services nvidia))
 
-(my/replace-mesa
+(replace-mesa
  (make-system
   "birtha"
   (list (swap-space (target (file-system-label "HDD-SWAP"))))
@@ -45,7 +45,7 @@
 	          (bind "/ssd" "/arch/ssd" arch)
 	          (bind "/home" "/hdd/home" hdd))))
   (cons* (service nvidia-service-type)
-         (append hyprland-desktop-system-services system-services))
+         (append sway-desktop-system-services system-services))
   system-packages
   #:extra-users
   (list
