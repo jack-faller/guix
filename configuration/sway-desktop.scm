@@ -44,6 +44,7 @@
      "waybar" "swaylock-effects" "gammastep"
      "imagemagick" "dunst" "wl-mirror"
      "wtype" "wl-clipboard-x11" "wl-clipboard"
+     "wdisplays"
      ;; Make QT work, but this might not work for QT 5.
      "qtwayland"
      ;; these are for binds
@@ -51,7 +52,7 @@
      ;; screenshots
      "slurp" "grim"
      ;; these are started automatically by dbus
-     "xdg-desktop-portal" "xdg-desktop-portal-gtk"  "xdg-desktop-portal-wlr"))
+     "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xdg-desktop-portal-wlr"))
    (service
     home-sway-service-type
     (home-sway-configuration
