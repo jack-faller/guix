@@ -201,15 +201,16 @@
   		(rename-file name-1 name-0 t))
   	  (copy-file (buffer-file-name) name-1))))
 #+end_src
-* Tab Width
+* Tabs and Space
 #+begin_src emacs-lisp
-  (setq-default tab-width 4)
-  (setq-default evil-shift-width tab-width)
+  (pkg smart-tabs-mode)
   (setf backward-delete-char-untabify-method 'all)
   (setq-default electric-indent-inhibit t)
   (setf backward-delete-char-untabify-method 'hungry)
-  (defmacro set-tab-width-in (mode tab-width)
-    `(setq-mode-local ,mode evil-shift-width ,tab-width))
+#+end_src
+* Editorconfig
+#+begin_src emacs-lisp
+  (editorconfig-mode)
 #+end_src
 * Prettify Emacs
 ** Hide Minor Modes
@@ -853,11 +854,6 @@ align with previews
 #+begin_src emacs-lisp
   (pkg lispy)
   (after-load lispy (diminish 'lispy-mode))
-  (set-tab-width-in lisp-mode 2)
-  (set-tab-width-in emacs-lisp-mode 2)
-  (set-tab-width-in common-lisp-mode 2)
-  (set-tab-width-in clojure-mode 2)
-  (set-tab-width-in scheme-mode 2)
 
   (pkg lispyville)
   (after-load lispyville (diminish 'lispyville-mode))
@@ -986,9 +982,6 @@ align with previews
           :enable t
           :command "clippy"))))
      eglot-server-programs))
-  (set-tab-width-in rust-mode 2)
-  (setf rust-indent-offset 2)
-  (custom-set-default 'rustic-indent-offset 2)
   (setq-mode-local rustic-mode mode-print-formatter
                    (lambda (text)
                      (concat "println!(\"{:#?}\", (" text "));")))
@@ -1008,7 +1001,6 @@ align with previews
   (after-load eglot
     (push `((csharp-ts-mode) ,(concat "omnisharp" (if using-guix "-wrapper" "")) "-lsp")
           eglot-server-programs))
-  (set-tab-width-in csharp-ts-mode 4)
 #+end_src
 ** Scheme
 #+begin_src emacs-lisp
@@ -1415,10 +1407,13 @@ align with previews
 #+begin_src emacs-lisp
   (ts-install 'c)
   (add-to-list 'major-mode-remap-alist (cons 'c-or-c++-mode 'c-or-c++-ts-mode))
-  (defhook c-ts-mode-hook
-    (indent-tabs-mode -1)
-    (setf tab-width 2)
-    (eglot-ensure))
+  (after-load c-ts-mode
+    (smart-tabs-add-language-support c c-ts-mode-hook
+  	((treesit-indent . c-ts-mode-indent-offset)
+  	 (treesit-indent-region . c-ts-mode-indent-offset)))
+    (smart-tabs-insinuate 'c)
+    (defhook c-ts-mode-hook
+  	(eglot-ensure)))
   (evil-define-key '(normal insert) c-ts-mode-map
     (kbd "<leader>s") #'ff-find-other-file)
   (after-load eglot
@@ -1445,12 +1440,15 @@ align with previews
 *** C++
 #+begin_src emacs-lisp
   (ts-install 'c++ :language 'cpp)
-  (defhook c++-ts-mode-hook
-    (indent-tabs-mode -1)
-    (setf tab-width 2)
-    (eglot-ensure))
-  (evil-define-key '(normal insert) c++-ts-mode-map
-    (kbd "<leader>s") #'ff-find-other-file)
+  (after-load c++-ts-mode
+    (smart-tabs-add-language-support c++ c++-ts-mode-hook
+  	((treesit-indent . c-ts-mode-indent-offset)
+  	 (treesit-indent-region . c-ts-mode-indent-offset)))
+    (smart-tabs-insinuate 'c++)
+    (defhook c++-ts-mode-hook
+  	(eglot-ensure))
+    (evil-define-key '(normal insert) c++-ts-mode-map
+  	(kbd "<leader>s") #'ff-find-other-file))
 #+end_src
 ** HTML
 #+begin_src emacs-lisp
