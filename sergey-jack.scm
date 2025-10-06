@@ -21,5 +21,6 @@
  (packages
   (append
    (specifications->package-list
+    "icedove-wayland"
     "lsp-plugins" "steam" "ungoogled-chromium-wayland" "obs-wlrobs")
    jack-packages)))

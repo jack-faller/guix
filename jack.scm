@@ -78,11 +78,12 @@
      (default '((application/pdf . org.gnome.Evince.desktop)
                 (application/x-torrent . transmission-gtk.desktop)
                 (x-scheme-handler/magnet . transmission-gtk.desktop)
+                (x-scheme-handler/mailto . icedove.desktop)
                 (application/x-bittorrent . transmission-gtk.desktop)
                 (image/jpeg . feh.desktop)
                 (image/png . feh.desktop)
-                (x-scheme-handler/http . org.qutebrowser.desktop)
-                (x-scheme-handler/https . org.qutebrowser.desktop)))))
+                (x-scheme-handler/http . google-chrome.desktop)
+                (x-scheme-handler/https . google-chrome.desktop)))))
    (service home-ssh-agent-service-type)
    (simple-service
     'my-daemons home-shepherd-service-type
