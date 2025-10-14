@@ -30,6 +30,7 @@ assign [class="steam"] workspace 3
 assign [app_id="discord"] workspace 4
 assign [app_id="easyeffects"] workspace 5
 assign [app_id="transmission"] workspace 6
+focus_wrapping no
 
 default_border pixel 3
 gaps inner 2

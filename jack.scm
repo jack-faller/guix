@@ -151,21 +151,8 @@
       (".local/share/icons/Quintom_Ink"
        ,(file-append quintom-cursor-theme "/share/icons/Quintom_Ink"))))
    (service
-    home-zsh-service-type
-    (home-zsh-configuration
-     (zprofile
-      (list
-       (f "zprofile.sh")))
-     (zshrc
-      (list
-       (f "zshrc.sh")
-       (mixed-text-file
-        "source-zsh-extensions"
-        "source " zsh-autosuggestions "/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
-        "\n"
-        ;; this must be the last item in zshrc for some reason
-        "source " zsh-syntax-highlighting "/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-        "\n")))))
+    home-fish-service-type
+    (home-fish-configuration (config (list (f "config.fish")))))
    (service
     home-emacs-service-type
     (home-emacs-configuration
@@ -234,15 +221,13 @@
    ;; for latex previews
    "texlive-scheme-basic" "texlive-collection-fontsrecommended"
    "texlive-dvipng-bin" "texlive-ulem" "texlive-amsfonts"
-   ;; zsh
-   "zsh-syntax-highlighting" "zsh-autosuggestions"
-   "password-store"
    ;; font
    "font-iosevka"
    font-google-material-design-icons-desktop font-cochineal
    "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
    quintom-cursor-theme
    ;; cli utilities
+   "password-store"
    "zenity"
    "cloc"
    "pipewire" ;; gives pw-play

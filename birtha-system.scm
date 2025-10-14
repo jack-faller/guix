@@ -47,15 +47,6 @@
   (cons* (service nvidia-service-type)
          (append sway-desktop-system-services system-services))
   system-packages
-  #:extra-users
-  (list
-   (user-account
-     (name "steam")
-     (comment "Steam")
-     (group "users")
-     (shell (file-append zsh "/bin/zsh"))
-     (home-directory "/home/steam")
-     (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime"))))
   #:grub-theme (grub-theme
                 (inherit (grub-theme))
                 (gfxmode '("1920x1080x32" "1024x786x32" "auto")))
