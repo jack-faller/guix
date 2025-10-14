@@ -120,7 +120,11 @@
     (home-dotfiles-configuration (directories (list "dotfiles/jack"))))
    (service
     home-files-service-type
-    `((".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
+    `((".XCompose" ,(computed-file
+                     "XCompose"
+                     #~(with-output-to-file #$output
+                         (lambda () (load #$(f "xcompose.scm"))))))
+      (".local/programs/raku" ,(file-append rakudo "/bin/perl6"))
       (".local/programs/clip" ,(c-script "clip" (f "clip.c")))
       (".local/programs/ardour"
        ,(program-file

@@ -29,13 +29,6 @@
     home-dotfiles-service-type
     (home-dotfiles-configuration (directories (list "../dotfiles/bspwm"))))
    (simple-service
-    'bspwm-files
-    home-files-service-type
-    `((".XCompose" ,(computed-file
-                     "XCompose"
-                     #~(with-output-to-file #$output
-                         (lambda () (load  #$(f "xcompose.scm"))))))))
-   (simple-service
     'bspwm-desktop-profile
     home-profile-service-type
     (using-nvidia
