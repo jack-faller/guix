@@ -40,7 +40,7 @@
     home-profile-service-type
     (specifications->package-list
      "sway" "xorg-server-xwayland"
-     "rofi-wayland"
+     "rofi"
      "waybar" "swaylock-effects" "gammastep"
      "imagemagick" "dunst" "wl-mirror"
      "wtype" "wl-clipboard-x11" "wl-clipboard"
