@@ -52,7 +52,7 @@
                    (name "jack")
                    (comment "Jack")
                    (group "users")
-                   (shell (file-append zsh "/bin/zsh"))
+                   (shell (file-append fish "/bin/fish"))
                    (home-directory "/home/jack")
                    (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "lp" "docker")))
                   (append
@@ -92,7 +92,7 @@
     (name-service-switch %mdns-host-lookup-nss)))
 
 (define-public system-packages
-  (cons* vim git zsh %base-packages))
+  (cons* vim git fish %base-packages))
 
 (define-public system-services
   ((λ args

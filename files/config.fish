@@ -1,11 +1,11 @@
-function fish_prompt_right
+function fish_right_prompt
     set -q GUIX_ENVIRONMENT && echo -n "[guix shell]"
 end
 if status is-interactive
     fish_vi_key_bindings
-    set -x EDITOR=e
-    set -x VISUAL="$EDITOR"
-    set -x DOTNET_CLI_TELEMETRY_OPTOUT=1
+    set -x EDITOR e
+    set -x VISUAL "$EDITOR"
+    set -x DOTNET_CLI_TELEMETRY_OPTOUT 1
     alias off="sudo $(realpath $(which halt))"
     alias reboot="sudo $(realpath $(which reboot))"
     alias glances="glances -1"
@@ -19,6 +19,6 @@ if status is-interactive
 	end
     end
 end
-if status is-login && [ "$XDG_VNTR" = 1 ]
+if status is-login && [ "$XDG_VTNR" = 1 ]
      ~/.config/start-wm
 end
