@@ -184,3 +184,6 @@
 
 # Lock:
     bindsym $mod+F2 $lock
+
+# Open Paste
+    bindsym $mod+o exec prompt-open "$(wl-paste)"
