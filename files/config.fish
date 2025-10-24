@@ -11,7 +11,7 @@ if status is-interactive
     alias glances="glances -1"
     alias please="sudo"
     alias tm="mv --verbose --backup --target-directory ~/trash"
-    alias pass="EDITOR='vim' pass"
+    alias pass="EDITOR=vim $(which pass)"
     if set -q DISPLAY
 	cat ~/.cache/wal/sequences
 	if ! set -q TMUX
