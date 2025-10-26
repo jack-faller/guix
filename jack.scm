@@ -16,7 +16,6 @@
   #:use-module (gnu home services fontutils)
   #:use-module (gnu home services xdg)
   #:use-module (nongnu packages fonts)
-  #:use-module (rde home services emacs)
 
   #:use-module (packages miny)
   #:use-module (packages discord)
@@ -51,15 +50,7 @@
        (make-channel-introduction
         "c23d64f1b8cc086659f8781b27ab6c7314c5cca5"
         (openpgp-fingerprint
-         "50F3 3E2E 5B0C 3D90 0424  ABE8 9BDC F497 A4BB CC7F"))))
-     (channel
-      (name 'rde)
-      (url "https://git.sr.ht/~abcdw/rde")
-      (introduction
-       (make-channel-introduction
-        "257cebd587b66e4d865b3537a9a88cccd7107c95"
-        (openpgp-fingerprint
-         "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
+         "50F3 3E2E 5B0C 3D90 0424  ABE8 9BDC F497 A4BB CC7F"))))))
    (service home-pipewire-service-type)
    (simple-service
     'my-env-vars
@@ -114,7 +105,14 @@
                    "ln -s ~/.local/share/Trash/files ~/trash"
                    "mkdir -p /media/jack"
                    "ln -s /media/jack ~/drives")))
-      (one-shot? #t))))
+      (one-shot? #t))
+     (shepherd-service
+      (provision '(emacs-server))
+      (documentation "run emacs-server")
+      (start #~(make-forkexec-constructor
+                (list "emacs" "--fg-daemon")
+                #:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
+      (stop #~(make-kill-destructor)))))
    (service
     home-dotfiles-service-type
     (home-dotfiles-configuration (directories (list "dotfiles/jack"))))
@@ -149,36 +147,39 @@
                                                 "Comment=Default Cursor Theme"
                                                 "Inherits=Quintom_Ink")))
       (".local/share/icons/Quintom_Ink"
-       ,(file-append quintom-cursor-theme "/share/icons/Quintom_Ink"))))
+       ,(file-append quintom-cursor-theme "/share/icons/Quintom_Ink"))
+      (".config/emacs/early-init.el" ,(f "emacs/early-init.el"))
+      (".config/emacs/init.el"
+       ,(computed-file
+         "init.el"
+         #~(with-output-to-file #$output
+             (lambda ()
+               (for-each
+                write
+                '( ;; Override later defvar of `using-guix' in init.el.
+                  (defvar using-guix t)
+                  (setf insert-directory-program
+                        #$(file-append coreutils "/bin/ls"))
+                  (load-file #$(f "emacs/init.el"))
+                  (load-file
+                   #$(computed-file
+                      "settings.el"
+                      (with-imported-modules '((guix build utils))
+                        #~(begin
+                            (use-modules (guix build utils))
+                            (invoke
+                             (string-append #$emacs "/bin/emacs")
+                             "--no-init-file" "--batch" "--eval"
+                             (with-output-to-string
+                               (lambda ()
+                                 (write `(progn (require 'org)
+                                                (org-babel-tangle-file
+                                                 ,#$(f "emacs/settings.org")
+                                                 ,#$output
+                                                 "emacs-lisp"))))))))))))))))))
    (service
     home-fish-service-type
     (home-fish-configuration (config (list (f "config.fish")))))
-   (service
-    home-emacs-service-type
-    (home-emacs-configuration
-     (emacs (@ (gnu packages emacs) emacs-pgtk))
-     (early-init-el
-      `((load-file ,(f "emacs/early-init.el"))))
-     (init-el
-      `( ;; Override later defvar of `using-guix' in init.el.
-        (defvar using-guix t)
-        (setf insert-directory-program ,(file-append coreutils "/bin/ls"))
-        (load-file ,(f "emacs/init.el"))
-        (load-file ,(computed-file
-                     "settings.el"
-                     (with-imported-modules '((guix build utils))
-                       #~(begin
-                           (use-modules (guix build utils))
-                           (invoke
-                            (string-append #$emacs "/bin/emacs")
-                            "--no-init-file" "--batch" "--eval"
-                            (with-output-to-string
-                              (lambda ()
-                                (write `(progn (require 'org)
-                                               (org-babel-tangle-file
-                                                ,#$(f "emacs/settings.org")
-                                                ,#$output
-                                                "emacs-lisp"))))))))))))))
    (simple-service 'my-fonts
                    home-fontconfig-service-type
                    (list
@@ -215,6 +216,7 @@
    "udiskie"
    "gnupg" "pinentry" ;; allows gnupg to prompt for password
    ;; editing
+   "emacs-pgtk"
    "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
    "perl"        ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars

@@ -1,0 +1,14 @@
+exec --no-startup-id dbus-update-activation-environment --all
+bar swaybar_command waybar
+set $menu dmenu
+set $menu_run rofi -show run
+set $volume ~/.config/sway/scripts/vol
+set $brightness ~/.config/sway/scripts/light
+set $mute ~/.config/sway/scripts/mute
+set $lock exec swaylock --screenshots --clock --indicator --indicator-radius 100 --indicator-thickness 12 --effect-blur 7x5 --effect-vignette 0.5:0.5
+seat seat0 xcursor_theme Quintom_Ink 12
+exec dunst &
+exec gammastep -l 50.721680:-1.878530 &
+include ~/.config/sway/configs/base-config
+exec ~/.guix-home/profile/libexec/xdg-desktop-portal-wlr
+exec ~/.config/startup-programs.sh

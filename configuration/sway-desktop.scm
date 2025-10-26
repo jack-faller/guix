@@ -10,8 +10,7 @@
   #:use-module (gnu services)
   #:use-module (gnu services xorg)
   #:use-module (gnu packages wm)
-  #:use-module (gnu packages glib)
-  #:use-module (rde home services wm))
+  #:use-module (gnu packages glib))
 
 (define sway-desktop-system-services
   (list
@@ -52,28 +51,4 @@
      ;; screenshots
      "slurp" "grim"
      ;; these are started automatically by dbus
-     "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xdg-desktop-portal-wlr"))
-   (service
-    home-sway-service-type
-    (home-sway-configuration
-     (config
-      `((exec --no-startup-id
-              ,(file-append dbus "/bin/dbus-update-activation-environment") --all)
-        (bar swaybar_command ,(file-append waybar "/bin/waybar"))
-        (set $menu dmenu)
-        (set $menu_run rofi -show run)
-        (set $volume "~/.config/sway/scripts/vol")
-        (set $brightness "~/.config/sway/scripts/light")
-        (set $mute "~/.config/sway/scripts/mute")
-        (set $lock exec swaylock
-             --screenshots --clock --indicator
-             --indicator-radius 100
-             --indicator-thickness 12
-             --effect-blur 7x5
-             --effect-vignette 0.5:0.5)
-        (seat seat0 xcursor_theme Quintom_Ink 12)
-        (exec dunst &)
-        (exec gammastep -l 50.721680:-1.878530 &)
-        (include "~/.config/sway/configs/base-config")
-        (exec "~/.guix-home/profile/libexec/xdg-desktop-portal-wlr")
-        (exec "~/.config/startup-programs.sh")))))))
+     "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xdg-desktop-portal-wlr"))))
