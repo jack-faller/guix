@@ -54,7 +54,7 @@
                    (group "users")
                    (shell (file-append fish "/bin/fish"))
                    (home-directory "/home/jack")
-                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "lp" "docker")))
+                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "docker")))
                   (append
                    extra-users
                    %base-user-accounts)))
