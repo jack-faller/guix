@@ -239,7 +239,7 @@
    "cups"
    "python-pywal"
    "xdg-user-dirs"
-   "git" "tmux" "rsync" "tree" "p7zip" "shellcheck" "glances"
+   "git" "tmux" "rsync" "tree" "7zip" "shellcheck" "glances"
    "zbar" ;; reads bar/qr codes for qute script
    "sbcl"
    "man-pages"
