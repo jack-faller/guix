@@ -232,6 +232,7 @@
    "password-store"
    "zenity"
    "cloc"
+   "bemoji"
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
    "socat" "curl"
