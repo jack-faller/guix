@@ -22,6 +22,7 @@
   #:use-module (packages guix-dev)
   #:use-module (packages icons)
   #:use-module (packages pulseshitter)
+  #:use-module (configuration ydotool)
   #:use-module (utilities))
 
 (use-package-modules
@@ -207,7 +208,7 @@
                     '(alias
                       (family "emoji")
                       (prefer (family "Noto Color Emoji")))))
-   %base-home-services))
+   (append ydotool-home-services %base-home-services)))
 (define jack-packages
   (specifications->package-list
    ;; basic

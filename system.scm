@@ -11,6 +11,7 @@
 
   #:use-module (services iwd)
   #:use-module (utilities)
+  #:use-module (configuration ydotool)
 
   #:use-module (ice-9 optargs))
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
@@ -98,6 +99,7 @@
   ((λ args
      (append
       args
+      ydotool-system-services
       (modify-services
           %base-services
         (guix-service-type
