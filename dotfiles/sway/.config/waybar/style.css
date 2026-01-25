@@ -35,7 +35,7 @@ window#waybar {
 #workspaces button.focused:not(.current_output) {
 	opacity: 0.6;
 }
-#memory, #cpu, #temperature, #network, #pulseaudio#mic, #pulseaudio, #backlight, #battery {
+#memory, #cpu, #temperature, #network, #pulseaudio#mic, #pulseaudio, #backlight, #battery, #custom-webcam {
     padding: 0 10px;
     margin: 0 0;
     background: transparent;
@@ -59,6 +59,8 @@ window#waybar {
 #pulseaudio.mic {
 }
 #battery {
+}
+#custom-webcam {
 }
 #battery.charging {
     color: #32CD32

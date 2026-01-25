@@ -1,0 +1,13 @@
+#!/bin/sh
+set -ex
+adb wait-for-usb-device
+adb forward tcp:8080 tcp:8080
+ffmpeg -f mjpeg -i http://127.0.0.1:8080/cam.mjpeg -vf "vflip, format=yuv420p" -f v4l2 /dev/video0 &
+FFPID="$!"
+cleanup() {
+    rv="$?"
+    kill "$FFPID"
+    exit "$rv"
+}
+trap cleanup EXIT
+wait "$FFPID"

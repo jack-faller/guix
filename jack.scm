@@ -252,7 +252,8 @@
    discord pulseshitter #;"qutebrowser" "torbrowser"
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "evince" "mpv" "feh" "gimp"
-   "kdenlive" "obs" miny
+   "kdenlive" "obs" #;miny
+   "adb" ;; To load phone as webcam.
    "rhythmbox" "gst-libav" "gst-plugins-bad" "gst-plugins-ugly"
    "libreoffice"
    ))

@@ -1,0 +1,2 @@
+#!/bin/sh
+pkill phone-webcam-on

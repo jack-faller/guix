@@ -3,10 +3,13 @@
   "height": 16,
   "modules-left": ["sway/workspaces", "sway/mode"],
   "modules-center": ["clock"],
-  "modules-right": ["memory", "cpu", "temperature", "network", "pulseaudio#mic", "pulseaudio", "backlight", "battery"],
-  "custom": {
-    "interval": 5,
-    "format": "Mem {}%"
+  "modules-right": ["memory", "cpu", "temperature", "network", "custom/webcam", "pulseaudio#mic", "pulseaudio", "backlight", "battery"],
+  "sway/workspaces": {
+    "all-outputs": true
+  },
+  "custom/webcam": {
+    "exec": "phone-webcam-icon",
+    "on-click": "pkill -USR1 -f phone-webcam-icon"
   },
   "cpu": {
     "interval": 5,

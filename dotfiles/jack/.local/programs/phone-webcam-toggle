@@ -1,0 +1,6 @@
+#!/bin/sh
+if pgrep phone-webcam-on; then
+    phone-webcam-off
+else
+    phone-webcam-on
+fi

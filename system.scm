@@ -29,6 +29,7 @@
   (operating-system
     (kernel kernel)
     (kernel-arguments kernel-arguments)
+    (kernel-loadable-modules (list v4l2loopback-linux-module))
     (initrd microcode-initrd)
     (firmware (list linux-firmware))
     (host-name name)
@@ -128,7 +129,11 @@
           (settings (append '(("kernel.sysrq" . "1"))
                             %default-sysctl-settings)))))))
    fontconfig-file-system-service
-   (service kernel-module-loader-service-type '("fuse"))
+   (service kernel-module-loader-service-type '("fuse" "v4l2loopback"))
+   (simple-service 'v42l-config etc-service-type
+                   `(("modprobe.d/v4l2.conf"
+                      ,(plain-file "v4l2.conf"
+                                   "options v4l2loopback exclusive_caps=1"))))
    (service containerd-service-type)
    (service docker-service-type)
    (simple-service 'docker-rotlog log-rotation-service-type

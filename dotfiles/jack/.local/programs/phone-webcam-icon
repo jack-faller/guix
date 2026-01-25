@@ -1,0 +1,30 @@
+#!/bin/sh
+on_msg() { printf '\uE8F4\n'; }
+off_msg() { printf '\uE8F5\n'; }
+FFPID=$(pgrep phone-webcam-on)
+if [ "$FFPID" = "" ]; then
+    off_msg
+else
+    on_msg
+fi
+toggle() {
+    if [ "$FFPID" = "" ]; then
+	on_msg
+	phone-webcam-on > /dev/null 2>&1 &
+	FFPID="$!"
+    else
+	off_msg
+	kill "$FFPID"
+	FFPID=""
+    fi
+}
+trap toggle USR1
+sleep infinity &
+WAIT="$!"
+cleanup() {
+    rv="$?"
+    kill "$WAIT"
+    exit "$rv"
+}
+trap cleanup EXIT
+while wait "$WAIT"; [ "$?" -ge 128 ]; do :; done
