@@ -67,7 +67,7 @@
    (service
     home-xdg-mime-applications-service-type
     (home-xdg-mime-applications-configuration
-     (default '((application/pdf . org.gnome.Evince.desktop)
+     (default '((application/pdf . org.kde.okular.desktop)
                 (application/x-torrent . transmission-gtk.desktop)
                 (x-scheme-handler/magnet . transmission-gtk.desktop)
                 (x-scheme-handler/mailto . icedove.desktop)
@@ -251,7 +251,7 @@
    "cmst"
    discord pulseshitter #;"qutebrowser" "torbrowser"
    "kitty" "gucharmap" "transmission:gui"
-   "xournalpp" "evince" "mpv" "feh" "gimp"
+   "xournalpp" "okular" "mpv" "feh" "gimp"
    "kdenlive" "obs" #;miny
    "adb" ;; To load phone as webcam.
    "rhythmbox" "gst-libav" "gst-plugins-bad" "gst-plugins-ugly"

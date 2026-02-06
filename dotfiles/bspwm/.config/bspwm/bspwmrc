@@ -54,4 +54,3 @@ bspc rule -a "*:*:floating"      state=floating
 bspc rule -a "*:*:Miny"          state=floating
 bspc rule -a Gnome-mines         state=floating
 bspc rule -a Emacs               state=tiled
-bspc rule -a Evince              state=tiled

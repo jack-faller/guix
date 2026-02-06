@@ -1,4 +1,4 @@
 texfile="$1"
 pdffile=$(echo "$1" | sed 's/\.tex$/.pdf/')
 echo $pdffile
-ls *.tex | entr -s "pdflatex -halt-on-error '$texfile' ; evince '$pdffile' &"
+ls *.tex | entr -s "pdflatex -halt-on-error '$texfile' ; xdg-open '$pdffile' &"
