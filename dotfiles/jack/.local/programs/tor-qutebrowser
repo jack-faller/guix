@@ -1,6 +1,0 @@
-#!/bin/sh
-herd start tor-client
-qutebrowser --temp-basedir \
-	    --set content.proxy socks://localhost:9050/ \
-	    --config-py ~/.config/qutebrowser/config.py
-herd stop tor-client

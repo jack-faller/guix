@@ -1,2 +1,0 @@
-#!/bin/sh
-qutebrowser --temp-basedir --config-py ~/.config/qutebrowser/config.py
