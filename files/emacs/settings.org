@@ -595,20 +595,14 @@ align with previews
     (kbd "C-l") #'evil-window-right
     (kbd "C-q") #'kill-current-buffer
     (kbd "C-S-q") (evil-define-command save-&-kill-buffer () (save-buffer) (kill-buffer))
-    (kbd "M-RET") (evil-define-command split-right ()
+    (kbd "M-<right>") (evil-define-command split-right ()
                     (split-window-horizontally)
                     (evil-window-right 1))
-    (kbd "M-S-RET") (evil-define-command split-left () (split-window-horizontally))
-    (kbd "M-DEL") (evil-define-command split-down ()
+    (kbd "M-<left>") (evil-define-command split-left () (split-window-horizontally))
+    (kbd "M-<down>") (evil-define-command split-down ()
                     (split-window-vertically)
                     (evil-window-down 1))
-    (kbd "M-S-DEL") (evil-define-command split-up () (split-window-vertically)))
-
-  (evil-define-key 'normal 'global
-    (kbd "C-w RET") #'split-right
-    (kbd "C-w S-RET") #'split-left
-    (kbd "C-w DEL") #'split-down
-    (kbd "C-w S-DEL") #'split-up)
+    (kbd "M-<up>") (evil-define-command split-up () (split-window-vertically)))
 #+end_src
 ** Text Objects
 #+begin_src emacs-lisp
