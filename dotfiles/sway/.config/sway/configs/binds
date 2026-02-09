@@ -163,12 +163,14 @@
 #
 # Print Screen:
 #
-    bindsym Print exec grim - | wl-copy
-    bindsym Shift+Print exec grim -g "$(slurp)" - | wl-copy
-    set $get_name $(zenity --entry --text "screenshot name:" --width 400 --height 150 | sed 's/^$/'"$(date)"'_grim/').png
-	set $get_dir "$(mkdir "$(xdg-user-dir PICTURES)/screenshots"; xdg-user-dir PICTURES)/screenshots/$get_name"
-    bindsym $mod+Print exec grim $get_dir
-    bindsym $mod+Shift+Print exec grim -g "$(slurp)" $get_dir
+    set $put_image (DST=/tmp/"$(date --iso-8601=ns)".png && ln -sf "$DST" /tmp/recent-screenshot && tee "$DST" | wl-copy --type image/png)
+    bindsym Print exec grim - | $put_image
+    bindsym Shift+Print exec grim -g "$(slurp)" - | $put_image
+    bindsym $mod+Print exec NAME="$(zenity --entry --text "screenshot name:" --width 400 --height 150)" \
+	&& DST="$(xdg-user-dir PICTURES)/screenshots/$NAME.png" \
+	&& mkdir -p "$(dirname $DST)" \
+	&& mv --backup=numbered "$(readlink /tmp/recent-screenshot)" "$DST" \
+	&& rm /tmp/recent-screenshot
 
 # Passwords:
     bindsym $mod+SemiColon exec passmenu
