@@ -15,7 +15,7 @@
 
   #:use-module (ice-9 optargs))
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
-                     admin linux networking docker)
+                     admin linux networking docker virtualization)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
                      package-management firmware dns admin admin)
 
@@ -56,7 +56,7 @@
                    (group "users")
                    (shell (file-append fish "/bin/fish"))
                    (home-directory "/home/jack")
-                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "docker")))
+                   (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "docker" "libvirt" "kvm")))
                   (append
                    extra-users
                    %base-user-accounts)))
@@ -136,6 +136,8 @@
                                    "options v4l2loopback exclusive_caps=1"))))
    (service containerd-service-type)
    (service docker-service-type)
+   (service libvirt-service-type)
+   (service virtlog-service-type)
    (simple-service 'docker-rotlog log-rotation-service-type
                    '("/var/log/docker.log" "/var/log/containerd.log"))
    (simple-shepherd-service
