@@ -236,6 +236,8 @@
    "bemoji"
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
+   "ouch" ;; decompress files
+   "libqalculate"
    "socat" "curl"
    "hyperfine"
    "cups"
