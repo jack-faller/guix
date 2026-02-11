@@ -133,11 +133,15 @@
    (simple-service 'v42l-config etc-service-type
                    `(("modprobe.d/v4l2.conf"
                       ,(plain-file "v4l2.conf"
-                                   "options v4l2loopback exclusive_caps=1"))))
+                                   "options v4l2loopback exclusive_caps=1\n"))))
    (service containerd-service-type)
    (service docker-service-type)
    (service libvirt-service-type)
    (service virtlog-service-type)
+   (simple-service 'kvmm-config etc-service-type
+                   `(("modprobe.d/kvm.conf"
+                      ,(plain-file "kvm.conf"
+                                   "options kvm_amd nested=1\noptions kvm_intel nested=1\n"))))
    (simple-service 'docker-rotlog log-rotation-service-type
                    '("/var/log/docker.log" "/var/log/containerd.log"))
    (simple-shepherd-service
