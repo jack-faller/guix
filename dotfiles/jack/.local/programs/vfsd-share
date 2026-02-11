@@ -1,0 +1,8 @@
+#!/bin/sh
+FILE="${1-$(zenity --file-selection --directory)}"
+if [ -d "$FILE" ]; then
+    virtiofsd --shared-dir "$FILE" --socket-path /tmp/vfsd.sock --socket-group kvm
+else
+    echo "File '$1' not found." >&2
+    exit 1
+fi

@@ -22,6 +22,7 @@
   #:use-module (packages guix-dev)
   #:use-module (packages icons)
   #:use-module (packages pulseshitter)
+  #:use-module (packages virtiofsd)
   #:use-module (configuration ydotool)
   #:use-module (utilities))
 
@@ -252,6 +253,7 @@
    ;; applications
    "cmst"
    discord pulseshitter #;"qutebrowser" "torbrowser"
+   "virt-manager" virtiofsd
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "okular" "mpv" "feh" "gimp"
    "kdenlive" "obs" #;miny
