@@ -110,7 +110,7 @@
            (append (list "https://substitutes.nonguix.org")
                    %default-substitute-urls))
           (authorized-keys
-           (cons* (f "signing-key.pub") %default-authorized-guix-keys))
+           (cons* (f "nonguix-key.pub") %default-authorized-guix-keys))
           (channels
            (cons*
             (channel
