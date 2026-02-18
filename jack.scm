@@ -9,6 +9,7 @@
   #:use-module (gnu home services)
   #:use-module (gnu home services dotfiles)
   #:use-module (gnu home services guix)
+  #:use-module (gnu home services gnupg)
   #:use-module (gnu home services shells)
   #:use-module (gnu home services shepherd)
   #:use-module (gnu home services sound)
@@ -77,6 +78,11 @@
                 (image/png . feh.desktop)
                 (x-scheme-handler/http . google-chrome.desktop)
                 (x-scheme-handler/https . google-chrome.desktop)))))
+   (service home-gpg-agent-service-type
+            (home-gpg-agent-configuration
+             (pinentry-program (file-append pinentry "/bin/pinentry"))
+             (default-cache-ttl 600)
+             (max-cache-ttl 7200)))
    (service home-ssh-agent-service-type)
    (simple-service
     'my-daemons home-shepherd-service-type
@@ -138,11 +144,6 @@
       (".local/share/qutebrowser/userscripts/suppress.html" ,(f "suppress.html"))
       (".config/kitty/bell.oga"
        ,(file-append sound-theme-freedesktop "/share/sounds/freedesktop/stereo/bell.oga"))
-      (".gnupg/gpg-agent.conf"
-       ,(mixed-text-file
-         "gnupg-agent.conf"
-         "default-cache-ttl 600" "\n" "max-cache-ttl 7200" "\n"
-         "pinentry-program " pinentry "/bin/pinentry" "\n"))
       (".local/share/icons/default/index.theme"
        ,(plain-file "cursor-theme-index" (lines "[Icon Theme]"
                                                 "Name=Default"
