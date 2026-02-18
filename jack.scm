@@ -113,14 +113,7 @@
                    "ln -s ~/.local/share/Trash/files ~/trash"
                    "mkdir -p /media/jack"
                    "ln -s /media/jack ~/drives")))
-      (one-shot? #t))
-     (shepherd-service
-      (provision '(emacs-server))
-      (documentation "run emacs-server")
-      (start #~(make-forkexec-constructor
-                (list "emacs" "--fg-daemon")
-                #:log-file (string-append (getenv "XDG_CACHE_HOME") "/emacs.log")))
-      (stop #~(make-kill-destructor)))))
+      (one-shot? #t))))
    (service
     home-dotfiles-service-type
     (home-dotfiles-configuration (directories (list "dotfiles/jack"))))

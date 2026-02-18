@@ -2,3 +2,4 @@
 discord &
 easyeffects &
 transmission-gtk &
+emacs --fg-daemon &
