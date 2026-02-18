@@ -1,6 +1,9 @@
 [user]
 	name = Jack Faller
 	email = jack.t.faller@gmail.com
+	signingkey = D97A5464A39203661ED95C07A0437B429C104C61
+[commit]
+	gpgsign = true
 [http]
 	postBuffer = 15728640
 [credential]
