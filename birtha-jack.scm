@@ -28,9 +28,8 @@
     (append
      (specifications->package-list
       "easyeffects" "google-chrome-stable"
-      "prismlauncher"
+      "prismlauncher" "openjdk@21"
       "icedove-wayland"
-      "openjdk@21"
       (nonguix-container->package
        (let ((container (steam-container-for nvda)))
          (nonguix-container
