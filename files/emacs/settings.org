@@ -203,6 +203,8 @@
 #+end_src
 * Tabs and Space
 #+begin_src emacs-lisp
+  (setq-default tab-width 4)
+  (setq-default evil-shift-width tab-width)
   (pkg smart-tabs-mode)
   (setf backward-delete-char-untabify-method 'all)
   (setq-default electric-indent-inhibit t)
