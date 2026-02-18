@@ -4,4 +4,5 @@ find /var/log/guix/drvs -name "*.drv.gz" -type f -print0 \
 	| sort -rn \
 	| head -n 1 \
 	| awk '{print $5}' \
-	| xargs gzip --to-stdout -d
+	| xargs gzip --to-stdout -d \
+	| less
