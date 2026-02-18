@@ -1,11 +1,17 @@
 (add-to-load-path (dirname (current-filename)))
 (use-modules (gnu)
+             (guix gexp)
              (gnu services)
+             (gnu services admin)
+             (gnu services docker)
+             (gnu services xorg)
              (gnu packages shells)
+             (gnu services shepherd)
+             (gnu packages base)
+             (packages nvidia-container-toolkit)
              (utilities)
              (configuration sway-desktop)
              (system)
-             (gnu services xorg)
              (nongnu packages linux)
              (nongnu packages nvidia)
              (nongnu services nvidia))
@@ -27,26 +33,64 @@
                   (mount-point "/hdd")
                   (device (file-system-label "HDD"))
                   (type "ext4")))
-	             (arch
-	              (file-system
-		              (mount-point "/arch")
-		              (device (file-system-label "SSD-ARCH-ROOT"))
-		              (type "ext4")))
-	             (bind (lambda (to from in)
-		                   (file-system
-		                     (mount-point to)
-		                     (device from)
-		                     (type "none")
-		                     (flags '(bind-mount))
-		                     (dependencies (list in))))))
+	       (arch
+	        (file-system
+		  (mount-point "/arch")
+		  (device (file-system-label "SSD-ARCH-ROOT"))
+		  (type "ext4")))
+	       (bind (lambda (to from in)
+		       (file-system
+		         (mount-point to)
+		         (device from)
+		         (type "none")
+		         (flags '(bind-mount))
+		         (dependencies (list in))))))
            (list
             hdd
-	          arch
-	          (bind "/ssd" "/arch/ssd" arch)
-	          (bind "/home" "/hdd/home" hdd))))
-  (cons* (service nvidia-service-type)
-         (append sway-desktop-system-services system-services))
-  system-packages
+            arch
+            (bind "/ssd" "/arch/ssd" arch)
+            (bind "/home" "/hdd/home" hdd))))
+  (cons*
+   (service nvidia-service-type)
+   (simple-service 'nvidia-container-config etc-service-type
+                   `(("nvidia-container-runtime/config.toml"
+                      ,(f "nvidia-container-runtime-config.toml"))))
+   (simple-shepherd-service
+    'create-cdi-config
+    (shepherd-service
+     (documentation "Create the NVIDIA CDI file runtime config file.")
+     (provision '(create-cdi-config))
+     (requirement '(nvidia))
+     (one-shot? #t)
+     (start
+      #~(make-forkexec-constructor
+         (list #$(program-file
+                  "generate-cdi"
+                  #~(begin
+                      (unless (file-exists? "/var/run/cdi")
+                        (mkdir "/var/run/cdi"))
+                      (system*
+                       #$(file-append nvidia-container-toolkit "/bin/nvidia-ctk")
+                       "cdi" "generate"
+                       "--library-search-path" #$(file-append nvidia-driver "/lib")
+                       "--nvidia-cdi-hook-path" "nvidia-ctk"
+                       "--ldconfig-path" #$(file-append glibc "/sbin/ldconfig")
+                       "--output" "/var/run/cdi/nvidia.yaml"))))
+         #:log-file "/var/log/populate-bocklists.log"))
+     (stop #~(make-kill-destructor))))
+   (simple-service 'nvidia-container-rotlog log-rotation-service-type
+                   '("/var/log/nvidia-container-toolkit.log" "/var/log/nvidia-container-runtime.log"))
+   (append sway-desktop-system-services
+           (modify-services system-services
+             (docker-service-type
+              config =>
+              (docker-configuration
+               (inherit config)
+               (config-file (local-file "files/docker-daemon.json")))))))
+  (append
+   (specifications->package-list
+    nvidia-container-toolkit "runc")
+   system-packages)
   #:grub-theme (grub-theme
                 (inherit (grub-theme))
                 (gfxmode '("1920x1080x32" "1024x786x32" "auto")))
