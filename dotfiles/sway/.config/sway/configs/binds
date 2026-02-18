@@ -10,7 +10,7 @@
     bindsym $mod+Shift+BackSpace exec emacsclient -c -s "$(ls "$XDG_RUNTIME_DIR/emacs" | rofi -dmenu -p Server)"
 
     # Kill focused window
-    bindsym $mod+w kill
+    bindsym $mod+q kill
 
     # Start launcher
     bindsym $mod+Space exec $menu_run
@@ -144,8 +144,8 @@
     bindsym $mod+Shift+p focus child
 
     # Move focus to next/prev
-    bindsym $mod+c focus next
-    bindsym $mod+Shift+c focus prev
+    bindsym $mod+n focus next
+    bindsym $mod+Shift+n focus prev
 
 #
 # Scratchpad:
@@ -175,9 +175,6 @@
 # Passwords:
     bindsym $mod+SemiColon exec passmenu
 
-# Network:
-    bindsym $mod+n exec sudo --askpass cmst --disable-tray-icon
-
 # Notifications:
     bindsym $mod+Delete exec dunstctl close
     bindsym $mod+Shift+Delete exec dunstctl history-pop
@@ -187,6 +184,9 @@
 
 # Lock:
     bindsym $mod+F2 $lock
+
+# Calculator:
+    bindsym $mod+c exec kitty --class floating qalc
 
 # Open Paste
     bindsym $mod+o exec prompt-open "$(wl-paste)"
