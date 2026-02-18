@@ -9,7 +9,6 @@
   #:use-module (nongnu system linux-initrd)
   #:use-module (nongnu packages linux)
 
-  #:use-module (services iwd)
   #:use-module (utilities)
   #:use-module (configuration ydotool)
 
