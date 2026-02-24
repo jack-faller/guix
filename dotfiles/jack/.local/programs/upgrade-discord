@@ -1,0 +1,12 @@
+#!/bin/sh
+set -ex
+VERSION="$(curl 'https://discord.com/api/download?platform=linux&format=tar.gz' | grep -Po '(?<=discord-)([0-9.]+)(?=\.tar\.gz)' | head -n1)"
+echo VERSION: $VERSION
+export FS=" "
+HASH="$(guix download "https://cdn.discordapp.com/apps/linux/$VERSION/discord-$VERSION.tar.gz" | sed -n 2p)"
+sed "s/(version \".*\")/(version \"$VERSION\")/ ; s/(base32 \".*\")/(base32 \"$HASH\")/" -i /config/packages/discord.scm
+cd /config
+git reset
+git add packages/discord.scm
+git commit -m "Bumps Discord version" || echo Up to date.
+guix home reconfigure /config/"$(hostname)"-jack.scm
