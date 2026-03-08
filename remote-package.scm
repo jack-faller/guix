@@ -49,11 +49,18 @@
 
 (define (lowered-and-built object system target)
   (mlet %store-monad ((lowered (lower-object object system #:target target)))
-    (if (string? lowered)
-        (return lowered)
-        (mbegin %store-monad
-          (built-derivations (list lowered))
-          (return (derivation->output-path (derivation->output-path lowered)))))))
+    (cond
+     ((string? lowered)
+      (return lowered))
+     ;; This fixes a bug where the file interpolated into the gexp is not the
+     ;; same one as exposed in its inputs.
+     ;; I'm not sure why that happens or why this is the correct solution.
+     ((file-exists? (derivation->output-path lowered))
+      (return (derivation->output-path lowered)))
+     (else
+      (mbegin %store-monad
+        (built-derivations (list lowered))
+        (return (derivation->output-path lowered)))))))
 
 (define-gexp-compiler (remote-package-compiler
                        (this <remote-package>) system target)
