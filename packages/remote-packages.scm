@@ -6,7 +6,7 @@
   #:export (miny jaq))
 
 (define miny
-  (let ((release "0.6.0") (commit "97b8626") (revision "19"))
+  (let ((release "0.6.0") (commit "a60e8e4") (revision "20"))
     (package
       (name "miny")
       (source (remote-package
