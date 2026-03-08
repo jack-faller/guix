@@ -18,7 +18,7 @@
                         (commit commit)))
                   (file-name (git-file-name name (string-append release "-" commit "-" revision)))
                   (sha256
-                   (base32 "0rmaf7y28az4c793rlg463h95scczyw2q5r0giq3zg2i0fc3j459"))))))
+                   (base32 "1yz2alf8rvv6l6pl6dz0m15041jyk733c2i4skm33a6pbr2msgdq"))))))
       (version (git-version release revision commit))
       (build-system (@ (guix build-system copy) copy-build-system))
       (synopsis "Minesweeper")
