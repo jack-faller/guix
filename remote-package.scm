@@ -84,5 +84,5 @@
 (define* (update-lock arg0 #:optional (file "guix.scm") lock-file)
   "Build a package file and create a lock file containing the channel versions used in the build."
   (guix-main "guix" "build" "-f" file)
-  (with-output-to-file (or lock-file (string-append file ".lock"))
+  (with-output-to-file (or lock-file "guix-channels.scm")
     (lambda () (guix-main "guix" "describe" "--format=channels"))))
