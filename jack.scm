@@ -18,7 +18,7 @@
   #:use-module (gnu home services xdg)
   #:use-module (nongnu packages fonts)
 
-  #:use-module (packages miny)
+  #:use-module (packages remote-packages)
   #:use-module (packages discord)
   #:use-module (packages guix-dev)
   #:use-module (packages icons)
@@ -228,6 +228,7 @@
    "password-store"
    "zenity"
    "cloc"
+   "entr"  ;; run command on file change
    "bemoji"
    "pipewire" ;; gives pw-play
    "eza"      ;; ls alternative
@@ -242,6 +243,8 @@
    "zbar" ;; reads bar/qr codes for qute script
    "sbcl"
    "man-pages"
+   jaq ;; `jq` replacement.
+   "gnuplot"
    "yt-dlp" "rakudo" "android-file-transfer" "xdg-utils"
    guix-dev
    ;; applications
@@ -250,7 +253,7 @@
    "virt-manager" virtiofsd
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "okular" "mpv" "feh" "gimp"
-   "kdenlive" "obs" #;miny
+   "kdenlive" "obs" miny
    "adb" ;; To load phone as webcam.
    "rhythmbox" "gst-libav" "gst-plugins-bad" "gst-plugins-ugly"
    "libreoffice"
