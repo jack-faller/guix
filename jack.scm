@@ -137,13 +137,6 @@
       (".local/share/qutebrowser/userscripts/suppress.html" ,(f "suppress.html"))
       (".config/kitty/bell.oga"
        ,(file-append sound-theme-freedesktop "/share/sounds/freedesktop/stereo/bell.oga"))
-      (".local/share/icons/default/index.theme"
-       ,(plain-file "cursor-theme-index" (lines "[Icon Theme]"
-                                                "Name=Default"
-                                                "Comment=Default Cursor Theme"
-                                                "Inherits=Quintom_Ink")))
-      (".local/share/icons/Quintom_Ink"
-       ,(file-append quintom-cursor-theme "/share/icons/Quintom_Ink"))
       (".config/emacs/early-init.el" ,(f "emacs/early-init.el"))
       (".config/emacs/init.el"
        ,(computed-file
@@ -208,6 +201,7 @@
   (specifications->package-list
    ;; basic
    "ntfs-3g"
+   "oxygen-icons"
    "adwaita-icon-theme"
    "udiskie"
    "gnupg" "pinentry" ;; allows gnupg to prompt for password
@@ -249,7 +243,8 @@
    guix-dev
    ;; applications
    "cmst"
-   discord pulseshitter #;"qutebrowser" "torbrowser"
+   "nautilus" "ffmpegthumbnailer"
+   discord pulseshitter "torbrowser"
    "virt-manager" virtiofsd
    "kitty" "gucharmap" "transmission:gui"
    "xournalpp" "okular" "mpv" "feh" "gimp"
