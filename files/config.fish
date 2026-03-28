@@ -12,13 +12,14 @@ if status is-interactive
     alias please="sudo"
     alias tm="mv --verbose --backup --target-directory ~/trash"
     alias pass="EDITOR=vim $(which pass)"
+    fzf --fish | source
     if set -q DISPLAY
-	cat ~/.cache/wal/sequences
-	if ! set -q TMUX
-	    tmux attach || tmux
-	end
+        cat ~/.cache/wal/sequences
+        if ! set -q TMUX
+            tmux attach || tmux
+        end
     end
 end
 if status is-login && [ "$XDG_VTNR" = 1 ]
-     ~/.config/start-wm
+    ~/.config/start-wm
 end

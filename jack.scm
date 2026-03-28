@@ -233,6 +233,7 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    "password-store"
    "zenity"
    "cloc"
+   "fzf"
    "entr"  ;; run command on file change
    "bemoji"
    "pipewire" ;; gives pw-play
