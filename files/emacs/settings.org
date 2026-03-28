@@ -1027,6 +1027,30 @@ align with previews
     (push `((csharp-ts-mode) ,(concat "omnisharp" (if using-guix "-wrapper" "")) "-lsp")
           eglot-server-programs))
 #+end_src
+** Aardvark
+#+begin_src emacs-lisp
+  (defhook aardvark-mode-hook
+    (lispyville-mode)
+    (require 'rainbow-delimiters))
+  (ts-install 'aardvark :url "https://github.com/jack-faller/tree-sitter-aardvark.git")
+  (straight-use-package '(aardvark-mode :local-repo "~/code/aardvark"))
+  (setf aardvark-bracket-face
+        (lambda (n)
+  	(cl-case (+ 1 (% n 9))
+  	  ((1) 'rainbow-delimiters-depth-1-face)
+  	  ((2) 'rainbow-delimiters-depth-2-face)
+  	  ((3) 'rainbow-delimiters-depth-3-face)
+  	  ((4) 'rainbow-delimiters-depth-4-face)
+  	  ((5) 'rainbow-delimiters-depth-5-face)
+  	  ((6) 'rainbow-delimiters-depth-6-face)
+  	  ((7) 'rainbow-delimiters-depth-7-face)
+  	  ((8) 'rainbow-delimiters-depth-8-face)
+  	  ((9) 'rainbow-delimiters-depth-9-face))))
+#+end_src
+** Dart
+#+begin_src emacs-lisp
+  (pkg dart-mode)
+#+end_src
 ** Scheme
 #+begin_src emacs-lisp
   (pkg geiser)
