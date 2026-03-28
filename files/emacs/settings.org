@@ -21,6 +21,34 @@
   (defun symcat (&rest symbols)
     (intern (apply #'concat (mapcar #'str symbols))))
 #+end_src
+** Case Change
+#+begin_src emacs-lisp
+  (defun capitalise-first (string)
+    (string-join (list (upcase (substring string 0 1)) (downcase (substring string 1)))))
+  (defun case-convert (ident from to)
+    (let* (case-fold-search
+           (regexp
+            (pcase from
+              ('upper-snake "[^_]+")
+              ('snake "[^_]+")
+              ('kebab "[^-]+")
+              ('pascal "[[:upper:]][^[:upper:]]+")
+              ('camel "[[:upper:]]?[^[:upper:]]+")))
+           (matches
+            (save-match-data
+              (cl-loop
+               for j = (string-match regexp ident) then (string-match regexp ident (match-end 0))
+               while j
+               do (message "%s" j)
+               collect (match-string 0 ident)))))
+      (pcase to
+        ('upper-snake (string-join (mapcar #'upcase matches) "_"))
+        ('snake (string-join (mapcar #'downcase matches) "_"))
+        ('upper-kebab (string-join (mapcar #'upcase matches) "-"))
+        ('kebab (string-join (mapcar #'downcase matches) "-"))
+        ('pascal (string-join (mapcar #'capitalise-first matches)))
+        ('camel (string-join (cons (downcase (car matches)) (mapcar #'capitalise-first (cdr matches))))))))
+#+end_src
 ** Tree Sitter
 #+begin_src emacs-lisp
   (require 'treesit)
