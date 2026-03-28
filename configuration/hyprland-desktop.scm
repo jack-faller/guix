@@ -49,6 +49,6 @@
      "brightnessctl" "pulseaudio"
      ;; screenshots
      "slurp" "grim"
-     "rofi-wayland" ;; swap for rofi-wayland
+     "rofi"
      ;; these are started automatically by dbus
      "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xdg-desktop-portal-hyprland"))))
