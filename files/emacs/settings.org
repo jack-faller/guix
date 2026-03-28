@@ -1501,11 +1501,6 @@ align with previews
 #+end_src
 ** HTML
 #+begin_src emacs-lisp
-  (setq-mode-local mhtml-mode
-                   electric-pair-inhibit-predicate
-                   `(lambda (c) (or (char-equal c ?')
-                                    (char-equal c ?<)
-                                    (,electric-pair-inhibit-predicate c))))
   (evil-define-key '(insert) mhtml-mode-map
     (kbd "<leader>t") (defun insert-tag ()
                         (interactive)
