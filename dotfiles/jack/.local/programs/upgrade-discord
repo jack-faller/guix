@@ -10,3 +10,4 @@ git reset
 git add packages/discord.scm
 git commit -m "Bumps Discord version" || echo Up to date.
 guix home reconfigure /config/"$(hostname)"-jack.scm
+nohup discord 2>&1 > /dev/null &
