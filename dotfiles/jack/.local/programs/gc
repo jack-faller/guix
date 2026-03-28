@@ -1,0 +1,5 @@
+#!/bin/sh
+set -ex
+guix system delete-generations 3m
+guix pull --delete-generations=3m
+guix gc --delete-generations=1m
