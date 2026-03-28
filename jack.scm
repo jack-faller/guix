@@ -229,6 +229,7 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    "font-microsoft-impact" "font-ghostscript" "font-dejavu" "font-gnu-freefont" "font-google-noto" "font-google-noto-emoji" "font-google-noto-sans-cjk" "font-google-noto-serif-cjk"
    quintom-cursor-theme
    ;; cli utilities
+   "helix"
    "password-store"
    "zenity"
    "cloc"

@@ -1,0 +1,41 @@
+theme = "base16_terminal"
+
+[editor]
+line-number = "relative"
+default-yank-register = "+"
+completion-timeout = 5
+# rainbow-brackets = "true"
+
+[editor.lsp]
+display-inlay-hints = true
+
+[editor.inline-diagnostics]
+cursor-line = "hint"
+other-lines = "hint"
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.whitespace.render]
+space = "none"
+tab = "all"
+nbsp = "all"
+nnbsp = "all"
+newline = "none"
+
+[editor.indent-guides]
+render = true
+skip-levels = 1
+
+[editor.file-picker]
+hidden = false
+
+[keys.normal]
+left = "expand_selection"
+right = "shrink_selection"
+S-left = "move_parent_node_start"
+S-right = "move_parent_node_end"
+down = "select_next_sibling"
+up = "select_prev_sibling"
