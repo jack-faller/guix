@@ -3,6 +3,7 @@
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module ((guix licenses) #:prefix license:)
+  #:use-module (gnu packages compression)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages tls)
   #:export (rustup lookup-cargo-inputs))
@@ -2157,8 +2158,9 @@
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
         (base32 "0mdzz2l9rhck4jv8sn33kmnsl26wv0iwbcdxysi0jm2d5ykd2wyy"))))
+    (arguments (list #:tests? #f))
     (build-system cargo-build-system)
-    (inputs (cons* openssl pkg-config (lookup-cargo-inputs 'rustup)))
+    (inputs (cons* (list zstd "lib") openssl pkg-config (lookup-cargo-inputs 'rustup)))
     (home-page "https://www.rust-lang.org/")
     (synopsis "Rust language installer")
     (description "Rustup installs The Rust Programming Language from the official release channels, enabling you to easily switch between stable, beta, and nightly compilers and keep them updated. It makes cross-compiling simpler with binary builds of the standard library for common platforms. And it runs on all platforms Rust supports, including Windows.")
