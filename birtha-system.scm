@@ -13,10 +13,11 @@
              (configuration sway-desktop)
              (system)
              (nongnu packages linux)
+             (nonguix transformations)
              (nongnu packages nvidia)
              (nongnu services nvidia))
 
-(replace-mesa
+((nonguix-transformation-nvidia #:s0ix-power-management? #t)
  (make-system
   "birtha"
   (list (swap-space (target (file-system-label "HDD-SWAP"))))
@@ -51,7 +52,6 @@
             (bind "/ssd" "/arch/ssd" arch)
             (bind "/home" "/hdd/home" hdd))))
   (cons*
-   (service nvidia-service-type)
    (simple-service 'nvidia-container-config etc-service-type
                    `(("nvidia-container-runtime/config.toml"
                       ,(f "nvidia-container-runtime-config.toml"))))
@@ -95,13 +95,6 @@
                 (inherit (grub-theme))
                 (gfxmode '("1920x1080x32" "1024x786x32" "auto")))
   #:kernel linux-lts
-  #:kernel-arguments
-  (cons*
-   "modprobe.blacklist=nouveau"
-   ;; Set this if the card is not used for displaying or
-   ;; you're using Wayland:
-   "nvidia_drm.modeset=1"
-   %default-kernel-arguments)
   #:grub-entries
   (list
    (menu-entry
