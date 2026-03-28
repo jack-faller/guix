@@ -232,6 +232,7 @@
 * Tabs and Space
 #+begin_src emacs-lisp
   (setq-default tab-width 4)
+  (setq-default indent-tabs-mode nil)
   (setq-default evil-shift-width tab-width)
   (pkg smart-tabs-mode)
   (setf backward-delete-char-untabify-method 'all)
