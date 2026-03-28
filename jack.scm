@@ -165,7 +165,17 @@
                                                 (org-babel-tangle-file
                                                  ,#$(f "emacs/settings.org")
                                                  ,#$output
-                                                 "emacs-lisp"))))))))))))))))))
+                                                 "emacs-lisp"))))))))))))))))
+      (".config/cargo/cargo.toml"
+       ,(computed-file
+         "cargo.toml"
+         #~(with-output-to-file #$output
+             (lambda ()
+               (display "[target.x86_64-unknown-linux-gnu]
+linker = \"clang\"
+rustflags = [\"-C\", \"link-arg=-fuse-ld=")
+               (display #$(file-append (@ (gnu packages mold) mold) "/bin/mold"))
+               (display "\"]\n")))))))
    (service
     home-fish-service-type
     (home-fish-configuration (config (list (f "config.fish")))))
