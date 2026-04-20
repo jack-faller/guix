@@ -69,14 +69,14 @@
 (define-public discord
   (package
    (name "discord")
-   (version "0.0.130")
+   (version "0.0.134")
    (source
     (origin
      (method url-fetch)
      (uri (string-append "https://cdn.discordapp.com/apps/linux/" version
                          "/discord-" version ".tar.gz"))
      (sha256
-      (base32 "174zycdhi9qs93flwdl37n6aj866l07j48lzmaf754wg4py0rhhl"))))
+      (base32 "0s5hiki2qanaq5ks5dwpyvkgpgaslaf8bna6pvqjaqhb7xr1v21p"))))
    ;; Use this build system to set XDG_DATA_DIRS and other variables.
    (build-system chromium-binary-build-system)
    (arguments
