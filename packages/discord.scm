@@ -143,7 +143,7 @@
      #:install-plan
      #~`(("." "opt/discord")
          (#$discord-modules "opt/discord/resources/bootstrap")
-         ("Discord/discord.desktop" "/share/applications/")
+         ("discord.desktop" "/share/applications/")
          ("discord.sh" "bin/discord")
          ("discord.png" "share/icons/hicolor/256x256/apps/")
          ("discord.png" "share/pixmaps/"))
@@ -158,8 +158,11 @@
              (lambda* (#:key outputs #:allow-other-keys)
                (use-modules (guix build utils))
                (define output (assoc-ref outputs "out"))
-               (invoke "tar" "xzf" #$discord-stub)
-               (substitute* "Discord/discord.desktop"
+               (define temp (mkdtemp "extract-result.XXXXXX"))
+               (invoke "tar" "xzf" #$discord-stub "-C" temp "Discord/discord.desktop")
+               (invoke "mv" (string-append temp "/Discord/discord.desktop") ".")
+               (delete-file-recursively temp)
+               (substitute* "discord.desktop"
                  (("Exec=.*$")
                   (string-append "Exec=" output "/bin/discord\n"))
                  (("Path=.*$")
