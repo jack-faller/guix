@@ -81,6 +81,10 @@
             (display (if skip "Disabled updates" "Enabled updates"))
             (newline)))))))
 
+;; This is a dummy package which fetches the modules Discord needs.
+;; Each module has a source which is a Brotli compressed tar file.
+;; Decompress each of those files, then recompress them as zip files which is
+;; what the client expects.
 (define discord-modules
   (package
     (name "discord-modules")
@@ -158,6 +162,7 @@
              (lambda* (#:key outputs #:allow-other-keys)
                (use-modules (guix build utils))
                (define output (assoc-ref outputs "out"))
+               ;; Patch the desktop file from the stub installer.
                (define temp (mkdtemp "extract-result.XXXXXX"))
                (invoke "tar" "xzf" #$discord-stub "-C" temp "Discord/discord.desktop")
                (invoke "mv" (string-append temp "/Discord/discord.desktop") ".")
