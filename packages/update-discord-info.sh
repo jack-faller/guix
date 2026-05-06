@@ -26,10 +26,14 @@ done
 MODULE_URIS="($MODULE_URIS)"
 MODULE_HASHES="($MODULE_HASHES)"
 URI="$(query .full.url)"
+VERSION="$(query '.full.host_version | "\(.[0]).\(.[1]).\(.[2])"')"
+STUB_URI="https://cdn.discordapp.com/apps/linux/$VERSION/discord-$VERSION.tar.gz"
 echo ";; begin generated content
-(define discord-version \"$(query '.full.host_version | "\(.[0]).\(.[1]).\(.[2])"')\")
+(define discord-version \"$VERSION\")
 (define discord-hash \"$(gethash "$URI")\")
 (define discord-uri \"$URI\")
+(define stub-uri \"$STUB_URI\")
+(define stub-hash \"$(gethash "$STUB_URI")\")
 (define module-uris '$MODULE_URIS)
 (define module-hashes '$MODULE_HASHES)
 (define module-names '$MODULE_NAMES)
