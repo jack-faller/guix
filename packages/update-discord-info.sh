@@ -26,11 +26,12 @@ done
 MODULE_URIS="($MODULE_URIS)"
 MODULE_HASHES="($MODULE_HASHES)"
 URI="$(query .full.url)"
-echo "
+echo ";; begin generated content
 (define discord-version \"$(query '.full.host_version | "\(.[0]).\(.[1]).\(.[2])"')\")
 (define discord-hash \"$(gethash "$URI")\")
 (define discord-uri \"$URI\")
 (define module-uris '$MODULE_URIS)
 (define module-hashes '$MODULE_HASHES)
 (define module-names '$MODULE_NAMES)
-" > "$(dirname "$0")"/discord-info.scm
+;; end generated content" \
+| sed -e '/begin gen/,/end gen/!b' -e '/end gen/!d;r /dev/stdin' -e 'd' -i "$(dirname "$0")"/discord.scm

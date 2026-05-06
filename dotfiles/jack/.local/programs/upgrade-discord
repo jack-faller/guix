@@ -1,9 +1,9 @@
 #!/bin/sh
 set -ex
 cd /config
-./packages/generate-discord-info.sh
+./packages/update-discord-info.sh
 git reset
-git add packages/discord-info.scm
+git add packages/discord.scm
 git commit -m "Bumps Discord version" || echo Up to date.
 guix home reconfigure /config/"$(hostname)"-jack.scm
 nohup discord 2>&1 > /dev/null &
