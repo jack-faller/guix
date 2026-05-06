@@ -1,0 +1,6 @@
+#!/bin/sh
+LINK="$1"
+TEXT="Are you sure you want to open “<tt>$(percent decode "$LINK")</tt>”?"
+if zenity --question --text "$TEXT"; then
+  xdg-open "$LINK"
+fi
