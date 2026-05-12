@@ -1,0 +1,2 @@
+#!/bin/sh
+guix shell openjdk@"$JAVA_VERSION" -- java "$@"
