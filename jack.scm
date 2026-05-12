@@ -59,7 +59,6 @@
     'my-env-vars
     home-environment-variables-service-type
     `(("PATH" . "$HOME/.local/programs:$PATH")
-      ("DISCORD_ENABLE_UPDATES" . "true")
       ("UNICODE_DATA_TXT" .
        ,(file-append ucd "/share/ucd/UnicodeData.txt"))
       ,@(let ((askpass (program-file "askpass"
