@@ -1,2 +1,2 @@
 #!/bin/sh
-google-chrome --user-data-dir="$HOME/.p/.chrome"
+chromium --user-data-dir="$HOME/.p/.chrome"

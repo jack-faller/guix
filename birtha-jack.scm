@@ -38,7 +38,7 @@
   (packages
    (append
     (specifications->package-list
-     "easyeffects" "google-chrome-stable"
+     "easyeffects" "ungoogled-chromium"
      "prismlauncher"
      "icedove-wayland"
      (nonguix-container->package

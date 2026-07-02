@@ -51,4 +51,4 @@
      ;; screenshots
      "slurp" "grim"
      ;; these are started automatically by dbus
-     "xdg-desktop-portal@1.18" "xdg-desktop-portal-gtk" "xdg-desktop-portal-wlr"))))
+     "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xdg-desktop-portal-wlr"))))

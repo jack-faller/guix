@@ -75,8 +75,8 @@
                 (application/x-bittorrent . transmission-gtk.desktop)
                 (image/jpeg . feh.desktop)
                 (image/png . feh.desktop)
-                (x-scheme-handler/http . google-chrome.desktop)
-                (x-scheme-handler/https . google-chrome.desktop)))))
+                (x-scheme-handler/http . chromium.desktop)
+                (x-scheme-handler/https . chromium.desktop)))))
    (service home-gpg-agent-service-type
             (home-gpg-agent-configuration
              (pinentry-program (file-append pinentry "/bin/pinentry"))
