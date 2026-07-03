@@ -14,7 +14,7 @@
 	ff = only
 [mergetool]
 	keepBackup = true
-[core]
-	editor = em
 [gc]
 	auto = 1
+[init]
+	defaultObjectFormat = sha256
