@@ -18,11 +18,8 @@
   #:use-module (gnu home services xdg)
   #:use-module (nongnu packages fonts)
 
-  #:use-module (packages remote-packages)
-  #:use-module (packages discord)
   #:use-module (packages guix-dev)
   #:use-module (packages icons)
-  #:use-module (packages pulseshitter)
   #:use-module (packages virtiofsd)
   #:use-module (configuration ydotool)
   #:use-module (utilities))
@@ -37,6 +34,23 @@
     'my-channels
     home-channels-service-type
     (list
+     (channel
+      (name 'miny)
+      (url "https://github.com/jack-faller/miny")
+      (branch "changes")
+      (introduction
+       (make-channel-introduction
+        "41541da9ed4d5be0e6780deaed7fa233317de2e8"
+        (openpgp-fingerprint
+         "D97A 5464 A392 0366 1ED9  5C07 A043 7B42 9C10 4C61"))))
+     (channel
+      (name 'guix-discord)
+      (url "https://github.com/jack-faller/guix-discord")
+      (introduction
+       (make-channel-introduction
+        "78e9fecec8b671771153505323f3face650d478a"
+        (openpgp-fingerprint
+         "D97A 5464 A392 0366 1ED9  5C07 A043 7B42 9C10 4C61"))))
      (channel
       (name 'nonguix)
       (url "https://gitlab.com/nonguix/nonguix")
@@ -248,18 +262,18 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    "zbar" ;; reads bar/qr codes for qute script
    "sbcl"
    "man-pages"
-   jaq ;; `jq` replacement.
+   ;; jaq ;; `jq` replacement.
    "gnuplot"
    "yt-dlp" "rakudo" "android-file-transfer" "xdg-utils"
    guix-dev
    ;; applications
    "cmst"
    "nautilus" "ffmpegthumbnailer"
-   discord pulseshitter "torbrowser"
+   "discord" "pulseshitter" "torbrowser"
    "virt-manager" virtiofsd
    "kitty" "gucharmap" "transmission:gui"
-   "xournalpp" "okular" "mpv" "feh" "gimp"
-   "kdenlive" "obs" miny
+   "xournalpp" "okular" "mpv" "feh" "gimp" "inkscape"
+   "kdenlive" "obs" "miny"
    "adb" ;; To load phone as webcam.
    "rhythmbox" "gst-libav" "gst-plugins-bad" "gst-plugins-ugly"
    "libreoffice"
