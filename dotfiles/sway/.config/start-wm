@@ -1,4 +1,12 @@
 #!/bin/sh
 brightnessctl set $(cat $XDG_CACHE_HOME/brightness_value)%
 repaper &
-WLR_RENDERER=vulkan GBM_BACKEND=nvidia-drm __GLX_VENDOR_LIBRARY_NAME=nvidia dbus-run-session sway --unsupported-gpu
+
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+export NVD_BACKEND=direct
+
+export LIBVA_DRIVER_NAME=nvidia
+export WLR_RENDERER=vulkan
+export GBM_BACKEND=nvidia-drm
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+dbus-run-session sway --unsupported-gpu
