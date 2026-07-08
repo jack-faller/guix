@@ -8,8 +8,6 @@
 	postBuffer = 15728640
 [credential]
 	helper = store
-[credentials]
-	helper = store
 [pull]
 	ff = only
 [mergetool]
@@ -18,3 +16,11 @@
 	auto = 1
 [init]
 	defaultObjectFormat = sha256
+[sendemail]
+	# Enable 2FA on Google account.
+	# Generate a passcode at https://myaccount.google.com/apppasswords.
+	# Specify it once to `git send-email` using the `--smtp-pass` switch, and it will be stored in the credentials file.
+	smtpserver = smtp.gmail.com
+	smtpuser = jack.t.faller@gmail.com
+	smtpencryption = ssl
+	smtpserverport = 465

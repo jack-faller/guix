@@ -258,7 +258,7 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    "cups"
    "python-pywal"
    "xdg-user-dirs"
-   "git" "tmux" "rsync" "tree" "7zip" "shellcheck" "glances"
+   "git" "git:send-email" "tmux" "rsync" "tree" "7zip" "shellcheck" "glances"
    "zbar" ;; reads bar/qr codes for qute script
    "sbcl"
    "man-pages"
