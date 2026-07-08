@@ -3,5 +3,5 @@ set -ex
 load-ssh
 ssh -ND 9050 root@jackfaller.xyz &
 PID=$!
-SOCKS_VERSION=5 SOCKS_SERVER='socks://localhost:9050/' chromium
+SOCKS_VERSION=5 SOCKS_SERVER='socks://localhost:9050/' chromium --user-data-dir="$HOME/.p/.chrome"
 kill $PID
