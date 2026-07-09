@@ -5,5 +5,5 @@ if [ "$1" != "" ]; then
 	file="$1"
 fi
 if [ ! -e /tmp/loaded-ssh-key ]; then
-	ssh-add -l | grep -q "$(ssh-keygen -lf $file | awk '{print $2}')" || ssh-add "$file"
+	ssh-add -l | grep -q "$(ssh-keygen -lf $file | awk '{print $2}')" || ssh-add -t 600 "$file"
 fi
