@@ -17,7 +17,8 @@
              (nongnu packages nvidia)
              (nongnu services nvidia))
 
-((nonguix-transformation-nvidia #:s0ix-power-management? #t)
+((nonguix-transformation-nvidia
+  #:driver nvda-580)
  (make-system
   "birtha"
   (list (swap-space (target (file-system-label "HDD-SWAP"))))
@@ -60,7 +61,6 @@
     (shepherd-service
      (documentation "Create the NVIDIA CDI file runtime config file.")
      (provision '(create-cdi-config))
-     (requirement '(nvidia))
      (one-shot? #t)
      (start
       #~(make-forkexec-constructor
@@ -94,7 +94,6 @@
   #:grub-theme (grub-theme
                 (inherit (grub-theme))
                 (gfxmode '("1920x1080x32" "1024x786x32" "auto")))
-  #:kernel linux-lts
   #:grub-entries
   (list
    (menu-entry
