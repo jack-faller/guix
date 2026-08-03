@@ -31,16 +31,16 @@
    (simple-service
     'bspwm-desktop-profile
     home-profile-service-type
-    (using-nvidia
-     (specifications->package-list
-      xorg-input-config
-      ;; Would probably need some kind of system service use nvidia modules.
-      ;; Install this through Arch.
-      "xinit" "xorg-server" "xf86-input-libinput" "xf86-video-nouveau" "xf86-video-nv" "xf86-video-fbdev"
-      "sxhkd" "bspwm" "redshift" "xclip"
-      "imagemagick" "dunst"
-      "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo" "xrandr"
-      ;; screenshots
-      "maim" "xdotool"
-      ;; these are started automatically by dbus
-      "xdg-desktop-portal")))))
+    (specifications->package-list
+     xorg-input-config
+     ;; Would probably need some kind of system service use nvidia modules.
+     ;; Install this through Arch.
+     "xinit" "xorg-server" "xf86-input-libinput" "xf86-video-nouveau" "xf86-video-nv" "xf86-video-fbdev"
+     "sxhkd" "bspwm" "redshift" "xclip"
+     "imagemagick" "dunst"
+     "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo" "xrandr"
+     "rofi"
+     ;; screenshots
+     "maim" "xdotool"
+     ;; these are started automatically by dbus
+     "xdg-desktop-portal"))))

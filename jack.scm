@@ -89,8 +89,8 @@
                 (application/x-bittorrent . transmission-gtk.desktop)
                 (image/jpeg . feh.desktop)
                 (image/png . feh.desktop)
-                (x-scheme-handler/http . chromium.desktop)
-                (x-scheme-handler/https . chromium.desktop)))))
+                (x-scheme-handler/http . firefox.desktop)
+                (x-scheme-handler/https . firefox.desktop)))))
    (service home-gpg-agent-service-type
             (home-gpg-agent-configuration
              (pinentry-program (file-append pinentry "/bin/pinentry"))
@@ -221,15 +221,15 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
                       (prefer (family "Noto Color Emoji")))))
    (append ydotool-home-services %base-home-services)))
 (define jack-packages
-  (specifications->package-list
-   ;; basic
+  (list
+    ;; basic
    "ntfs-3g"
    "oxygen-icons"
    "adwaita-icon-theme"
    "udiskie"
    "gnupg" "pinentry" ;; allows gnupg to prompt for password
    ;; editing
-   "emacs-pgtk"
+   "emacs"
    "emacs-all-the-icons" "hunspell" "hunspell-dict-en-gb"
    "perl"        ;; needed for magit
    "gcc-toolchain" ;; needed to compile treesitter grammars
@@ -268,6 +268,8 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    guix-dev
    ;; applications
    "cmst"
+   "firefox" "ungoogled-chromium" "icedove"
+   "toys" ;; `guix toys` command
    "nautilus" "ffmpegthumbnailer"
    "discord" "pulseshitter" "torbrowser"
    "virt-manager" virtiofsd

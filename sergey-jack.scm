@@ -20,7 +20,7 @@
    (append sway-desktop-home-services jack-services)))
  (packages
   (append
-   (specifications->package-list
-    "icedove-wayland"
-    "lsp-plugins" "steam" "ungoogled-chromium-wayland" "obs-wlrobs")
-   jack-packages)))
+   (apply
+    specifications->package-list
+    (map wayland-package-substitute
+         (cons* "steam" "ungoogled-chromium-wayland" jack-packages))))))

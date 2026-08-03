@@ -6,7 +6,7 @@
              (gnu home services)
              (gnu home services xdg)
              (utilities)
-             (configuration sway-desktop)
+             (configuration bspwm-desktop)
              (nonguix multiarch-container)
              (nongnu packages game-client)
              (nongnu packages nvidia)
@@ -34,16 +34,17 @@
               (shell-script
                name (string-append "guix shell openjdk@" v " -- java \"$@\""))))
       (iota 9 20)))
-    (append sway-desktop-home-services jack-services)))
+    (append bspwm-desktop-home-services jack-services)))
   (packages
-   (append
-    (specifications->package-list
-     "easyeffects" "ungoogled-chromium"
-     "prismlauncher"
-     "icedove-wayland"
-     (nonguix-container->package
-      (let ((container (steam-container-for nvda)))
-        (nonguix-container
-         (inherit container)
-         (shared (cons* "/hdd" "/ssd" (ngc-shared container)))))))
-    jack-packages))))
+   (apply
+    specifications->package-list
+    ;; "prismlauncher"
+    "easyeffects" "lsp-plugins"
+    "nvda@580"
+    (nonguix-container->package
+     (let ((container (steam-container-for nvda-580)))
+       (nonguix-container
+        (inherit container)
+        (shared (cons* "/hdd" "/ssd" (ngc-shared container))))))
+    jack-packages)))
+ #:driver nvda-580)

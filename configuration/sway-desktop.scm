@@ -51,4 +51,11 @@
      ;; screenshots
      "slurp" "grim"
      ;; these are started automatically by dbus
-     "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xdg-desktop-portal-wlr"))))
+     "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xdg-desktop-portal-wlr"
+     "obs-wlrobs"))))
+
+(define (wayland-package-substitute package-name)
+  (case package-name
+    (("emacs") "emacs-pgtk")
+    (("ungoogled-chromium" "icedove") (string-append package-name "-wayland"))
+    (else package-name)))
