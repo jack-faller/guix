@@ -37,11 +37,8 @@ xcompmgr &
 redshift -l 50.721680:-1.878530 &
 xset -b -dpms s off &
 xsetroot -cursor_name left_ptr &
-easyeffects &
-discord &
-transmission-gtk &
-qutebrowser &
+~/.config/startup-programs.sh &
 # Wait for transmission to start.
-(sleep 5 && automatic -c ~/.config/automatic/automatic.conf -l /tmp/automatic.log) &
+# (sleep 5 && automatic -c ~/.config/automatic/automatic.conf -l /tmp/automatic.log) &
 sxhkd &
 exec bspwm
