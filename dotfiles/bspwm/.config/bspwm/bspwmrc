@@ -30,6 +30,7 @@ repaper
 
 #open notification daemon
 dunst &
+polybar &
 
 # Set the border colors.
 bspc config normal_border_color  "$color1"

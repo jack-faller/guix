@@ -39,6 +39,7 @@
      "sxhkd" "bspwm" "redshift" "xclip"
      "imagemagick" "dunst"
      "xset" "xsetroot" "xcompmgr" "xrdb" "setxkbmap" "xmodmap" "xinput" "xprop" "xwininfo" "xrandr"
+     "polybar"
      "rofi"
      ;; screenshots
      "maim" "xdotool"
