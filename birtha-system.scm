@@ -91,6 +91,10 @@
    (specifications->package-list
     nvidia-container-toolkit "runc")
    system-packages)
+  ;; Not sure if this is needed, but is in tutorial.
+  ;; It doesn't work though.
+  ;; #:initrd-modules '("nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm")
+  ;; #:kernel-loadable-modules (list nvidia-module-580)
   #:grub-theme (grub-theme
                 (inherit (grub-theme))
                 (gfxmode '("1920x1080x32" "1024x786x32" "auto")))
