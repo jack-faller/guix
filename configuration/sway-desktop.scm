@@ -55,7 +55,7 @@
      "obs-wlrobs"))))
 
 (define (wayland-package-substitute package-name)
-  (case package-name
-    (("emacs") "emacs-pgtk")
-    (("ungoogled-chromium" "icedove") (string-append package-name "-wayland"))
-    (else package-name)))
+  (match package-name
+    ("emacs" "emacs-pgtk")
+    ((or "ungoogled-chromium" "icedove") (string-append package-name "-wayland"))
+    (_ package-name)))
