@@ -1,45 +1,47 @@
 {
   "layer": "bottom",
   "height": 16,
-  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
   "modules-center": ["clock"],
-  "modules-right": ["memory", "cpu", "temperature", "network", "custom/webcam", "pulseaudio#mic", "pulseaudio", "backlight", "battery"],
+  "modules-right": ["disk", "memory", "cpu", "temperature", "network", "custom/webcam",
+    // This is broken because it tries to use EasyEffects.
+    // "wireplumber#source",
+    "wireplumber#sink", "backlight", "battery"],
   "sway/workspaces": {
     "all-outputs": true
+  },
+  "sway/window": {
+    "format": "{title} – {app_id} {shell} [{marks}]"
   },
   "custom/webcam": {
     "exec": "phone-webcam-icon",
     "on-click": "pkill -USR1 -f phone-webcam-icon"
   },
-  "cpu": {
-    "interval": 5,
-    "format": "CPU {usage:2}%"
+  "disk": {
+    "format": "Disk ({path}) {percentage_used}%"
   },
   "memory": {
-    "interval": 5,
+    "interval": 1,
     "format": "Mem {}%"
   },
   "cpu": {
-    "interval": 5,
+    "interval": 1,
     "format": "CPU {usage:2}%"
   },
   "temperature": {
     "thermal-zone": 0,
     "hwmon-path": "/sys/class/thermal/thermal_zone0/temp",
-    "format": "{temperatureC}°C",
-    "tooltip": false
+    "format": "{temperatureC}°C"
   },
   "network": {
     "format-wifi": "{icon}",
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
     "format-ethernet": "󰡀",
     "format-disconnected": "󰤮",
-    "on-click": "termite --name=launcher -e 'sudo wifi-menu'",
-    "tooltip": false
+    "tooltip-format": "{ifname} {ipaddr}"
   },
   "backlight": {
-    "format": "{percent}% 󰌵",
-    "tooltip": false
+    "format": "{percent}% 󰌵"
   },
   "battery": {
     "format-discharging": "{capacity}% {icon}",
@@ -49,10 +51,10 @@
     "states": {
       "warning": 30,
       "critical": 15
-    },
-    "tooltip": false
+    }
   },
-  "pulseaudio": {
+  "wireplumber#sink": {
+    "only-physical": true,
     "format": "{volume}% {icon}",
     "format-bluetooth": "󰂯{volume}% {icon}",
     "format-muted": "󰖁",
@@ -64,19 +66,18 @@
       "phone": "󰥒",
       "default": ["󰕿", "󰖀", "󰕾"]
     },
-    "scroll-step": 1,
-    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-    "tooltip": false
+    "scroll-step": 5,
+    "on-click": "wpctl set-mute @DEFAULT_SINK@ toggle"
   },
-  "pulseaudio#mic": {
+  "wireplumber#source": {
+    "only-physical": true,
+    "node-type": "Audio/Source",
     "format": "{format_source}",
     "format-source": "󰍬",
     "format-source-muted": "󰍭",
-    "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
-    "tooltip": false
+    "on-click": "wpctl set-mute @DEFAULT_SOURCE@ toggle"
   },
   "clock": {
-    "format": "{:%a, %b %d %H:%M %p}",
-    "tooltip": false
+    "format": "{:%a, %b %d %H:%M %p}"
   }
 }

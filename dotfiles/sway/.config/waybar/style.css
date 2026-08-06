@@ -35,32 +35,12 @@ window#waybar {
 #workspaces button.focused:not(.current_output) {
 	opacity: 0.6;
 }
-#memory, #cpu, #temperature, #network, #pulseaudio#mic, #pulseaudio, #backlight, #battery, #custom-webcam {
+#window, #mode, #disk, #memory, #cpu, #temperature, #network, #wireplumber.source, #wireplumber.sink, #backlight, #battery, #custom-webcam {
     padding: 0 10px;
     margin: 0 0;
     background: transparent;
     background-color: transparent;
     color: @foreground;
-}
-#mode {
-}
-#memory {
-}
-#temperature {
-}
-#network {
-}
-#clock {
-}
-#pulseaudio {
-}
-#pulseaudio.muted {
-}
-#pulseaudio.mic {
-}
-#battery {
-}
-#custom-webcam {
 }
 #battery.charging {
     color: #32CD32
