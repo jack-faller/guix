@@ -10,7 +10,7 @@
   #:use-module (gnu home services desktop)
   #:use-module (gnu services)
   #:use-module (gnu services xorg)
-  #:use-module (gnu packages wm)
+  #:use-module (gnu packages window-management)
   #:use-module (gnu packages glib))
 
 (define sway-desktop-system-services
