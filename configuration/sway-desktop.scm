@@ -1,9 +1,10 @@
 (define-module (configuration sway-desktop)
-  #:export (sway-desktop-system-services sway-desktop-home-services)
+  #:export (sway-desktop-system-services sway-desktop-home-services wayland-package-substitute)
 
   #:use-module (utilities)
   #:use-module (gnu home services dotfiles)
 
+  #:use-module (ice-9 match)
   #:use-module (guix gexp)
   #:use-module (gnu home services)
   #:use-module (gnu home services desktop)
