@@ -3,7 +3,7 @@ set -ex
 guix pull
 echo "Pulled."
 if [ "$(whoami)" = "root" ]; then
-    guix system reconfigure /config/"$(cat /etc/hostname)"-system.scm
+    guix system reconfigure /config/"$(hostname)"-system.scm
 else
-    guix home reconfigure /config/"$(cat /etc/hostname)"-"$(whoami)".scm
+    guix home reconfigure /config/"$(hostname)"-"$(whoami)".scm
 fi
