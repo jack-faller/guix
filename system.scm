@@ -20,15 +20,18 @@
 
 (define*-public (make-system name swap-devices file-systems services packages
                              #:optional #:key
+                             (initrd-modules '())
                              (kernel linux)
                              (kernel-arguments '())
+                             (kernel-loadable-modules '())
                              (grub-theme (grub-theme))
                              (grub-entries '())
                              (extra-users '()))
   (operating-system
     (kernel kernel)
+    (initrd-modules (append initrd-modules %base-initrd-modules))
     (kernel-arguments kernel-arguments)
-    (kernel-loadable-modules (list v4l2loopback-linux-module))
+    (kernel-loadable-modules (cons* v4l2loopback-linux-module kernel-loadable-modules))
     (initrd microcode-initrd)
     (firmware (list linux-firmware))
     (host-name name)
