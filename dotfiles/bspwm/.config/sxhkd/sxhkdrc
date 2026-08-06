@@ -115,7 +115,7 @@ super + ctrl + r
     pkill -x --signal 'SIGINT' recordmydesktop; \
     name=`zenity --entry --text "Recording name:" --width 400 --height 150`; \
     if [ "$name" -eq "" ]; then; \
-    name=`date`; \
+    name=`date --iso-8601=ns`; \
     fi; \
     rename "temp" $name "$HOME/Videos/raw footage/temp.ogv"
 
@@ -124,8 +124,8 @@ super + shift + r
 
 #print screen
 {_, shift, ctrl} + Print
-    date=`date`; \
-    maim {_,-s,-i $(xdotool getactivewindow)} > "/tmp/$date.png"; \
+    date=`date --iso-8601=ns`; \
+    maim {_,-s,-i $(xdotool getactivewindow)} "/tmp/$date.png"; \
     xclip -selection clipboard -t image/png "/tmp/$date.png"; \
     echo "/tmp/$date.png" > /tmp/last-screenshot.txt
 

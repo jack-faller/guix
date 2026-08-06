@@ -28,6 +28,9 @@
    (service
     home-dotfiles-service-type
     (home-dotfiles-configuration (directories (list "../dotfiles/bspwm"))))
+   (simple-service 'bspwm-environment-variables
+                   home-environment-variables-service-type
+                   '(("SXHKD_SHELL" . "sh")))
    (simple-service
     'bspwm-desktop-profile
     home-profile-service-type
