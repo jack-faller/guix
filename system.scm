@@ -18,40 +18,24 @@
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
                      package-management firmware dns admin admin)
 
-(define*-public (make-system name swap-devices file-systems services packages
-                             #:optional #:key
-                             (initrd-modules '())
-                             (kernel linux)
-                             (kernel-arguments '())
-                             (kernel-loadable-modules '())
-                             (grub-theme (grub-theme))
-                             (grub-entries '())
-                             (extra-users '()))
+(define-public (make-system host-name file-systems)
   (operating-system
-    (kernel kernel)
-    (initrd-modules (append initrd-modules %base-initrd-modules))
-    (kernel-arguments kernel-arguments)
-    (kernel-loadable-modules (cons* v4l2loopback-linux-module kernel-loadable-modules))
+    (host-name host-name)
+    (kernel linux)
+    (kernel-loadable-modules (list v4l2loopback-linux-module))
     (initrd microcode-initrd)
     (firmware (list linux-firmware))
-    (host-name name)
     (timezone "Europe/London")
     (locale "en_GB.utf8")
-
     (keyboard-layout (keyboard-layout "gb"))
-
     (bootloader (bootloader-configuration
                  (bootloader grub-efi-bootloader)
                  (targets (list "/boot/efi"))
                  (keyboard-layout keyboard-layout)
-                 (theme grub-theme)
-                 (menu-entries grub-entries)))
-    (swap-devices swap-devices)
+                 (theme (grub-theme))
+                 (menu-entries '())))
     (file-systems (cons %fuse-control-file-system
                         (append file-systems %base-file-systems)))
-    (services services)
-    (packages packages)
-
     (users (cons* (user-account
                    (name "jack")
                    (comment "Jack")
@@ -59,9 +43,7 @@
                    (shell (file-append fish "/bin/fish"))
                    (home-directory "/home/jack")
                    (supplementary-groups '("wheel" "netdev" "audio" "video" "realtime" "docker" "libvirt" "kvm")))
-                  (append
-                   extra-users
-                   %base-user-accounts)))
+                  %base-user-accounts))
     (groups (cons*
              ;; Realtime audio.
              (user-group (name "realtime"))
@@ -84,7 +66,6 @@
                '(#$shepherd #$(specification->package "shepherd")))
               ", "))
             (newline)))))
-
     (privileged-programs
      ;; Allow desktop users to also mount NTFS and NFS file systems
      ;; without root.
@@ -93,112 +74,109 @@
                   (list (file-append nfs-utils "/sbin/mount.nfs")
                         (file-append ntfs-3g "/sbin/mount.ntfs-3g")))
              %default-privileged-programs))
-    (name-service-switch %mdns-host-lookup-nss)))
-
-(define-public system-packages
-  (cons* vim git fish %base-packages))
-
-(define-public system-services
-  ((λ args
-     (append
-      args
-      ydotool-system-services
-      (modify-services
-          %base-services
-        (guix-service-type
-         config =>
-         (guix-configuration
-          (inherit config)
-          (substitute-urls
-           (append (list "https://substitutes.nonguix.org")
-                   %default-substitute-urls))
-          (authorized-keys
-           (cons* (f "nonguix-key.pub") %default-authorized-guix-keys))
-          (channels
-           (cons*
-            (channel
-             (name 'nonguix)
-             (url "https://gitlab.com/nonguix/nonguix")
-             (introduction
-              (make-channel-introduction
-               "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
-               (openpgp-fingerprint
-                "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
-            %default-channels))))
-        (sysctl-service-type
-         config =>
-         (sysctl-configuration
-          (settings (append '(("kernel.sysrq" . "1"))
-                            %default-sysctl-settings)))))))
-   fontconfig-file-system-service
-   (service kernel-module-loader-service-type '("fuse" "v4l2loopback"))
-   (simple-service 'v42l-config etc-service-type
-                   `(("modprobe.d/v4l2.conf"
-                      ,(plain-file "v4l2.conf"
-                                   "options v4l2loopback exclusive_caps=1\n"))))
-   (service containerd-service-type)
-   (service docker-service-type)
-   (service libvirt-service-type)
-   (service virtlog-service-type)
-   (simple-service 'kvmm-config etc-service-type
-                   `(("modprobe.d/kvm.conf"
-                      ,(plain-file "kvm.conf"
-                                   "options kvm_amd nested=1\noptions kvm_intel nested=1\n"))))
-   (simple-service 'docker-rotlog log-rotation-service-type
-                   '("/var/log/docker.log" "/var/log/containerd.log"))
-   (simple-shepherd-service
-    'populate-blocklists
-    (shepherd-service
-     (documentation "Add IPs to blocklists")
-     (provision '(populate-blocklists))
-     (requirement '(nftables networking))
-     (one-shot? #t)
-     (start
-      #~(make-forkexec-constructor
-         (list #$(script-with-path
-                  (list inetutils (gexp-input isc-bind "utils") nftables)
-                  "populat-blocklists.real" (f "populate-blocklists.sh")))
-         #:log-file "/var/log/populate-bocklists.log"))
-     (stop #~(make-kill-destructor)))
-    '("/var/log/populate-bocklists.log"))
-   (service nftables-service-type
-            (nftables-configuration (ruleset (f "nftables.conf"))))
-   (service iwd-service-type)
-   (service connman-service-type
-            (connman-configuration
-             (shepherd-requirement '(iwd))
-             (disable-vpn? #t)
-             (general-configuration
-              (connman-general-configuration
-               (preferred-technologies '("ethernet" "wifi"))
-               (network-interface-blacklist
-                '("vmnet" "vboxnet" "virbr" "ifb" "docker" "veth" "eth" "wlan"))))))
-   (simple-service 'connman-rotlog log-rotation-service-type
-                   '("/var/log/connman.log"))
-   (service ntp-service-type)
-   (service openssh-service-type
-            (openssh-configuration
-             (permit-root-login 'prohibit-password)
+    (name-service-switch %mdns-host-lookup-nss)
+    (packages (cons* vim git fish %base-packages))
+    (services
+     ((λ args
+        (append
+         args
+         ydotool-system-services
+         (modify-services
+             %base-services
+           (guix-service-type
+            config =>
+            (guix-configuration
+             (inherit config)
+             (substitute-urls
+              (append (list "https://substitutes.nonguix.org")
+                      %default-substitute-urls))
              (authorized-keys
-              (let ((my-key (f "myKey.pub")))
-                `(("root" ,my-key)
-                  ("jack" ,my-key))))))
-   (service cups-service-type (cups-configuration (web-interface? #t)))
-   (service tlp-service-type)
-   (simple-service 'my-udev-rules udev-service-type
-                   (list libmtp brightnessctl qmk-udev-rules))
+              (cons* (f "nonguix-key.pub") %default-authorized-guix-keys))
+             (channels
+              (cons*
+               (channel
+                (name 'nonguix)
+                (url "https://gitlab.com/nonguix/nonguix")
+                (introduction
+                 (make-channel-introduction
+                  "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
+                  (openpgp-fingerprint
+                   "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
+               %default-channels))))
+           (sysctl-service-type
+            config =>
+            (sysctl-configuration
+             (settings (append '(("kernel.sysrq" . "1"))
+                               %default-sysctl-settings)))))))
+      fontconfig-file-system-service
+      (service kernel-module-loader-service-type '("fuse" "v4l2loopback"))
+      (simple-service 'v42l-config etc-service-type
+                      `(("modprobe.d/v4l2.conf"
+                         ,(plain-file "v4l2.conf"
+                                      "options v4l2loopback exclusive_caps=1\n"))))
+      (service containerd-service-type)
+      (service docker-service-type)
+      (service libvirt-service-type)
+      (service virtlog-service-type)
+      (simple-service 'kvmm-config etc-service-type
+                      `(("modprobe.d/kvm.conf"
+                         ,(plain-file "kvm.conf"
+                                      "options kvm_amd nested=1\noptions kvm_intel nested=1\n"))))
+      (simple-service 'docker-rotlog log-rotation-service-type
+                      '("/var/log/docker.log" "/var/log/containerd.log"))
+      (simple-shepherd-service
+       'populate-blocklists
+       (shepherd-service
+        (documentation "Add IPs to blocklists")
+        (provision '(populate-blocklists))
+        (requirement '(nftables networking))
+        (one-shot? #t)
+        (start
+         #~(make-forkexec-constructor
+            (list #$(script-with-path
+                     (list inetutils (gexp-input isc-bind "utils") nftables)
+                     "populat-blocklists.real" (f "populate-blocklists.sh")))
+            #:log-file "/var/log/populate-bocklists.log"))
+        (stop #~(make-kill-destructor)))
+       '("/var/log/populate-bocklists.log"))
+      (service nftables-service-type
+               (nftables-configuration (ruleset (f "nftables.conf"))))
+      (service iwd-service-type)
+      (service connman-service-type
+               (connman-configuration
+                (shepherd-requirement '(iwd))
+                (disable-vpn? #t)
+                (general-configuration
+                 (connman-general-configuration
+                  (preferred-technologies '("ethernet" "wifi"))
+                  (network-interface-blacklist
+                   '("vmnet" "vboxnet" "virbr" "ifb" "docker" "veth" "eth" "wlan"))))))
+      (simple-service 'connman-rotlog log-rotation-service-type
+                      '("/var/log/connman.log"))
+      (service ntp-service-type)
+      (service openssh-service-type
+               (openssh-configuration
+                (permit-root-login 'prohibit-password)
+                (authorized-keys
+                 (let ((my-key (f "myKey.pub")))
+                   `(("root" ,my-key)
+                     ("jack" ,my-key))))))
+      (service cups-service-type (cups-configuration (web-interface? #t)))
+      (service tlp-service-type)
+      (simple-service 'my-udev-rules udev-service-type
+                      (list libmtp brightnessctl qmk-udev-rules))
 
-   ;; The D-Bus clique.
-   (service avahi-service-type)
-   (service udisks-service-type)
-   (service upower-service-type)
-   (service accountsservice-service-type)
-   (service cups-pk-helper-service-type)
-   (service colord-service-type)
-   (service geoclue-service-type)
-   (service polkit-service-type)
-   polkit-wheel-service
-   (service elogind-service-type)
-   (service dbus-root-service-type)
+      ;; The D-Bus clique.
+      (service avahi-service-type)
+      (service udisks-service-type)
+      (service upower-service-type)
+      (service accountsservice-service-type)
+      (service cups-pk-helper-service-type)
+      (service colord-service-type)
+      (service geoclue-service-type)
+      (service polkit-service-type)
+      polkit-wheel-service
+      (service elogind-service-type)
+      (service dbus-root-service-type)
 
-   (service sane-service-type)))
+      (service sane-service-type)))))
