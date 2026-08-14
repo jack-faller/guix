@@ -13,7 +13,10 @@
   "sway/window": {
     "format": "{title} – {app_id} {shell} [{marks}]",
     "rewrite" : {
-      " –   \\[\\]": ""
+      " –   \\[\\]": "",
+      "(.* – .*) xdg_shell \\[\\]": "$1",
+      "(.* – .*) xdg_shell \\[(.*)\\]": "$1 [$2]",
+      "(.*) \\[\\]": "$1"
     }
   },
   "custom/webcam": {
