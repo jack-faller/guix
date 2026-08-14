@@ -11,7 +11,10 @@
     "all-outputs": true
   },
   "sway/window": {
-    "format": "{title} – {app_id} {shell} [{marks}]"
+    "format": "{title} – {app_id} {shell} [{marks}]",
+    "rewrite" : {
+      " –   \\[\\]": ""
+    }
   },
   "custom/webcam": {
     "exec": "phone-webcam-icon",
