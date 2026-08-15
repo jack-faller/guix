@@ -36,7 +36,7 @@
  (packages
   (apply
    specifications->package-list
-   ;; "prismlauncher"
+   "prismlauncher"
    (map
     wayland-package-substitute
     (cons*
