@@ -35,6 +35,14 @@
     home-channels-service-type
     (list
      (channel
+      (name 'channel-utils)
+      (url "https://github.com/jack-faller/guix-channel-utils")
+      (introduction
+       (make-channel-introduction
+        "657d9af9cf1729a288a9c25f014523ff34ac656f"
+        (openpgp-fingerprint
+         "D97A 5464 A392 0366 1ED9  5C07 A043 7B42 9C10 4C61"))))
+     (channel
       (name 'miny)
       (url "https://github.com/jack-faller/miny")
       (branch "changes")
@@ -262,6 +270,8 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    "zbar" ;; reads bar/qr codes for qute script
    "sbcl"
    "man-pages"
+   "toys" ;; `guix toys` command
+   "channel-utils" ;; Adds `guix channel` commands
    ;; jaq ;; `jq` replacement.
    "gnuplot"
    "yt-dlp" "rakudo" "android-file-transfer" "xdg-utils"
@@ -269,7 +279,6 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    ;; applications
    "cmst"
    "firefox" "ungoogled-chromium" "icedove"
-   "toys" ;; `guix toys` command
    "nautilus" "ffmpegthumbnailer"
    "discord" "pulseshitter" "torbrowser"
    "virt-manager" virtiofsd
