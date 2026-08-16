@@ -10,7 +10,7 @@ fi
 toggle() {
     if [ "$FFPID" = "" ]; then
 	on_msg
-	{ phone-webcam-on; off_msg; } > /dev/null 2>&1 &
+	{ phone-webcam-on > /dev/null 2>&1; off_msg; } &
 	FFPID="$!"
     else
 	off_msg
