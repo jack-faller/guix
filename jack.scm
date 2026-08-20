@@ -274,7 +274,8 @@ rustflags = [\"-C\", \"link-arg=-fuse-ld=")
    "channel-utils" ;; Adds `guix channel` commands
    ;; jaq ;; `jq` replacement.
    "gnuplot"
-   "yt-dlp" "rakudo" "android-file-transfer" "xdg-utils"
+   "node" "yt-dlp" ;; Node needed for challenge solver.
+   "rakudo" "android-file-transfer" "xdg-utils"
    guix-dev
    ;; applications
    "cmst"
