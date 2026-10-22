@@ -364,20 +364,24 @@
 #+end_src
 * Editing
 ** Evil Requirements
-Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
+Use ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
-  (pkg undo-tree :require t)
-  (diminish 'undo-tree-mode)
-  (setf undo-tree-visualizer-timestamps t
-        undo-tree-visualizer-lazy-drawing nil
-        undo-tree-auto-save-history t)
-  (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
-    (setf undo-tree-history-directory-alist (list (cons "." undo-dir))))
-  ;; this is broken, the after save hook below fixes it, but it still needs to be here
-  (defhook-named "undo-tree-save/" after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
-  (global-undo-tree-mode)
-
   (pkg goto-chg :require t)
+#+end_src
+** Undo
+#+begin_src emacs-lisp
+  (setq undo-limit 67108864) ; 64mb.
+  (setq undo-strong-limit 100663296) ; 96mb.
+  (setq undo-outer-limit 1006632960) ; 960mb.
+#+end_src
+*** History
+#+begin_src emacs-lisp
+  (pkg undo-fu-session :require t)
+  (undo-fu-session-global-mode)
+#+end_src
+*** Tree
+#+begin_src emacs-lisp
+  (pkg vundo)
 #+end_src
 ** Make <backspace> Work Like C-g
 #+begin_src emacs-lisp
@@ -389,7 +393,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (setf
    evil-want-keybinding nil
    evil-search-module 'evil-search
-   evil-undo-system 'undo-tree
+   evil-undo-system 'undo-redo ; Use native undo.
    evil-cross-lines t
    evil-want-C-u-scroll t
    evil-want-C-i-jump t
