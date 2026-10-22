@@ -1506,17 +1506,8 @@ align with previews
 ** HTML
 #+begin_src emacs-lisp
   (evil-define-key '(insert) mhtml-mode-map
-    (kbd "<leader>t") (defun insert-tag ()
-                        (interactive)
-                        (let ((tag (evil-surround-read-tag)))
-                          (insert (car tag))
-                          (save-excursion
-                            (insert (cdr tag)))))
-    (kbd "M-l") (defun jump-out-of-tag ()
-                  (interactive)
-                  (save-match-data
-                    (re-search-forward (rx "</" (*? any) ">"))
-                    (goto-char (match-end 0)))))
+    (kbd "<leader>t") 'sgml-tag
+    (kbd "M-l") 'jump-out-of-tag)
 #+end_src
 ** Java
 #+begin_src emacs-lisp
