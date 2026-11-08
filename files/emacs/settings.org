@@ -246,7 +246,7 @@
 * Prettify Emacs
 ** Hide Minor Modes
 #+begin_src emacs-lisp
-  (pkg diminish :require t)
+  (defun diminish (mode) (push mode mode-line-collapse-minor-modes))
 #+end_src
 ** Font
 #+begin_src emacs-lisp
