@@ -1165,6 +1165,7 @@ align with previews
 ** Org
 *** Org-mode
 #+begin_src emacs-lisp
+  (pkg org)
   (after-load org-indent (diminish 'org-indent-mode))
   (defhook org-mode-hook
     (org-indent-mode)
