@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (setq package-enable-at-startup nil)
 
 ;; disable gc during startup and set to a higher number after

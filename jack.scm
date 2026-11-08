@@ -164,6 +164,7 @@
          "init.el"
          #~(with-output-to-file #$output
              (lambda ()
+               (display ";; -*- lexical-binding: t -*-\n")
                (for-each
                 write
                 '( ;; Override later defvar of `using-guix' in init.el.
