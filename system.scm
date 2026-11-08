@@ -16,7 +16,7 @@
 (use-service-modules desktop ssh dbus shepherd avahi pm cups sound sysctl
                      admin linux networking docker virtualization)
 (use-package-modules vim shells ssh version-control wm linux libusb nfs
-                     package-management firmware dns admin admin)
+                     package-management firmware dns admin admin games)
 
 (define-public (make-system host-name file-systems)
   (operating-system
@@ -163,8 +163,9 @@
                      ("jack" ,my-key))))))
       (service cups-service-type (cups-configuration (web-interface? #t)))
       (service tlp-service-type)
-      (simple-service 'my-udev-rules udev-service-type
-                      (list libmtp brightnessctl qmk-udev-rules))
+      (simple-service
+       'my-udev-rules udev-service-type
+       (list libmtp brightnessctl qmk-udev-rules steam-devices-udev-rules))
 
       ;; The D-Bus clique.
       (service avahi-service-type)
