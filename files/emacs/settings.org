@@ -1829,6 +1829,11 @@ These variables are recommended by =lsp-mode= to increase performance.
       (evil-define-key 'normal map
         (kbd "q") (interactive-chain #'kill-compilation #'quit-window))))
 #+end_src
+* Autoinsert
+#+begin_src emacs-lisp
+  ;; TODO: configure this.
+  (auto-insert-mode)
+#+end_src
 * Pastebin Services
 #+begin_src emacs-lisp
   (pkg webpaste)
