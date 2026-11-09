@@ -1032,6 +1032,13 @@ align with previews
   	  ((8) 'rainbow-delimiters-depth-8-face)
   	  ((9) 'rainbow-delimiters-depth-9-face))))
 #+end_src
+** Emacs Lisp
+#+begin_src emacs-lisp
+  (defhook emacs-lisp-mode-hook
+    (flycheck-mode)
+    (outline-minor-mode)
+    (my/outline-set-comment ";;"))
+#+end_src
 ** Dart
 #+begin_src emacs-lisp
   (pkg dart-mode)
