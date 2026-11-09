@@ -54,6 +54,11 @@
   (require 'treesit)
   (setf treesit-enabled-modes t)
 #+end_src
+** Trust Manager
+#+begin_src emacs-lisp
+  (pkg trust-manager)
+  (trust-manager-mode)
+#+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
   (defun ensure-file (path)
