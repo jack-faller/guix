@@ -51,8 +51,6 @@
 ;; ** Concat Symbols
 (defun str (x)
   (if (symbolp x) (symbol-name x) x))
-(defun symcat (&rest symbols)
-  (intern (apply #'concat (mapcar #'str symbols))))
 ;; ** Case Change
 (defun capitalise-first (string)
   (string-join (list (upcase (substring string 0 1)) (downcase (substring string 1)))))
@@ -142,11 +140,11 @@
 ;; ** Toggle
 (defmacro interactive-toggle (var-name)
   "Define a toggle function for var-name and return it."
-  `(evil-define-command ,(symcat "toggle-" var-name) ()
+  `(evil-define-command ,(intern (concat "toggle-" (symbol-name var-name))) ()
      (setf ,var-name (not ,var-name))))
 ;; ** Defhook
 (defmacro defhook-named (name hook &rest body)
-  "Define (symcat NAME HOOK) as a function that runs BODY and attach it to HOOK.
+  "Define NAME as a function that runs BODY and attach it to HOOK.
   This form can be re-evaluated to redefine the hook."
   (declare (indent 2))
   `(progn
@@ -156,7 +154,7 @@
   "Define my/HOOK as a function that runs BODY and attach it to HOOK.
 This form can be re-evaluated to redefine the hook."
   (declare (indent 1))
-  `(defhook-named ,(symcat "my/" hook) ,hook ,@body))
+  `(defhook-named ,(intern (concat "my/" (symbol-name hook))) ,hook ,@body))
 ;; ** Mode Local
 (pkg mode-local :require t)
 ;; ** Act On Line
@@ -226,7 +224,7 @@ with the result."
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq-default evil-shift-width tab-width)
-(pkg smart-tabs-mode)
+;; (pkg smart-tabs-mode)
 (setf backward-delete-char-untabify-method 'all)
 (setq-default electric-indent-inhibit t)
 (setf backward-delete-char-untabify-method 'hungry)
@@ -292,8 +290,7 @@ with the result."
 (pkg gruvbox-theme :require t)
 (load-theme 'gruvbox-dark-hard t)
 ;; ** Start Screen (Dashboard)
-(pkg dashboard)
-(require 'dashboard)
+(pkg dashboard :require t)
 (setf initial-buffer-choice (lambda ()
                               (if (buffer-file-name)
                                   (current-buffer)
@@ -344,7 +341,7 @@ with the result."
 (define-key key-translation-map
   (kbd "DEL") (lambda (c) (kbd (if (eq evil-state 'insert) "DEL" "C-g"))))
 ;; ** Evil
-(setf
+(setq
  evil-want-keybinding nil
  evil-search-module 'evil-search
  evil-undo-system 'undo-redo ; Use native undo.
@@ -950,6 +947,7 @@ with the result."
   (flycheck-mode)
   (outline-minor-mode)
   (my/outline-set-comment ";;"))
+(setq-default flycheck-emacs-lisp-load-path 'inherit)
 ;; ** Dart
 (pkg dart-mode)
 ;; ** Scheme
@@ -1350,10 +1348,6 @@ with the result."
   (kbd "<leader>q") #'erc-quit-server)
 ;; ** C
 (after-load c-ts-mode
-  (smart-tabs-add-language-support c c-ts-mode-hook
-	((treesit-indent . c-ts-mode-indent-offset)
-	 (treesit-indent-region . c-ts-mode-indent-offset)))
-  (smart-tabs-insinuate 'c)
   (defhook c-ts-mode-hook
 	(eglot-ensure)))
 (evil-define-key '(normal insert) c-ts-mode-map
@@ -1380,10 +1374,6 @@ with the result."
    eglot-server-programs))
 ;; *** C++
 (after-load c++-ts-mode
-  (smart-tabs-add-language-support c++ c++-ts-mode-hook
-	((treesit-indent . c-ts-mode-indent-offset)
-	 (treesit-indent-region . c-ts-mode-indent-offset)))
-  (smart-tabs-insinuate 'c++)
   (defhook c++-ts-mode-hook
 	(eglot-ensure))
   (evil-define-key '(normal insert) c++-ts-mode-map
