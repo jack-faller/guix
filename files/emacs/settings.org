@@ -1144,6 +1144,27 @@ align with previews
 
 #+end_src
 ** Org
+*** Outline Mode
+#+begin_src emacs-lisp
+  (setf outline-minor-mode-highlight 'override)
+  (defun my/comment-outline-level (comment)
+    "Size of outline at point starting with COMMENT."
+    (save-excursion
+      (save-match-data
+        (search-forward-regexp outline-regexp)
+        (- (match-end 0) (match-beginning 0) (length comment) 1))))
+  (defun my/outline-set-comment (comment)
+    "Setup outline to accept \"COMMENT \\\\*+\" as a heading."
+    (setf outline-regexp (concat (regexp-quote comment) " \\*+"))
+    (setf outline-level (lambda () (my/comment-outline-level comment))))
+  ;; TODO: send this upstream to gruvbox.
+  (custom-set-faces
+   '(outline-1 ((t (:height 1.5))))
+   '(outline-2 ((t (:height 1.4))))
+   '(outline-3 ((t (:height 1.3))))
+   '(outline-4 ((t (:height 1.2))))
+   '(outline-5 ((t (:height 1.1)))))
+#+end_src
 *** Org-mode
 #+begin_src emacs-lisp
   (pkg org)
@@ -1181,11 +1202,6 @@ align with previews
    '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
    '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
    '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
-   '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
-   '(org-level-2 ((t (:inherit outline-2 :height 1.4))))
-   '(org-level-3 ((t (:inherit outline-3 :height 1.3))))
-   '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
-   '(org-level-5 ((t (:inherit outline-5 :height 1.1))))
    '(org-document-title ((t (:height 2.0)))))
   ;; Don't make text bigger after 8 levels.
   (setf org-cycle-level-faces nil)
