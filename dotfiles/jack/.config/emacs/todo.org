@@ -1,0 +1,24 @@
+TODO: maybe use set-message-functions to avoid long echo area messages that mess with ccm.
+TODO: set frame parameter alpha-background and use wal colours to have fancy rice. (Need to fix transparency on banner image.)
+TODO: see if pixel scroll precision mode can replace ccm.
+TODO: figure out how to set electric pairs for groups in minibuffer so they can be ds and cs-ed.
+
+TODO: fix M-hjkl bindings for org headings (they don't apply for some reason)
+
+TODO: turn off or fix shig in this html mode
+
+TODO: maybe switch ff-find-other-file to find-sibling-file and set find sibling file rules
+
+  ;; (todo (text "when emacs 29 comes out, try pixel-scroll-precision-mode to make this smooth enough to set globally"))
+  ;; (todo (text "maybe try to patch ccm functionality into emacs source code"))
+  ;; these should work on their own but produce jittery scrolling
+
+  ;; (hook 'buffer-face-mode-hook
+  ;;   (when (eq buffer-face-mode-face 'variable-pitch)
+  ;;     (setq-local
+  ;;      scroll-preserve-screen-position t
+  ;;      scroll-conservatively 0
+  ;;      maximum-scroll-margin 0.5
+  ;;      scroll-margin 99999)))
+
+TODO: see if adding a load of "after-load" makes start up faster

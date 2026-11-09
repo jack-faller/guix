@@ -158,36 +158,6 @@
       (".local/share/qutebrowser/userscripts/suppress.html" ,(f "suppress.html"))
       (".config/kitty/bell.oga"
        ,(file-append sound-theme-freedesktop "/share/sounds/freedesktop/stereo/bell.oga"))
-      (".config/emacs/early-init.el" ,(f "emacs/early-init.el"))
-      (".config/emacs/init.el"
-       ,(computed-file
-         "init.el"
-         #~(with-output-to-file #$output
-             (lambda ()
-               (display ";; -*- lexical-binding: t -*-\n")
-               (for-each
-                write
-                '( ;; Override later defvar of `using-guix' in init.el.
-                  (defvar using-guix t)
-                  (setf insert-directory-program
-                        #$(file-append coreutils "/bin/ls"))
-                  (load-file #$(f "emacs/init.el"))
-                  (load-file
-                   #$(computed-file
-                      "settings.el"
-                      (with-imported-modules '((guix build utils))
-                        #~(begin
-                            (use-modules (guix build utils))
-                            (invoke
-                             (string-append #$emacs "/bin/emacs")
-                             "--no-init-file" "--batch" "--eval"
-                             (with-output-to-string
-                               (lambda ()
-                                 (write `(progn (require 'org)
-                                                (org-babel-tangle-file
-                                                 ,#$(f "emacs/settings.org")
-                                                 ,#$output
-                                                 "emacs-lisp"))))))))))))))))
       (".config/cargo/cargo.toml"
        ,(computed-file
          "cargo.toml"
